@@ -10,7 +10,8 @@ local eventNames = {
     "MemoryResult",
     "StartClassicMiniGame",
     "ClassicResult",
-    "CancelMiniGame"
+    "CancelMiniGame",
+    "MiniGameComplete" -- This is needed for the server to tell the client the multi-stage game is over.
 }
 
 for _, eventName in ipairs(eventNames) do

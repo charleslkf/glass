@@ -5,6 +5,8 @@ local Workspace = game:GetService("Workspace")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Players = game:GetService("Players")
 
+local GameStateManager = require(ServerScriptService:WaitForChild("GameStateManager"))
+
 -- Events
 local machineCompletedEvent = ReplicatedStorage:WaitForChild("MachineCompletedEvent")
 local startSkillCheckEvent = ReplicatedStorage:WaitForChild("StartSkillCheckMiniGame")
@@ -14,37 +16,64 @@ local memoryResultEvent = ReplicatedStorage:WaitForChild("MemoryResult")
 local startClassicEvent = ReplicatedStorage:WaitForChild("StartClassicMiniGame")
 local classicResultEvent = ReplicatedStorage:WaitForChild("ClassicResult")
 local cancelEvent = ReplicatedStorage:WaitForChild("CancelMiniGame")
+local miniGameCompleteEvent = ReplicatedStorage:WaitForChild("MiniGameComplete")
 
 local MACHINE_POSITIONS = { Vector3.new(0,3,20), Vector3.new(20,3,0), Vector3.new(0,3,-20), Vector3.new(-20,3,0), Vector3.new(15,3,15), Vector3.new(-15,3,-15) }
-local CLASSIC_PUZZLES = { { {1,"Bright red",1,1},{1,"Bright red",8,8}, {2,"Bright green",1,3},{2,"Bright green",6,3}, {3,"Bright blue",1,6},{3,"Bright blue",8,6}, {4,"Bright yellow",2,2},{4,"Bright yellow",2,8}, {5,"Dark orange",3,4},{5,"Dark orange",7,4}, {6,"Bright violet",4,2},{6,"Bright violet",4,7} } }
+local CLASSIC_PUZZLES = {
+    {
+        {1,"Bright red",1,1},{1,"Bright red",8,8},
+        {2,"Bright green",1,3},{2,"Bright green",6,3},
+        {3,"Bright blue",1,6},{3,"Bright blue",8,6},
+        {4,"Bright yellow",2,2},{4,"Bright yellow",2,8},
+        {5,"Dark orange",3,4},{5,"Dark orange",7,4},
+        {6,"Bright violet",4,2},{6,"Bright violet",4,7},
+    }
+}
 local COOLDOWN_DURATION = 25
+local SKILL_CHECKS_NEEDED = 6
+local MEMORY_GAMES_NEEDED = 6
 local MAX_INTERACTION_DISTANCE = 20
 
--- State tracking
+-- State tracking tables
+local machineProgress = {}
 local activePlayers = {} -- [player] = machineInstance
 
+local function triggerNewMemoryGame(player, machine, progress)
+    local gridSize = 3; local patternLength = 5
+    local pattern = {}; for i = 1, patternLength do table.insert(pattern, math.random(1, gridSize * gridSize)) end
+    startMemoryEvent:FireClient(player, machine, gridSize, pattern, progress, MEMORY_GAMES_NEEDED)
+end
+
 local function resetPlayerProgress(player)
+    if not player or not activePlayers[player] then return end
+    local machine = activePlayers[player]
+    if machine and machineProgress[machine] and machineProgress[machine][player] then
+        machineProgress[machine][player] = 0
+    end
     if player then activePlayers[player] = nil end
 end
 
 local function completeMachine(machine, player)
+    miniGameCompleteEvent:FireClient(player)
+    task.wait(1.5)
     machineCompletedEvent:Fire()
     machine.ProximityPrompt.Enabled = false; machine.BrickColor = BrickColor.new("Lime green"); task.wait(COOLDOWN_DURATION); machine.ProximityPrompt.Enabled = true; machine.BrickColor = BrickColor.new("Medium stone grey")
 end
 
 local function createMachine(position, machineType)
     local machine = Instance.new("Part"); machine.Size = Vector3.new(5, 6, 3); machine.Position = position; machine.Anchored = true; machine.BrickColor = BrickColor.new("Medium stone grey"); machine.Material = Enum.Material.Metal; machine.Name = "Machine"; machine:SetAttribute("Type", machineType); machine.Parent = Workspace
+    machineProgress[machine] = {}
     local prompt = Instance.new("ProximityPrompt"); prompt.ActionText = "Repair Machine"; prompt.ObjectText = "Machine (" .. machineType .. ")"; prompt.HoldDuration = 0; prompt.Enabled = true; prompt.RequiresLineOfSight = false; prompt.Parent = machine
 
     prompt.Triggered:Connect(function(player)
         if activePlayers[player] then return end
         activePlayers[player] = machine
-
+        resetPlayerProgress(player)
         local mType = machine:GetAttribute("Type")
         if mType == "SkillCheck" then
-            startSkillCheckEvent:FireClient(player, machine)
+            startSkillCheckEvent:FireClient(player, machine, 0, SKILL_CHECKS_NEEDED)
         elseif mType == "Memory" then
-            startMemoryEvent:FireClient(player, machine)
+            triggerNewMemoryGame(player, machine, 0)
         elseif mType == "Classic" then
             local puzzle = CLASSIC_PUZZLES[math.random(1, #CLASSIC_PUZZLES)]
             startClassicEvent:FireClient(player, machine, puzzle)
@@ -52,18 +81,43 @@ local function createMachine(position, machineType)
     end)
 end
 
--- Event Listeners (now much simpler)
-local function onResult(player, machine, wasSuccessful)
+-- Event Listeners
+skillCheckResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
     if activePlayers[player] ~= machine then return end
+    if not machineProgress[machine][player] then machineProgress[machine][player] = 0 end
     if wasSuccessful then
-        completeMachine(machine, player)
+        machineProgress[machine][player] += 1
+        local currentProgress = machineProgress[machine][player]
+        if currentProgress >= SKILL_CHECKS_NEEDED then
+            completeMachine(machine, player); resetPlayerProgress(player)
+        else
+            task.wait(0.5); startSkillCheckEvent:FireClient(player, machine, currentProgress, SKILL_CHECKS_NEEDED)
+        end
+    else
+        task.wait(0.5); startSkillCheckEvent:FireClient(player, machine, machineProgress[machine][player], SKILL_CHECKS_NEEDED)
     end
-    resetPlayerProgress(player)
-end
+end)
 
-skillCheckResultEvent.OnServerEvent:Connect(onResult)
-memoryResultEvent.OnServerEvent:Connect(onResult)
-classicResultEvent.OnServerEvent:Connect(onResult)
+memoryResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
+    if activePlayers[player] ~= machine then return end
+    if not machineProgress[machine][player] then machineProgress[machine][player] = 0 end
+    if wasSuccessful then
+        machineProgress[machine][player] += 1
+        local currentProgress = machineProgress[machine][player]
+        if currentProgress >= MEMORY_GAMES_NEEDED then
+            completeMachine(machine, player); resetPlayerProgress(player)
+        else
+            task.wait(0.5); triggerNewMemoryGame(player, machine, currentProgress)
+        end
+    else
+        task.wait(0.5); triggerNewMemoryGame(player, machine, machineProgress[machine][player])
+    end
+end)
+
+classicResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
+    if activePlayers[player]~=machine or not wasSuccessful then return end
+    completeMachine(machine, player); resetPlayerProgress(player)
+end)
 
 -- Initialize machines
 local machineTypes = {"SkillCheck", "Memory", "Classic"}
