@@ -10,8 +10,7 @@ local eventNames = {
     "MemoryResult",
     "StartClassicMiniGame",
     "ClassicResult",
-    "CancelMiniGame",
-    "MiniGameComplete"
+    "CancelMiniGame"
 }
 
 for _, eventName in ipairs(eventNames) do
