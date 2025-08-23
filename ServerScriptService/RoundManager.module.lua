@@ -95,6 +95,7 @@ local function startRound()
 
         if roundInProgress then
             status.Value = string.format("Level: %d | Time: %d | Survivors: %d", currentLevel, timeLeft, survivorsAlive)
+            print("DEBUG (Server): Round loop running. Time left: " .. timeLeft)
             timeLeft = timeLeft - 1
             task.wait(1)
         end
