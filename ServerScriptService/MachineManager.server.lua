@@ -6,9 +6,9 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Players = game:GetService("Players")
 
 local GameStateManager = require(ServerScriptService:WaitForChild("GameStateManager"))
+local RoundManager = require(ServerScriptService:WaitForChild("RoundManager"))
 
 -- Events
-local machineCompletedEvent = ReplicatedStorage:WaitForChild("MachineCompletedEvent")
 local startSkillCheckEvent = ReplicatedStorage:WaitForChild("StartSkillCheckMiniGame")
 local skillCheckResultEvent = ReplicatedStorage:WaitForChild("SkillCheckResult")
 local startMemoryEvent = ReplicatedStorage:WaitForChild("StartMemoryMiniGame")
@@ -52,7 +52,7 @@ end
 local function completeMachine(machine, player)
     miniGameCompleteEvent:FireClient(player)
     task.wait(1.5)
-    machineCompletedEvent:Fire()
+    RoundManager:AddTime(5)
     machine.ProximityPrompt.Enabled = false; machine.BrickColor = BrickColor.new("Lime green"); task.wait(COOLDOWN_DURATION); machine.ProximityPrompt.Enabled = true; machine.BrickColor = BrickColor.new("Medium stone grey")
 end
 
