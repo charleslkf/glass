@@ -37,7 +37,9 @@ local statusValue = ReplicatedStorage:WaitForChild("Status")
 
 -- Function to update the label
 local function updateStatus()
-    statusLabel.Text = statusValue.Value
+    local newText = statusValue.Value
+    statusLabel.Text = newText
+    print("DEBUG (UI): StatusLabel text set to: '" .. tostring(newText) .. "'")
 end
 
 -- Listen for changes and set initial value
