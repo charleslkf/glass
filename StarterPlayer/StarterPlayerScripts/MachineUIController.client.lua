@@ -98,14 +98,36 @@ cancelEvent.OnClientEvent:Connect(closeAllGames)
 miniGameCompleteEvent.OnClientEvent:Connect(function() print("Client received MiniGameComplete signal."); closeAllGames() end)
 
 RunService.RenderStepped:Connect(function()
-    if isGameActive and currentMachine and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        local distance = (player.Character.HumanoidRootPart.Position - currentMachine.Position).Magnitude
-        if distance > MAX_INTERACTION_DISTANCE then
-            print("Player moved too far away. Closing game.")
-            cancelEvent:FireServer(currentMachine) -- Inform the server
-            closeAllGames() -- Close UI locally
+    if isGameActive and currentMachine then
+        local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if not rootPart then
+            return -- Exit if player character/rootpart is gone
+        end
+
+        -- Defensively check if the machine instance is still valid before using it
+        if typeof(currentMachine) ~= "Instance" or not currentMachine.Parent then
+            print("RenderStepped: currentMachine is no longer valid, closing game.")
+            closeAllGames()
+            return
+        end
+
+        -- Use a protected call (pcall) to safely calculate distance, preventing crashes
+        local success, distanceOrError = pcall(function()
+            return (rootPart.Position - currentMachine.Position).Magnitude
+        end)
+
+        if success then
+            if distanceOrError > MAX_INTERACTION_DISTANCE then
+                print("Player moved too far away. Closing game.")
+                cancelEvent:FireServer(currentMachine)
+                closeAllGames()
+            end
+        else
+            -- If pcall failed, the machine was likely destroyed mid-calculation.
+            print("Error calculating distance (machine likely destroyed):", distanceOrError)
+            closeAllGames()
         end
     end
 end)
 
-print("MachineUIController initialized for all machine types.")
+print("MachineUIController initialized with defensive RenderStepped.")

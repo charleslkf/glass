@@ -33,12 +33,20 @@ local function triggerNewMemoryGame(player, machine, progress)
 end
 
 local function resetPlayerProgress(player)
-    if not player or not activePlayers[player] then return end
+    if not player or not activePlayers[player] then
+        print("DEBUG: resetPlayerProgress called for player " .. tostring(player) .. " but they were not in activePlayers.")
+        return
+    end
+
     local machine = activePlayers[player]
     if machine and machineProgress[machine] and machineProgress[machine][player] then
         machineProgress[machine][player] = 0
     end
-    if player then activePlayers[player] = nil end
+
+    if player then
+        activePlayers[player] = nil
+        print("SUCCESS: Player " .. player.Name .. " has been reset and can now use other machines.")
+    end
 end
 
 local function completeMachine(machine, player)

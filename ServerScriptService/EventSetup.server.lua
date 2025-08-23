@@ -1,25 +1,31 @@
 -- ServerScriptService/EventSetup.server.lua
--- This script runs once on the server to create the necessary RemoteEvents for mini-games.
+
+-- This script creates all the RemoteEvents needed for the mini-games.
+-- It ensures that they exist before any other script tries to access them.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local eventNames = {
+    -- For Skill Check Mini-Game
     "StartSkillCheckMiniGame",
     "SkillCheckResult",
+
+    -- For Memory Mini-Game
     "StartMemoryMiniGame",
     "MemoryResult",
-    "StartClassicMiniGame",
-    "ClassicResult",
-    "CancelMiniGame",
-    "MiniGameComplete" -- This is needed for the server to tell the client the multi-stage game is over.
+
+    -- General Mini-Game Events
+    "CancelMiniGame",       -- Fired by client when they walk away
+    "MiniGameComplete",     -- Fired by server when a player fully completes a machine's objectives
+    "MachineCompletedEvent" -- Fired by MachineManager when a machine is completed, listened to by GameStateManager
 }
 
-for _, eventName in ipairs(eventNames) do
-    if not ReplicatedStorage:FindFirstChild(eventName) then
-        local remoteEvent = Instance.new("RemoteEvent")
-        remoteEvent.Name = eventName
-        remoteEvent.Parent = ReplicatedStorage
-        print("Created RemoteEvent: " .. eventName)
+for _, name in ipairs(eventNames) do
+    if not ReplicatedStorage:FindFirstChild(name) then
+        local event = Instance.new("RemoteEvent")
+        event.Name = name
+        event.Parent = ReplicatedStorage
+        print("Created RemoteEvent: " .. name)
     end
 end
 
