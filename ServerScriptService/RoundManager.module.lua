@@ -32,6 +32,12 @@ local function startRound()
 
     local players = Players:GetPlayers()
 
+    -- Check if there are any players before starting
+    if #players == 0 then
+        print("WARNING: startRound called with 0 players. Aborting round.")
+        return "ABORTED"
+    end
+
     -- Assign roles
     local survivorRoles = {"Survivor", "Stunner", "Helper"}
     local killer = players[math.random(1, #players)]
@@ -95,7 +101,6 @@ local function startRound()
 
         if roundInProgress then
             status.Value = string.format("Level: %d | Time: %d | Survivors: %d", currentLevel, timeLeft, survivorsAlive)
-            print("DEBUG (Server): Round loop running. Time left: " .. timeLeft)
             timeLeft = timeLeft - 1
             task.wait(1)
         end
@@ -161,10 +166,14 @@ function RoundManager:Start()
                     status.Value = "Survivors have won the level! Proceeding to the next."
                     task.wait(5)
                 end
-            else -- Killer wins
+            elseif roundOutcome == "KILLER_WIN" then
                 status.Value = "The Killer has won. The game will now reset."
                 task.wait(10)
                 GameStateManager:ResetGame()
+                gameActive = false
+            else -- Handle ABORTED or any other unexpected outcome
+                status.Value = "Round ended unexpectedly. Returning to lobby."
+                task.wait(5)
                 gameActive = false
             end
         end
