@@ -34,7 +34,6 @@ end
 
 local function resetPlayerProgress(player)
     if not player or not activePlayers[player] then
-        print("DEBUG: resetPlayerProgress called for player " .. tostring(player) .. " but they were not in activePlayers.")
         return
     end
 
