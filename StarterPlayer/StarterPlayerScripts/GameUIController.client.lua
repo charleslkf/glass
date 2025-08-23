@@ -21,11 +21,14 @@ local statusLabel = Instance.new("TextLabel")
 statusLabel.Name = "StatusLabel"
 statusLabel.Size = UDim2.new(0.8, 0, 0.1, 0) -- 80% of screen width, 10% of screen height
 statusLabel.Position = UDim2.new(0.1, 0, 0.02, 0) -- Centered at the top
-statusLabel.BackgroundTransparency = 1
+statusLabel.ZIndex = 2
+statusLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+statusLabel.BackgroundTransparency = 0.5 -- Semi-transparent black background
 statusLabel.Font = Enum.Font.SourceSansBold
-statusLabel.TextSize = 24
 statusLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+statusLabel.TextScaled = true -- Scale text to fit label
 statusLabel.TextStrokeTransparency = 0 -- Black outline
+statusLabel.TextTransparency = 0 -- Ensure text is not transparent
 statusLabel.Text = "Loading..."
 statusLabel.Parent = screenGui
 
