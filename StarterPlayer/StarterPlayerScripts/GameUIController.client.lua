@@ -1,0 +1,43 @@
+-- StarterPlayer/StarterPlayerScripts/GameUIController.client.lua
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Get or create the ScreenGui
+local screenGui = playerGui:FindFirstChild("GameStatusGui")
+if not screenGui then
+    screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "GameStatusGui"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = playerGui
+end
+
+-- Create the status label
+local statusLabel = Instance.new("TextLabel")
+statusLabel.Name = "StatusLabel"
+statusLabel.Size = UDim2.new(0.8, 0, 0.1, 0) -- 80% of screen width, 10% of screen height
+statusLabel.Position = UDim2.new(0.1, 0, 0.02, 0) -- Centered at the top
+statusLabel.BackgroundTransparency = 1
+statusLabel.Font = Enum.Font.SourceSansBold
+statusLabel.TextSize = 24
+statusLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+statusLabel.TextStrokeTransparency = 0 -- Black outline
+statusLabel.Text = "Loading..."
+statusLabel.Parent = screenGui
+
+-- Get the status value from ReplicatedStorage
+local statusValue = ReplicatedStorage:WaitForChild("Status")
+
+-- Function to update the label
+local function updateStatus()
+    statusLabel.Text = statusValue.Value
+end
+
+-- Listen for changes and set initial value
+statusValue.Changed:Connect(updateStatus)
+updateStatus() -- Set the initial text
+
+print("GameUIController initialized.")

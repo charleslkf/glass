@@ -34,7 +34,6 @@ end
 
 local function resetPlayerProgress(player)
     if not player or not activePlayers[player] then
-        print("DEBUG: resetPlayerProgress called for player " .. tostring(player) .. " but they were not in activePlayers.")
         return
     end
 
@@ -136,3 +135,8 @@ while task.wait(1) do
         end
     end
 end
+
+-- Start the main game loop
+task.spawn(function()
+    RoundManager:Start()
+end)
