@@ -2,41 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.0.0] - 2025-08-23
+
+This marks the first stable release of the game. It includes a core gameplay loop and two fully functional mini-games.
 
 ### Added
-- **Initial Game Framework:**
-    - `GameStateManager` to track level progression.
-    - `RoundManager` for the core game loop, including intermissions, rounds, and win/loss conditions.
-    - `PlayerManager` to handle player health and roles.
-    - `EventSetup` to create all necessary `RemoteEvent`s for mini-game communication.
-- **Core Gameplay Mechanics:**
-    - Role assignment system for "Killer", "Survivor", "Stunner", and "Helper".
-    - Level progression from 1 to 10.
-    - Round timer that can be modified by in-game events (machine completion, survivor elimination).
-    - Post-round "gate open" phase.
-- **Machine Mini-Games:**
-    - A `MachineManager` that spawns three different types of interactive machines ("SkillCheck", "Memory", "Classic").
-    - A client-side `MachineUIController` to handle the UI for all mini-games.
-    - Implementation of three unique mini-games.
-    - "Walk away to cancel" feature for all mini-games, allowing players to disengage.
-    - Progress indicators ("X / 6") for multi-stage mini-games.
 
-### Changed
-- **Skill Check Game:**
-    - Increased required successes from 4 to 6.
-    - Slowed down the bar movement speed for easier gameplay.
-    - Added a 1.5-second delay before the mini-game starts.
-    - Failure no longer reduces progress.
-- **Memory Game:**
-    - Changed to a multi-stage challenge requiring 6 successes.
-    - Pattern length is now fixed at 5 tiles.
-- **Classic Machine Game:**
-    - Redesigned from a 'click-click' puzzle to a 'click-and-drag' mechanic.
-    - Puzzle pairs now include matching colors.
-    - Grid size increased from 6x6 to 8x8 for more spacious puzzles.
+- **Core Game Framework:**
+    - `GameStateManager`: Tracks overall game progression through "days" or levels.
+    - `RoundManager`: Manages the main game loop, including intermission, killer selection, and round timers.
+    - `PlayerManager`: Assigns health to players based on their role (Killer, Survivor, etc.).
+    - `EventSetup`: Reliably creates all necessary `RemoteEvent` instances for client-server communication.
+- **Machine & Mini-Game System:**
+    - `MachineManager`: A server-side script to control machine spawning and mini-game logic.
+    - `MachineUIController`: A client-side script to render the UI and handle player input for all mini-games.
+- **Two Complete Mini-Games:**
+    - **Skill Check:** A timing-based challenge where the player must stop a moving bar in a target zone.
+    - **Memory Game:** A pattern-replication challenge where the player must remember and repeat a sequence of highlighted tiles.
+- **Gameplay Features:**
+    - Players can walk away from a machine to safely cancel a mini-game in progress.
+    - Mini-games require multiple successful stages to complete, with progress displayed on the UI.
+
+### Removed
+
+- **"Classic" Mini-Game:** An 8x8 grid-based, click-and-drag puzzle was initially developed but was completely removed from both client and server scripts due to a persistent, unresolvable bug that caused client-side crashes.
 
 ### Fixed
-- Fixed a bug where `ProximityPrompt` events would not fire due to a Roblox Studio environment issue (resolved by reinstalling Studio).
-- Fixed a client-side error `invalid argument #1 (Vector2 expected, got Vector3)` in the Classic Machine's input handling.
-- Fixed a bug where the client would close the UI after each successful stage of a multi-stage mini-game instead of waiting for the final completion signal from the server.
+
+- **Critical Client-Side Crash:** Resolved a recurring `attempt to compare nil < number` error that caused severe instability. The fix involved implementing a defensive `pcall` (protected call) in the `RenderStepped` distance-checking function to gracefully handle race conditions where a machine object might be destroyed mid-frame.
+- **Player State Logic Bug:** Fixed a server-side bug that prevented players from using a second machine after successfully completing a first one. The fix ensures the player's "active" status is correctly reset.
+- **Initial `ProximityPrompt` Failures:** Addressed an early issue where machine prompts would not work, which was traced to a local Roblox Studio environment problem.
