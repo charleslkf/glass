@@ -13,22 +13,10 @@ local startSkillCheckEvent = ReplicatedStorage:WaitForChild("StartSkillCheckMini
 local skillCheckResultEvent = ReplicatedStorage:WaitForChild("SkillCheckResult")
 local startMemoryEvent = ReplicatedStorage:WaitForChild("StartMemoryMiniGame")
 local memoryResultEvent = ReplicatedStorage:WaitForChild("MemoryResult")
-local startClassicEvent = ReplicatedStorage:WaitForChild("StartClassicMiniGame")
-local classicResultEvent = ReplicatedStorage:WaitForChild("ClassicResult")
 local cancelEvent = ReplicatedStorage:WaitForChild("CancelMiniGame")
 local miniGameCompleteEvent = ReplicatedStorage:WaitForChild("MiniGameComplete")
 
 local MACHINE_POSITIONS = { Vector3.new(0,3,20), Vector3.new(20,3,0), Vector3.new(0,3,-20), Vector3.new(-20,3,0), Vector3.new(15,3,15), Vector3.new(-15,3,-15) }
-local CLASSIC_PUZZLES = {
-    {
-        {1,"Bright red",1,1},{1,"Bright red",8,8},
-        {2,"Bright green",1,3},{2,"Bright green",6,3},
-        {3,"Bright blue",1,6},{3,"Bright blue",8,6},
-        {4,"Bright yellow",2,2},{4,"Bright yellow",2,8},
-        {5,"Dark orange",3,4},{5,"Dark orange",7,4},
-        {6,"Bright violet",4,2},{6,"Bright violet",4,7},
-    }
-}
 local COOLDOWN_DURATION = 25
 local SKILL_CHECKS_NEEDED = 6
 local MEMORY_GAMES_NEEDED = 6
@@ -68,15 +56,16 @@ local function createMachine(position, machineType)
     prompt.Triggered:Connect(function(player)
         if activePlayers[player] then return end
         activePlayers[player] = machine
-        resetPlayerProgress(player)
+
+        -- Manually reset progress for this player at this machine, don't call resetPlayerProgress here
+        if not machineProgress[machine] then machineProgress[machine] = {} end
+        machineProgress[machine][player] = 0
+
         local mType = machine:GetAttribute("Type")
         if mType == "SkillCheck" then
             startSkillCheckEvent:FireClient(player, machine, 0, SKILL_CHECKS_NEEDED)
         elseif mType == "Memory" then
             triggerNewMemoryGame(player, machine, 0)
-        elseif mType == "Classic" then
-            local puzzle = CLASSIC_PUZZLES[math.random(1, #CLASSIC_PUZZLES)]
-            startClassicEvent:FireClient(player, machine, puzzle)
         end
     end)
 end
@@ -114,15 +103,18 @@ memoryResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
     end
 end)
 
-classicResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
-    if activePlayers[player]~=machine or not wasSuccessful then return end
-    completeMachine(machine, player); resetPlayerProgress(player)
+cancelEvent.OnServerEvent:Connect(function(player, machine)
+    -- This event is fired by the client if they walk away.
+    if activePlayers[player] == machine then
+        print("Server received cancel event for player " .. player.Name .. ". Resetting progress.")
+        resetPlayerProgress(player)
+    end
 end)
 
 -- Initialize machines
-local machineTypes = {"SkillCheck", "Memory", "Classic"}
+local machineTypes = {"SkillCheck", "Memory"}
 for _, pos in ipairs(MACHINE_POSITIONS) do createMachine(pos, machineTypes[math.random(1,#machineTypes)]) end
-print("MachineManager initialized for all machine types.")
+print("MachineManager initialized, now with fewer machine types.")
 
 -- Background loop
 while task.wait(1) do

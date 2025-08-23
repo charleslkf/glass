@@ -14,10 +14,10 @@ local startSkillCheckEvent = ReplicatedStorage:WaitForChild("StartSkillCheckMini
 local skillCheckResultEvent = ReplicatedStorage:WaitForChild("SkillCheckResult")
 local startMemoryEvent = ReplicatedStorage:WaitForChild("StartMemoryMiniGame")
 local memoryResultEvent = ReplicatedStorage:WaitForChild("MemoryResult")
-local startClassicEvent = ReplicatedStorage:WaitForChild("StartClassicMiniGame")
-local classicResultEvent = ReplicatedStorage:WaitForChild("ClassicResult")
 local cancelEvent = ReplicatedStorage:WaitForChild("CancelMiniGame")
 local miniGameCompleteEvent = ReplicatedStorage:WaitForChild("MiniGameComplete")
+
+local MAX_INTERACTION_DISTANCE = 12
 
 -- UI Creation
 local screenGui = playerGui:FindFirstChild("MachineGUIs") or Instance.new("ScreenGui", playerGui); screenGui.Name = "MachineGUIs"; screenGui.ResetOnSpawn = false
@@ -34,21 +34,16 @@ local memoryFrame = Instance.new("Frame", mainFrame); memoryFrame.Name = "Memory
 local memoryGrid = Instance.new("UIGridLayout", memoryFrame); memoryGrid.Name = "MemoryGridLayout"; memoryGrid.CellPadding = UDim2.new(0, 5, 0, 5)
 local memoryStatus = Instance.new("TextLabel", memoryFrame); memoryStatus.Name = "StatusLabel"; memoryStatus.Size = UDim2.new(1, 0, 0.1, 0); memoryStatus.Position = UDim2.new(0, 0, 0.9, 0); memoryStatus.BackgroundColor3 = Color3.fromRGB(60, 60, 60); memoryStatus.TextColor3 = Color3.fromRGB(255, 255, 255); memoryStatus.Font = Enum.Font.SourceSansBold
 
-local classicFrame = Instance.new("Frame", mainFrame); classicFrame.Name = "ClassicMachineFrame"; classicFrame.Size = UDim2.new(0.5, 0, 0.8, 0); classicFrame.Position = UDim2.new(0.25, 0, 0.1, 0); classicFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40); classicFrame.BorderColor3 = Color3.fromRGB(200, 200, 200); classicFrame.BorderSizePixel = 2; classicFrame.Visible = false
-local classicGrid = Instance.new("UIGridLayout", classicFrame); classicGrid.Name = "ClassicGridLayout"; classicGrid.CellPadding = UDim2.new(0, 0, 0, 0); classicGrid.CellSize = UDim2.new(1/8, 0, 1/8, 0);
-local classicStatus = Instance.new("TextLabel", classicFrame); classicStatus.Name = "StatusLabel"; classicStatus.Size = UDim2.new(1, 0, 0.1, 0); classicStatus.Position = UDim2.new(0, 0, -0.1, 0); classicStatus.BackgroundColor3 = Color3.fromRGB(60, 60, 60); classicStatus.TextColor3 = Color3.fromRGB(255, 255, 255); classicStatus.Text = "Connect the matching pairs!"; classicStatus.Font = Enum.Font.SourceSansBold
-
 -- --- Logic ---
-local currentMachine = nil; local isGameActive = false
-local renderSteppedConnection = nil
+local currentMachine = nil
+local isGameActive = false
 
 local function closeAllGames()
     if not isGameActive then return end
     isGameActive = false
+    currentMachine = nil
     skillCheckFrame.Visible = false
     memoryFrame.Visible = false
-    classicFrame.Visible = false
-    if renderSteppedConnection then renderSteppedConnection:Disconnect(); renderSteppedConnection = nil end
 end
 
 local function runSkillCheck(machine, currentProgress, neededProgress)
@@ -97,48 +92,18 @@ local function runMemoryGame(machine, gridSize, pattern, currentProgress, needed
     end
 end
 
-local function runClassicGame(machine, puzzle)
-    isGameActive = true; currentMachine = machine
-    for _, child in ipairs(classicFrame:GetChildren()) do if not child:IsA("UILayout") and not child:IsA("TextLabel") then child:Destroy() end end
-    classicFrame.Visible = true; classicStatus.Text = "Connect the matching pairs!"
-    local GRID_SIZE = 8; classicGrid.CellSize = UDim2.new(1/GRID_SIZE,0,1/GRID_SIZE,0);
-    local grid = {}; for r=1,GRID_SIZE do grid[r]={} end
-    for _, nodeInfo in ipairs(puzzle) do
-        local num, color, r, c = nodeInfo[1], nodeInfo[2], nodeInfo[3], nodeInfo[4]
-        local nodeLabel=Instance.new("TextLabel",classicFrame); nodeLabel.Name="Node_"..r.."_"..c; nodeLabel.Size=UDim2.new(1/GRID_SIZE,0,1/GRID_SIZE,0); nodeLabel.Position=UDim2.new((c-1)/GRID_SIZE,0,(r-1)/GRID_SIZE,0); nodeLabel.Text=tostring(num); nodeLabel.Font=Enum.Font.SourceSansBold; nodeLabel.TextScaled=true; nodeLabel.TextColor3=Color3.new(1,1,1); nodeLabel.BackgroundColor3=BrickColor.new(color).Color; nodeLabel.ZIndex=3
-        grid[r][c]={node={label=nodeLabel,r=r,c=c,num=num,color=color,isEndpoint=true}}
-    end
-    local isDrawing,activePath,activeColor,pairsConnected,pathElements,conns={},false,{},nil,0,{},{}
-    local function cleanup() for _,c in ipairs(conns) do c:Disconnect() end end
-    local function getCell(pos) if not classicFrame.Visible then return end; local rel=Vector2.new(pos.X, pos.Y)-classicFrame.AbsolutePosition;local c=math.floor(rel.X/(classicFrame.AbsoluteSize.X/GRID_SIZE))+1;local r=math.floor(rel.Y/(classicFrame.AbsoluteSize.Y/GRID_SIZE))+1;if r>0 and r<=GRID_SIZE and c>0 and c<=GRID_SIZE then return r,c end end
-    conns[1]=UserInputService.InputBegan:Connect(function(input,gp) if gp or not isGameActive or not classicFrame.Visible or input.UserInputType~=Enum.UserInputType.MouseButton1 then return end;local r,c=getCell(input.Position);if r and grid[r][c] and grid[r][c].node and grid[r][c].node.isEndpoint and not grid[r][c].path then isDrawing=true;activeColor=grid[r][c].node.color;table.insert(activePath,{r,c}) end end)
-    conns[2]=UserInputService.InputChanged:Connect(function(input,gp) if gp or not isDrawing then return end;local r,c=getCell(input.Position);if r then local lastPos=activePath[#activePath];if lastPos and (r~=lastPos[1] or c~=lastPos[2]) and (math.abs(r-lastPos[1])+math.abs(c-lastPos[2])==1) then if not grid[r][c] then table.insert(activePath,{r,c});local p=Instance.new("Frame",classicFrame);p.Size=UDim2.new(1/GRID_SIZE,0,1/GRID_SIZE,0);p.Position=UDim2.new((c-1)/GRID_SIZE,0,(r-1)/GRID_SIZE,0);p.BackgroundColor3=BrickColor.new(activeColor).Color;p.ZIndex=2;table.insert(pathElements,p)elseif #activePath>1 and r==activePath[#activePath-1][1] and c==activePath[#activePath-1][2] then table.remove(activePath);local p=table.remove(pathElements);if p then p:Destroy() end end end end end)
-    conns[3]=UserInputService.InputEnded:Connect(function(input,gp)
-        if gp or not isDrawing or input.UserInputType~=Enum.UserInputType.MouseButton1 then return end
-        local r,c=getCell(input.Position);local success=false
-        if r and grid[r][c] and grid[r][c].node and grid[r][c].node.isEndpoint then
-            local startNode=grid[activePath[1][1]][activePath[1][2]].node;local endNode=grid[r][c].node
-            if startNode~=endNode and startNode.color==endNode.color then
-                for _,pos in ipairs(activePath) do grid[pos[1]][pos[2]]={path=activeColor} end
-                for _,el in ipairs(pathElements) do el.Name="Path" end; pairsConnected+=1; success=true
-                if pairsConnected==6 then classicStatus.Text="Mission Completed!";classicResultEvent:FireServer(currentMachine,true);closeAllGames();cleanup() end
-            end
-        end
-        if not success then for _,p in ipairs(pathElements) do p:Destroy() end end
-        isDrawing=false;activePath={};activeColor=nil;pathElements={}
-    end)
-end
-
 startSkillCheckEvent.OnClientEvent:Connect(runSkillCheck)
 startMemoryEvent.OnClientEvent:Connect(runMemoryGame)
-startClassicEvent.OnClientEvent:Connect(runClassicGame)
 cancelEvent.OnClientEvent:Connect(closeAllGames)
 miniGameCompleteEvent.OnClientEvent:Connect(function() print("Client received MiniGameComplete signal."); closeAllGames() end)
 
-renderSteppedConnection = RunService.RenderStepped:Connect(function()
+RunService.RenderStepped:Connect(function()
     if isGameActive and currentMachine and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        if (player.Character.HumanoidRootPart.Position - currentMachine.Position).Magnitude > MAX_INTERACTION_DISTANCE then
-            cancelEvent:FireClient()
+        local distance = (player.Character.HumanoidRootPart.Position - currentMachine.Position).Magnitude
+        if distance > MAX_INTERACTION_DISTANCE then
+            print("Player moved too far away. Closing game.")
+            cancelEvent:FireServer(currentMachine) -- Inform the server
+            closeAllGames() -- Close UI locally
         end
     end
 end)
