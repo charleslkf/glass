@@ -21,8 +21,7 @@ local statusLabel = Instance.new("TextLabel")
 statusLabel.Name = "StatusLabel"
 statusLabel.Size = UDim2.new(0.8, 0, 0.1, 0) -- 80% of screen width, 10% of screen height
 statusLabel.Position = UDim2.new(0.1, 0, 0.02, 0) -- Centered at the top
-statusLabel.BackgroundTransparency = 0 -- Make background visible
-statusLabel.BackgroundColor3 = Color3.new(1, 0, 0) -- Bright red background
+statusLabel.BackgroundTransparency = 1
 statusLabel.Font = Enum.Font.SourceSansBold
 statusLabel.TextSize = 24
 statusLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
@@ -35,9 +34,7 @@ local statusValue = ReplicatedStorage:WaitForChild("Status")
 
 -- Function to update the label
 local function updateStatus()
-    local newText = statusValue.Value
-    statusLabel.Text = newText
-    print("DEBUG (UI): StatusLabel text set to: '" .. newText .. "'")
+    statusLabel.Text = statusValue.Value
 end
 
 -- Listen for changes and set initial value
