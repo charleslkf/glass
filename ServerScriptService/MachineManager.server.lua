@@ -136,3 +136,8 @@ while task.wait(1) do
         end
     end
 end
+
+-- Start the main game loop
+task.spawn(function()
+    RoundManager:Start()
+end)
