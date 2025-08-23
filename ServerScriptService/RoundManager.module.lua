@@ -1,4 +1,4 @@
--- ServerScriptService/RoundManager.server.lua
+-- ServerScriptService/RoundManager.module.lua
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
