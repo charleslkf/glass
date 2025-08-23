@@ -1,4 +1,4 @@
--- ServerScriptService/RoundManager.server.lua
+-- ServerScriptService/RoundManager.module.lua
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -6,14 +6,19 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local GameStateManager = require(ServerScriptService:WaitForChild("GameStateManager"))
 
+local RoundManager = {}
+
 -- Get/Create Status StringValue
 local status = ReplicatedStorage:FindFirstChild("Status") or Instance.new("StringValue", ReplicatedStorage)
 status.Name = "Status"
 
--- Get/Create MachineCompletedEvent BindableEvent
-local machineCompletedEvent = ReplicatedStorage:FindFirstChild("MachineCompletedEvent") or Instance.new("BindableEvent", ReplicatedStorage)
-machineCompletedEvent.Name = "MachineCompletedEvent"
+local timeLeft = 0
 
+function RoundManager:AddTime(seconds)
+    timeLeft = timeLeft + seconds
+    status.Value = string.format("A machine was completed! +%d seconds!", seconds)
+    task.wait(1) -- show message briefly
+end
 
 local MIN_PLAYERS_TO_START = 2
 local ROUND_DURATION = 60
@@ -45,16 +50,9 @@ local function startRound()
     status.Value = "Roles have been assigned! The round has started."
 
     -- Main round loop
-    local timeLeft = ROUND_DURATION
+    timeLeft = ROUND_DURATION
     local roundInProgress = true
     local outcome = "KILLER_WIN"
-
-    -- Listen for machine completions
-    local machineConnection = machineCompletedEvent.Event:Connect(function()
-        timeLeft = timeLeft + 10
-        status.Value = "A machine was completed! +10 seconds!"
-        task.wait(1) -- show message briefly
-    end)
 
     local survivorsLastTick = -1
 
@@ -77,8 +75,8 @@ local function startRound()
         -- Check if a survivor died since last second
         if survivorsLastTick ~= -1 and survivorsAlive < survivorsLastTick then
             local survivorsKilled = survivorsLastTick - survivorsAlive
-            timeLeft = timeLeft - (5 * survivorsKilled)
-            status.Value = string.format("%d survivor(s) killed! -%d seconds!", survivorsKilled, 5 * survivorsKilled)
+            timeLeft = timeLeft - (10 * survivorsKilled)
+            status.Value = string.format("%d survivor(s) killed! -%d seconds!", survivorsKilled, 10 * survivorsKilled)
             task.wait(1)
         end
         survivorsLastTick = survivorsAlive
@@ -101,8 +99,6 @@ local function startRound()
             task.wait(1)
         end
     end
-
-    machineConnection:Disconnect() -- Stop listening to the event
 
     if timeLeft <= 0 and roundInProgress then
         status.Value = "Time's up! The Killer wins!"
@@ -135,38 +131,43 @@ local function intermission()
 end
 
 -- Main Game Loop
-while true do
-    intermission()
-    GameStateManager:StartGame()
+function RoundManager:Start()
+    -- Main Game Loop
+    while true do
+        intermission()
+        GameStateManager:StartGame()
 
-    local gameActive = true
-    while gameActive do
-        local roundOutcome = startRound()
+        local gameActive = true
+        while gameActive do
+            local roundOutcome = startRound()
 
-        if roundOutcome == "SURVIVORS_WIN" then
-            -- Gate is now open!
-            for i = GATE_OPEN_DURATION, 0, -1 do
-                status.Value = string.format("Gate is open! Closes in: %d", i)
-                task.wait(1)
-            end
-            status.Value = "The gate is now closed!"
-            task.wait(2)
-            -- Placeholder: For now, we assume everyone made it. A future step would check this.
+            if roundOutcome == "SURVIVORS_WIN" then
+                -- Gate is now open!
+                for i = GATE_OPEN_DURATION, 0, -1 do
+                    status.Value = string.format("Gate is open! Closes in: %d", i)
+                    task.wait(1)
+                end
+                status.Value = "The gate is now closed!"
+                task.wait(2)
+                -- Placeholder: For now, we assume everyone made it. A future step would check this.
 
-            local gameContinues = GameStateManager:AdvanceLevel()
-            if not gameContinues then
-                status.Value = "Congratulations! Survivors have completed all levels!"
+                local gameContinues = GameStateManager:AdvanceLevel()
+                if not gameContinues then
+                    status.Value = "Congratulations! Survivors have completed all levels!"
+                    task.wait(10)
+                    gameActive = false
+                else
+                    status.Value = "Survivors have won the level! Proceeding to the next."
+                    task.wait(5)
+                end
+            else -- Killer wins
+                status.Value = "The Killer has won. The game will now reset."
                 task.wait(10)
+                GameStateManager:ResetGame()
                 gameActive = false
-            else
-                status.Value = "Survivors have won the level! Proceeding to the next."
-                task.wait(5)
             end
-        else -- Killer wins
-            status.Value = "The Killer has won. The game will now reset."
-            task.wait(10)
-            GameStateManager:ResetGame()
-            gameActive = false
         end
     end
 end
+
+return RoundManager

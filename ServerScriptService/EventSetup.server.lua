@@ -16,8 +16,7 @@ local eventNames = {
 
     -- General Mini-Game Events
     "CancelMiniGame",       -- Fired by client when they walk away
-    "MiniGameComplete",     -- Fired by server when a player fully completes a machine's objectives
-    "MachineCompletedEvent" -- Fired by MachineManager when a machine is completed, listened to by GameStateManager
+    "MiniGameComplete"     -- Fired by server when a player fully completes a machine's objectives
 }
 
 for _, name in ipairs(eventNames) do
