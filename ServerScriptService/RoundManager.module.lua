@@ -20,7 +20,7 @@ function RoundManager:AddTime(seconds)
     task.wait(1) -- show message briefly
 end
 
-local MIN_PLAYERS_TO_START = 2
+local MIN_PLAYERS_TO_START = 1
 local ROUND_DURATION = 60
 local INTERMISSION_DURATION = 15
 local GATE_OPEN_DURATION = 20
@@ -31,6 +31,12 @@ local function startRound()
     task.wait(3)
 
     local players = Players:GetPlayers()
+
+    -- Check if there are any players before starting
+    if #players == 0 then
+        print("WARNING: startRound called with 0 players. Aborting round.")
+        return "ABORTED"
+    end
 
     -- Assign roles
     local survivorRoles = {"Survivor", "Stunner", "Helper"}
@@ -160,10 +166,14 @@ function RoundManager:Start()
                     status.Value = "Survivors have won the level! Proceeding to the next."
                     task.wait(5)
                 end
-            else -- Killer wins
+            elseif roundOutcome == "KILLER_WIN" then
                 status.Value = "The Killer has won. The game will now reset."
                 task.wait(10)
                 GameStateManager:ResetGame()
+                gameActive = false
+            else -- Handle ABORTED or any other unexpected outcome
+                status.Value = "Round ended unexpectedly. Returning to lobby."
+                task.wait(5)
                 gameActive = false
             end
         end

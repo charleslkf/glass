@@ -123,7 +123,12 @@ local machineTypes = {"SkillCheck", "Memory"}
 for _, pos in ipairs(MACHINE_POSITIONS) do createMachine(pos, machineTypes[math.random(1,#machineTypes)]) end
 print("MachineManager initialized, now with fewer machine types.")
 
--- Background loop
+-- Start the main game loop in a separate thread
+task.spawn(function()
+    RoundManager:Start()
+end)
+
+-- Background loop to check player distance from machines
 while task.wait(1) do
     for player, machine in pairs(activePlayers) do
         if not player.Parent or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
@@ -135,8 +140,3 @@ while task.wait(1) do
         end
     end
 end
-
--- Start the main game loop
-task.spawn(function()
-    RoundManager:Start()
-end)

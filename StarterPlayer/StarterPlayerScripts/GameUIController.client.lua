@@ -12,6 +12,7 @@ if not screenGui then
     screenGui = Instance.new("ScreenGui")
     screenGui.Name = "GameStatusGui"
     screenGui.ResetOnSpawn = false
+    screenGui.DisplayOrder = 10 -- Set high to render on top of other UI
     screenGui.Parent = playerGui
 end
 
@@ -20,10 +21,10 @@ local statusLabel = Instance.new("TextLabel")
 statusLabel.Name = "StatusLabel"
 statusLabel.Size = UDim2.new(0.8, 0, 0.1, 0) -- 80% of screen width, 10% of screen height
 statusLabel.Position = UDim2.new(0.1, 0, 0.02, 0) -- Centered at the top
-statusLabel.BackgroundTransparency = 1
+statusLabel.BackgroundTransparency = 1 -- Make background transparent again
 statusLabel.Font = Enum.Font.SourceSansBold
-statusLabel.TextSize = 24
 statusLabel.TextColor3 = Color3.new(1, 1, 1) -- White text
+statusLabel.TextScaled = true -- Scale text to fit label
 statusLabel.TextStrokeTransparency = 0 -- Black outline
 statusLabel.Text = "Loading..."
 statusLabel.Parent = screenGui
