@@ -152,16 +152,11 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 	end
 
 	local function checkCompletion()
+		-- The puzzle is successfully completed simply when all pairs have been connected.
+		-- The additional check to see if all cells were filled was incorrect for this game type.
 		if completedPairs == (#puzzleData - 1) then
-			local totalCells = gridSize * gridSize
-			local filledCells = 0
-			for _, path in pairs(paths) do filledCells = filledCells + #path end
-			-- Corrected logic: The total number of cells in all paths must equal the grid size.
-			-- The previous subtraction was incorrect.
-			if filledCells == totalCells then
-				cleanup()
-				numberLinkResultEvent:FireServer(currentMachine, true)
-			end
+			cleanup()
+			numberLinkResultEvent:FireServer(currentMachine, true)
 		end
 	end
 
