@@ -13,6 +13,8 @@ local startSkillCheckEvent = ReplicatedStorage:WaitForChild("StartSkillCheckMini
 local skillCheckResultEvent = ReplicatedStorage:WaitForChild("SkillCheckResult")
 local startMemoryEvent = ReplicatedStorage:WaitForChild("StartMemoryMiniGame")
 local memoryResultEvent = ReplicatedStorage:WaitForChild("MemoryResult")
+local startNumberLinkEvent = ReplicatedStorage:WaitForChild("StartNumberLinkMiniGame")
+local numberLinkResultEvent = ReplicatedStorage:WaitForChild("NumberLinkResult")
 local cancelEvent = ReplicatedStorage:WaitForChild("CancelMiniGame")
 local miniGameCompleteEvent = ReplicatedStorage:WaitForChild("MiniGameComplete")
 
@@ -20,16 +22,31 @@ local MACHINE_POSITIONS = { Vector3.new(0,3,20), Vector3.new(20,3,0), Vector3.ne
 local COOLDOWN_DURATION = 25
 local SKILL_CHECKS_NEEDED = 6
 local MEMORY_GAMES_NEEDED = 6
+local NUMBER_LINKS_NEEDED = 6
 local MAX_INTERACTION_DISTANCE = 20
 
 -- State tracking tables
 local machineProgress = {}
 local activePlayers = {} -- [player] = machineInstance
 
+-- Pre-defined puzzles for Number Link.
+-- Format: {gridSize, {number=N, start=pos, end=pos}, ...}
+local numberLinkPuzzles = {
+	{5, {number=1, start=1, end=21}, {number=2, start=2, end=22}, {number=3, start=3, end=23}},
+	{5, {number=4, start=1, end=25}, {number=5, start=5, end=21}, {number=6, start=12, end=14}},
+	{5, {number=7, start=6, end=16}, {number=8, start=7, end=17}, {number=9, start=8, end=18}},
+	{5, {number=1, start=1, end=5}, {number=2, start=6, end=10}, {number=3, start=21, end=25}},
+}
+
 local function triggerNewMemoryGame(player, machine, progress)
     local gridSize = 3; local patternLength = 5
     local pattern = {}; for i = 1, patternLength do table.insert(pattern, math.random(1, gridSize * gridSize)) end
     startMemoryEvent:FireClient(player, machine, gridSize, pattern, progress, MEMORY_GAMES_NEEDED)
+end
+
+local function triggerNewNumberLinkGame(player, machine, progress)
+	local puzzle = numberLinkPuzzles[math.random(1, #numberLinkPuzzles)]
+	startNumberLinkEvent:FireClient(player, machine, puzzle, progress, NUMBER_LINKS_NEEDED)
 end
 
 local function resetPlayerProgress(player)
@@ -73,6 +90,8 @@ local function createMachine(position, machineType)
             startSkillCheckEvent:FireClient(player, machine, 0, SKILL_CHECKS_NEEDED)
         elseif mType == "Memory" then
             triggerNewMemoryGame(player, machine, 0)
+        elseif mType == "NumberLink" then
+            triggerNewNumberLinkGame(player, machine, 0)
         end
     end)
 end
@@ -110,6 +129,23 @@ memoryResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
     end
 end)
 
+numberLinkResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
+	if activePlayers[player] ~= machine then return end
+	if not machineProgress[machine][player] then machineProgress[machine][player] = 0 end
+	if wasSuccessful then
+		machineProgress[machine][player] += 1
+		local currentProgress = machineProgress[machine][player]
+		if currentProgress >= NUMBER_LINKS_NEEDED then
+			completeMachine(machine, player); resetPlayerProgress(player)
+		else
+			task.wait(0.5); triggerNewNumberLinkGame(player, machine, currentProgress)
+		end
+	else
+		machineProgress[machine][player] = 0
+		task.wait(0.5); triggerNewNumberLinkGame(player, machine, 0)
+	end
+end)
+
 cancelEvent.OnServerEvent:Connect(function(player, machine)
     -- This event is fired by the client if they walk away.
     if activePlayers[player] == machine then
@@ -119,9 +155,9 @@ cancelEvent.OnServerEvent:Connect(function(player, machine)
 end)
 
 -- Initialize machines
-local machineTypes = {"SkillCheck", "Memory"}
+local machineTypes = {"SkillCheck", "Memory", "NumberLink"}
 for _, pos in ipairs(MACHINE_POSITIONS) do createMachine(pos, machineTypes[math.random(1,#machineTypes)]) end
-print("MachineManager initialized, now with fewer machine types.")
+print("MachineManager initialized, now with Number Link machines.")
 
 -- Wait a moment for all scripts to load before starting the game loop
 task.wait(0.1)
