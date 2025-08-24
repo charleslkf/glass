@@ -24,7 +24,7 @@ local MACHINE_POSITIONS = { Vector3.new(0,3,20), Vector3.new(20,3,0), Vector3.ne
 local COOLDOWN_DURATION = 25
 local SKILL_CHECKS_NEEDED = 6
 local MEMORY_GAMES_NEEDED = 6
-local NUMBER_LINKS_NEEDED = 6 -- ADDED: Number of successful games needed
+local NUMBER_LINKS_NEEDED = 6 -- The number of puzzles to complete
 local MAX_INTERACTION_DISTANCE = 20
 
 -- State tracking tables
