@@ -156,7 +156,8 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 			local totalCells = gridSize * gridSize
 			local filledCells = 0
 			for _, path in pairs(paths) do filledCells = filledCells + #path end
-			filledCells = filledCells - completedPairs
+			-- Corrected logic: The total number of cells in all paths must equal the grid size.
+			-- The previous subtraction was incorrect.
 			if filledCells == totalCells then
 				cleanup()
 				numberLinkResultEvent:FireServer(currentMachine, true)
