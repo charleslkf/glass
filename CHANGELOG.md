@@ -2,31 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.2.0] - 2025-08-24
-
-### Added
-- **"Number Link" Mini-Game:** Re-introduced the matching pairs game with a fresh implementation based on user-provided code.
-    - Added `StartNumberLinkMiniGame` and `NumberLinkResult` RemoteEvents to handle game flow.
-    - The `MachineManager` now includes "NumberLink" as a possible machine type and sends puzzle data to the client.
-    - The `MachineUIController` now contains all client-side logic to create the UI grid and handle player input for drawing paths between matching numbers.
-
-## [1.1.0] - 2025-08-23
-
-### Added
-- Implemented a visible in-game UI to display the round timer and game status.
-- Integrated timer mechanics with gameplay events:
-    - Completing a machine now adds 5 seconds to the round timer.
-    - A survivor's death now removes 10 seconds from the round timer.
-
-### Changed
-- The minimum number of players required to start a round was lowered from 2 to 1 to facilitate easier testing.
-- Refactored server-side script communication to be more direct and robust, removing the need for certain `BindableEvent`s.
-
-### Fixed
-- **Critical Game Start Bug:** Fixed a race condition that caused the main game loop to hang indefinitely, preventing rounds from ever starting. The fix involved moving the game start call to be before an infinite loop in `MachineManager`.
-- **Module Loading Errors:** Resolved `Infinite yield` errors by renaming script files to use the `.module.lua` convention, ensuring they are correctly loaded as `ModuleScript`s.
-- **Client Script Overwrite:** Restored the `MachineUIController.client.lua` script, which was accidentally overwritten, re-enabling the machine repair minigames.
-
 ## [1.0.0] - 2025-08-23
 
 This marks the first stable release of the game. It includes a core gameplay loop and two fully functional mini-games.
