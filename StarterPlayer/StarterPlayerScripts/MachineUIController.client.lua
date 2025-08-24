@@ -1,32 +1,262 @@
--- ServerScriptService/EventSetup.server.lua
+-- StarterPlayer/StarterPlayerScripts/MachineUIController.client.lua
 
-print("RUNNING FINAL DEBUG VERSION of EventSetup.server.lua")
-
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 
-local eventNames = {
-	"StartSkillCheckMiniGame",
-	"SkillCheckResult",
-	"StartMemoryMiniGame",
-	"MemoryResult",
-	"CancelMiniGame",
-	"MiniGameComplete",
-	"StartNumberLinkMiniGame",
-	"NumberLinkResult"
-}
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
-print("Event names to be created:", #eventNames)
+-- Remote Events
+local startSkillCheckEvent = ReplicatedStorage:WaitForChild("StartSkillCheckMiniGame")
+local skillCheckResultEvent = ReplicatedStorage:WaitForChild("SkillCheckResult")
+local startMemoryEvent = ReplicatedStorage:WaitForChild("StartMemoryMiniGame")
+local memoryResultEvent = ReplicatedStorage:WaitForChild("MemoryResult")
+local startNumberLinkEvent = ReplicatedStorage:WaitForChild("StartNumberLinkMiniGame")
+local numberLinkResultEvent = ReplicatedStorage:WaitForChild("NumberLinkResult")
+local cancelEvent = ReplicatedStorage:WaitForChild("CancelMiniGame")
+local miniGameCompleteEvent = ReplicatedStorage:WaitForChild("MiniGameComplete")
 
-for index, name in ipairs(eventNames) do
-	print("Loop " .. index .. ": Processing event '" .. name .. "'") -- This will show us each step of the loop
-	if not ReplicatedStorage:FindFirstChild(name) then
-		local event = Instance.new("RemoteEvent")
-		event.Name = name
-		event.Parent = ReplicatedStorage
-		print("--> SUCCESS: Created RemoteEvent: " .. name)
-	else
-		print("--> INFO: Event already exists: " .. name)
+local MAX_INTERACTION_DISTANCE = 12
+
+-- UI Creation
+local screenGui = playerGui:FindFirstChild("MachineGUIs") or Instance.new("ScreenGui", playerGui); screenGui.Name = "MachineGUIs"; screenGui.ResetOnSpawn = false
+local mainFrame = screenGui:FindFirstChild("MainFrame") or Instance.new("Frame", screenGui); mainFrame.Name = "MainFrame"; mainFrame.Size = UDim2.new(1, 0, 1, 0); mainFrame.BackgroundTransparency = 1
+
+-- --- UI Elements ---
+-- Skill Check UI
+local skillCheckFrame = Instance.new("Frame", mainFrame); skillCheckFrame.Name = "SkillCheckMachineFrame"; skillCheckFrame.Size = UDim2.new(0.4, 0, 0.2, 0); skillCheckFrame.Position = UDim2.new(0.3, 0, 0.4, 0); skillCheckFrame.BackgroundColor3 = Color3.fromRGB(30,30,30); skillCheckFrame.BorderColor3 = Color3.fromRGB(200,200,200); skillCheckFrame.BorderSizePixel = 2; skillCheckFrame.Visible = false
+local skillCheckProgressLabel = Instance.new("TextLabel", skillCheckFrame); skillCheckProgressLabel.Name = "ProgressLabel"; skillCheckProgressLabel.Size = UDim2.new(1,0,0.2,0); skillCheckProgressLabel.Position = UDim2.new(0,0,0.8,0); skillCheckProgressLabel.BackgroundColor3 = Color3.fromRGB(60,60,60); skillCheckProgressLabel.TextColor3 = Color3.fromRGB(255,255,255); skillCheckProgressLabel.Font = Enum.Font.SourceSansBold
+local bar = Instance.new("Frame", skillCheckFrame); bar.Name = "Bar"; bar.Size = UDim2.new(0.9, 0, 0.2, 0); bar.Position = UDim2.new(0.05, 0, 0.4, 0); bar.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+local successZone = Instance.new("Frame", bar); successZone.Name = "SuccessZone"; successZone.Size = UDim2.new(0.2, 0, 1, 0); successZone.BackgroundColor3 = Color3.fromRGB(255, 255, 255); successZone.BackgroundTransparency = 0.5
+local handle = Instance.new("Frame", bar); handle.Name = "Handle"; handle.Size = UDim2.new(0.04, 0, 1.4, 0); handle.Position = UDim2.new(0, 0, -0.2, 0); handle.BackgroundColor3 = Color3.fromRGB(220, 40, 40); handle.ZIndex = 2
+
+-- Memory Game UI
+local memoryFrame = Instance.new("Frame", mainFrame); memoryFrame.Name = "MemoryMachineFrame"; memoryFrame.Size = UDim2.new(0.4, 0, 0.7, 0); memoryFrame.Position = UDim2.new(0.3, 0, 0.15, 0); memoryFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40); memoryFrame.BorderColor3 = Color3.fromRGB(200, 200, 200); memoryFrame.BorderSizePixel = 2; memoryFrame.Visible = false
+local memoryGrid = Instance.new("UIGridLayout", memoryFrame); memoryGrid.Name = "MemoryGridLayout"; memoryGrid.CellPadding = UDim2.new(0, 5, 0, 5)
+local memoryStatus = Instance.new("TextLabel", memoryFrame); memoryStatus.Name = "StatusLabel"; memoryStatus.Size = UDim2.new(1, 0, 0.1, 0); memoryStatus.Position = UDim2.new(0, 0, 0.9, 0); memoryStatus.BackgroundColor3 = Color3.fromRGB(60, 60, 60); memoryStatus.TextColor3 = Color3.fromRGB(255, 255, 255); memoryStatus.Font = Enum.Font.SourceSansBold
+
+-- Number Link UI
+local numberLinkFrame = Instance.new("Frame", mainFrame); numberLinkFrame.Name = "NumberLinkFrame"; numberLinkFrame.Size = UDim2.new(0, 400, 0, 450); numberLinkFrame.Position = UDim2.new(0.5, -200, 0.5, -225); numberLinkFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30); numberLinkFrame.BorderSizePixel = 0; numberLinkFrame.Visible = false
+local nlCorner = Instance.new("UICorner", numberLinkFrame); nlCorner.CornerRadius = UDim.new(0, 8)
+local nlTitle = Instance.new("TextLabel", numberLinkFrame); nlTitle.Size = UDim2.new(1, 0, 0, 50); nlTitle.Text = "Connect the Pairs"; nlTitle.Font = Enum.Font.SourceSansBold; nlTitle.TextColor3 = Color3.new(1, 1, 1); nlTitle.TextSize = 24; nlTitle.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+local nlTitleCorner = Instance.new("UICorner", nlTitle); nlTitleCorner.CornerRadius = UDim.new(0, 8)
+local nlGridFrame = Instance.new("Frame", numberLinkFrame); nlGridFrame.Size = UDim2.new(1, -20, 1, -70); nlGridFrame.Position = UDim2.new(0.5, 0, 0.5, 10); nlGridFrame.AnchorPoint = Vector2.new(0.5, 0.5); nlGridFrame.BackgroundTransparency = 1
+local nlGridLayout = Instance.new("UIGridLayout", nlGridFrame); nlGridLayout.CellPadding = UDim2.new(0, 4, 0, 4)
+-- FIXED: Combined the two progress labels into one correct version.
+local nlProgressLabel = Instance.new("TextLabel", numberLinkFrame); nlProgressLabel.Name = "ProgressLabel"; nlProgressLabel.Size = UDim2.new(1, -20, 0, 20); nlProgressLabel.Position = UDim2.new(0.5, 0, 1, -15); nlProgressLabel.AnchorPoint = Vector2.new(0.5, 1); nlProgressLabel.BackgroundTransparency = 1; nlProgressLabel.Font = Enum.Font.SourceSansBold; nlProgressLabel.TextColor3 = Color3.new(1,1,1); nlProgressLabel.TextSize = 18; nlProgressLabel.Text = "Progress: 0 / 6"
+
+-- --- Logic ---
+local currentMachine = nil
+local isGameActive = false
+
+local function closeAllGames()
+	if not isGameActive then return end
+	isGameActive = false
+	currentMachine = nil
+	skillCheckFrame.Visible = false
+	memoryFrame.Visible = false
+	numberLinkFrame.Visible = false
+end
+
+local function runSkillCheck(machine, currentProgress, neededProgress)
+	isGameActive = true; currentMachine = machine
+	skillCheckProgressLabel.Text = string.format("Progress: %d / %d", currentProgress, neededProgress)
+	if currentProgress >= neededProgress then skillCheckProgressLabel.Text = "Mission Completed!"; task.wait(1.5); closeAllGames(); return end
+
+	task.wait(1.5); skillCheckFrame.Visible = true; handle.Position = UDim2.new(0, 0, -0.2, 0)
+	successZone.Position = UDim2.new(math.random(15, 65) / 100, 0, 0, 0)
+	local tween = TweenService:Create(handle, TweenInfo.new(1.2, Enum.EasingStyle.Linear), {Position = UDim2.new(0.96, 0, -0.2, 0)})
+	local inputConnection; inputConnection = UserInputService.InputBegan:Connect(function(input, gp)
+		if gp or not isGameActive then return end
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.KeyCode == Enum.KeyCode.Space then
+			tween:Pause(); inputConnection:Disconnect()
+			local handleCenter = handle.Position.X.Scale+(handle.Size.X.Scale/2); local zoneStart=successZone.Position.X.Scale; local zoneEnd=zoneStart+successZone.Size.X.Scale
+			local wasSuccessful = (handleCenter >= zoneStart and handleCenter <= zoneEnd)
+			if wasSuccessful then successZone.BackgroundColor3 = Color3.fromRGB(100,255,100) else bar.BackgroundColor3 = Color3.fromRGB(255,100,100) end
+			task.wait(0.5); successZone.BackgroundColor3=Color3.fromRGB(255,255,255); bar.BackgroundColor3=Color3.fromRGB(80,80,80)
+			skillCheckResultEvent:FireServer(currentMachine, wasSuccessful)
+		end
+	end)
+	tween.Completed:Connect(function() if inputConnection.Connected then inputConnection:Disconnect(); skillCheckResultEvent:FireServer(currentMachine, false) end end)
+	tween:Play()
+end
+
+local function runMemoryGame(machine, gridSize, pattern, currentProgress, neededProgress)
+	isGameActive = true; currentMachine = machine
+	for _, child in ipairs(memoryFrame:GetChildren()) do if child:IsA("TextButton") then child:Destroy() end end
+	memoryFrame.Visible = true; memoryGrid.CellSize = UDim2.new(1/gridSize,-10,1/gridSize,-10); memoryStatus.Text = string.format("Progress: %d / %d", currentProgress, neededProgress)
+	if currentProgress >= neededProgress then memoryStatus.Text = "Mission Completed!"; task.wait(1.5); closeAllGames(); return end
+
+	local gridButtons={}; for i=1,gridSize*gridSize do local btn=Instance.new("TextButton",memoryFrame); btn.Name="GridButton"..i; btn.Text=""; btn.BackgroundColor3=Color3.fromRGB(90,90,90); table.insert(gridButtons,btn) end
+	task.wait(1); for _,tileIndex in ipairs(pattern) do local btn=gridButtons[tileIndex]; btn.BackgroundColor3=Color3.fromRGB(150,150,255); task.wait(0.6); btn.BackgroundColor3=Color3.fromRGB(90,90,90); task.wait(0.2) end
+	memoryStatus.Text = string.format("Your turn! (%d/%d)", currentProgress, neededProgress)
+	local playerInput={}; local conns={}
+	for i,btn in ipairs(gridButtons) do
+		conns[i] = btn.MouseButton1Click:Connect(function()
+			if #playerInput < #pattern then btn.BackgroundColor3=Color3.fromRGB(200,200,100); table.insert(playerInput,i)
+				if #playerInput == #pattern then
+					local success=true; for j=1,#pattern do if playerInput[j]~=pattern[j] then success=false; break end end
+					for _,c in ipairs(conns) do c:Disconnect() end
+					memoryResultEvent:FireServer(currentMachine, success)
+				end
+			end
+		end)
 	end
 end
 
-print("All mini-game RemoteEvents are ready.")
+local function runNumberLinkGame(machine, puzzleData, currentProgress, neededProgress)
+	isGameActive = true; currentMachine = machine
+	numberLinkFrame.Visible = true
+	-- FIXED: This now correctly updates the single progress label we created.
+	nlProgressLabel.Text = string.format("Progress: %d / %d", currentProgress, neededProgress)
+
+	-- Game state variables
+	local gridSize = puzzleData[1]
+	local puzzlePairs = {}
+	local paths = {}
+	local gridCells = {}
+	local completedPairs = 0
+	local isDrawing = false
+	local activeColor = nil
+	local currentPath = {}
+	local inputConnections = {}
+
+	for _, child in ipairs(nlGridFrame:GetChildren()) do if not child:IsA("UIGridLayout") then child:Destroy() end end
+	nlGridLayout.CellSize = UDim2.new(1/gridSize, -4, 1/gridSize, -4)
+
+	local pairColors = {Color3.fromRGB(255, 87, 87), Color3.fromRGB(87, 255, 87), Color3.fromRGB(87, 87, 255), Color3.fromRGB(255, 255, 87), Color3.fromRGB(255, 87, 255), Color3.fromRGB(87, 255, 255)}
+	for i = 2, #puzzleData do
+		local pairInfo = puzzleData[i]
+		local color = pairColors[i - 1]
+		puzzlePairs[pairInfo[1]] = {color = color, isEndpoint = true, partner = pairInfo[2]}
+		puzzlePairs[pairInfo[2]] = {color = color, isEndpoint = true, partner = pairInfo[1]}
+		paths[color] = {}
+	end
+
+	for i = 1, gridSize * gridSize do
+		local cell = Instance.new("Frame", nlGridFrame); cell.Name = tostring(i); cell.BackgroundColor3 = Color3.fromRGB(60, 60, 60); cell.BorderSizePixel = 0
+		local uiCorner = Instance.new("UICorner", cell); uiCorner.CornerRadius = UDim.new(0, 4)
+		gridCells[i] = cell
+		if puzzlePairs[i] then
+			local dot = Instance.new("Frame", cell); dot.Size = UDim2.new(0.7, 0, 0.7, 0); dot.Position = UDim2.new(0.5, 0, 0.5, 0); dot.AnchorPoint = Vector2.new(0.5, 0.5); dot.BackgroundColor3 = puzzlePairs[i].color
+			local dotCorner = Instance.new("UICorner", dot); dotCorner.CornerRadius = UDim.new(1, 0)
+		end
+	end
+
+	local function cleanup()
+		for _, conn in ipairs(inputConnections) do conn:Disconnect() end
+		inputConnections = {}
+	end
+
+	local function checkCompletion()
+		if completedPairs == (#puzzleData - 1) then
+			local totalCells = gridSize * gridSize
+			local filledCells = 0
+			for _, path in pairs(paths) do filledCells = filledCells + #path end
+			filledCells = filledCells - completedPairs
+			if filledCells == totalCells then
+				cleanup()
+				numberLinkResultEvent:FireServer(currentMachine, true)
+			end
+		end
+	end
+
+	local function getCellFromPosition(pos)
+		for i, cell in ipairs(gridCells) do
+			if pos.X >= cell.AbsolutePosition.X and pos.X <= cell.AbsolutePosition.X + cell.AbsoluteSize.X and pos.Y >= cell.AbsolutePosition.Y and pos.Y <= cell.AbsolutePosition.Y + cell.AbsoluteSize.Y then
+				return cell, i
+			end
+		end
+		return nil, nil
+	end
+
+	table.insert(inputConnections, UserInputService.InputBegan:Connect(function(input, gp)
+		if gp or not isGameActive or not numberLinkFrame.Visible then return end
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			local cell, cellIndex = getCellFromPosition(input.Position)
+			if cell and puzzlePairs[cellIndex] and puzzlePairs[cellIndex].isEndpoint then
+				isDrawing = true
+				activeColor = puzzlePairs[cellIndex].color
+				if #paths[activeColor] > 0 then
+					for _, pathCellIndex in ipairs(paths[activeColor]) do gridCells[pathCellIndex].BackgroundColor3 = Color3.fromRGB(60, 60, 60) end
+					paths[activeColor] = {}
+					completedPairs = completedPairs - 1
+				end
+				currentPath = {cellIndex}
+				cell.BackgroundColor3 = activeColor
+			end
+		end
+	end))
+
+	table.insert(inputConnections, UserInputService.InputEnded:Connect(function(input, gp)
+		if gp or not isGameActive or not numberLinkFrame.Visible then return end
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			if isDrawing and activeColor and #currentPath > 1 then
+				local lastCellIndex = currentPath[#currentPath]
+				if puzzlePairs[lastCellIndex] and puzzlePairs[lastCellIndex].isEndpoint and puzzlePairs[lastCellIndex].color == activeColor and lastCellIndex ~= currentPath[1] then
+					paths[activeColor] = currentPath
+					completedPairs = completedPairs + 1
+					checkCompletion()
+				else
+					for _, pathCellIndex in ipairs(currentPath) do
+						if not (puzzlePairs[pathCellIndex] and puzzlePairs[pathCellIndex].isEndpoint) then gridCells[pathCellIndex].BackgroundColor3 = Color3.fromRGB(60, 60, 60) end
+					end
+				end
+			end
+			isDrawing = false; activeColor = nil; currentPath = {}
+		end
+	end))
+
+	table.insert(inputConnections, UserInputService.InputChanged:Connect(function(input, gp)
+		if gp or not isGameActive or not numberLinkFrame.Visible then return end
+		if input.UserInputType == Enum.UserInputType.MouseMovement and isDrawing and activeColor then
+			local cell, cellIndex = getCellFromPosition(input.Position)
+			if cell and not table.find(currentPath, cellIndex) then
+				local occupied = false
+				for color, path in pairs(paths) do
+					if color ~= activeColor and table.find(path, cellIndex) then occupied = true; break end
+				end
+				if not occupied then
+					table.insert(currentPath, cellIndex)
+					cell.BackgroundColor3 = activeColor
+				end
+			end
+		end
+	end))
+end
+
+-- --- Event Connections ---
+startSkillCheckEvent.OnClientEvent:Connect(runSkillCheck)
+startMemoryEvent.OnClientEvent:Connect(runMemoryGame)
+startNumberLinkEvent.OnClientEvent:Connect(runNumberLinkGame)
+
+cancelEvent.OnClientEvent:Connect(closeAllGames)
+miniGameCompleteEvent.OnClientEvent:Connect(function() print("Client received MiniGameComplete signal."); closeAllGames() end)
+
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+	if gameProcessedEvent or not isGameActive then return end
+	if input.KeyCode == Enum.KeyCode.Backspace then
+		cancelEvent:FireServer(currentMachine)
+		closeAllGames()
+	end
+end)
+
+RunService.RenderStepped:Connect(function()
+	if isGameActive and currentMachine then
+		local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+		if not rootPart then closeAllGames(); return end
+		if typeof(currentMachine) ~= "Instance" or not currentMachine.Parent then closeAllGames(); return end
+		local success, distance = pcall(function() return (rootPart.Position - currentMachine.Position).Magnitude end)
+		if success and distance > MAX_INTERACTION_DISTANCE then
+			cancelEvent:FireServer(currentMachine)
+			closeAllGames()
+		elseif not success then
+			closeAllGames()
+		end
+	end
+end)
+
+print("MachineUIController initialized with all minigames.")
