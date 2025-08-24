@@ -121,6 +121,7 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 	local completedPairs = 0
 	local isDrawing = false
 	local activeColor = nil
+	local activeNumber = nil
 	local currentPath = {}
 	local inputConnections = {}
 
@@ -131,8 +132,8 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 	for i = 2, #puzzleData do
 		local pairInfo = puzzleData[i]
 		local color = pairColors[i - 1]
-		puzzlePairs[pairInfo[1]] = {color = color, isEndpoint = true, partner = pairInfo[2]}
-		puzzlePairs[pairInfo[2]] = {color = color, isEndpoint = true, partner = pairInfo[1]}
+		puzzlePairs[pairInfo.start] = {number = pairInfo.number, color = color, isEndpoint = true, partner = pairInfo.end}
+		puzzlePairs[pairInfo.end] = {number = pairInfo.number, color = color, isEndpoint = true, partner = pairInfo.start}
 		paths[color] = {}
 	end
 
@@ -143,6 +144,14 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 		if puzzlePairs[i] then
 			local dot = Instance.new("Frame", cell); dot.Size = UDim2.new(0.7, 0, 0.7, 0); dot.Position = UDim2.new(0.5, 0, 0.5, 0); dot.AnchorPoint = Vector2.new(0.5, 0.5); dot.BackgroundColor3 = puzzlePairs[i].color
 			local dotCorner = Instance.new("UICorner", dot); dotCorner.CornerRadius = UDim.new(1, 0)
+
+			local numLabel = Instance.new("TextLabel", dot)
+			numLabel.Size = UDim2.new(1, 0, 1, 0)
+			numLabel.BackgroundTransparency = 1
+			numLabel.Font = Enum.Font.SourceSansBold
+			numLabel.TextColor3 = Color3.new(0, 0, 0)
+			numLabel.TextScaled = true
+			numLabel.Text = tostring(puzzlePairs[i].number)
 		end
 	end
 
@@ -176,6 +185,7 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 			if cell and puzzlePairs[cellIndex] and puzzlePairs[cellIndex].isEndpoint then
 				isDrawing = true
 				activeColor = puzzlePairs[cellIndex].color
+				activeNumber = puzzlePairs[cellIndex].number
 				if #paths[activeColor] > 0 then
 					for _, pathCellIndex in ipairs(paths[activeColor]) do gridCells[pathCellIndex].BackgroundColor3 = Color3.fromRGB(60, 60, 60) end
 					paths[activeColor] = {}
@@ -192,7 +202,7 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			if isDrawing and activeColor and #currentPath > 1 then
 				local lastCellIndex = currentPath[#currentPath]
-				if puzzlePairs[lastCellIndex] and puzzlePairs[lastCellIndex].isEndpoint and puzzlePairs[lastCellIndex].color == activeColor and lastCellIndex ~= currentPath[1] then
+				if puzzlePairs[lastCellIndex] and puzzlePairs[lastCellIndex].isEndpoint and puzzlePairs[lastCellIndex].number == activeNumber and lastCellIndex ~= currentPath[1] then
 					paths[activeColor] = currentPath
 					completedPairs = completedPairs + 1
 					checkCompletion()
@@ -202,7 +212,7 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 					end
 				end
 			end
-			isDrawing = false; activeColor = nil; currentPath = {}
+			isDrawing = false; activeColor = nil; activeNumber = nil; currentPath = {}
 		end
 	end))
 
