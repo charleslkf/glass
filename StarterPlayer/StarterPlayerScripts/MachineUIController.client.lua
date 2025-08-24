@@ -108,7 +108,6 @@ local function runMemoryGame(machine, gridSize, pattern, currentProgress, needed
 end
 
 local function runNumberLinkGame(machine, puzzleData, currentProgress, neededProgress)
-	--[[ COMMENTING OUT TO ISOLATE SYNTAX ERROR
 	isGameActive = true; currentMachine = machine
 	numberLinkFrame.Visible = true
 	-- FIXED: This now correctly updates the single progress label we created.
@@ -233,13 +232,12 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 			end
 		end
 	end))
-	]]
 end
 
 -- --- Event Connections ---
 startSkillCheckEvent.OnClientEvent:Connect(runSkillCheck)
 startMemoryEvent.OnClientEvent:Connect(runMemoryGame)
--- startNumberLinkEvent.OnClientEvent:Connect(runNumberLinkGame)
+startNumberLinkEvent.OnClientEvent:Connect(runNumberLinkGame)
 
 cancelEvent.OnClientEvent:Connect(closeAllGames)
 miniGameCompleteEvent.OnClientEvent:Connect(function() print("Client received MiniGameComplete signal."); closeAllGames() end)
