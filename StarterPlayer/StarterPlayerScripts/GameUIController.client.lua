@@ -32,18 +32,24 @@ statusLabel.TextTransparency = 0 -- Ensure text is not transparent
 statusLabel.Text = "Loading..."
 statusLabel.Parent = screenGui
 
+print("DEBUG (UI): statusLabel created. Visible: " .. tostring(statusLabel.Visible) .. ", Parent: " .. tostring(statusLabel.Parent))
+
 -- Get the status value from ReplicatedStorage
 local statusValue = ReplicatedStorage:WaitForChild("Status")
+print("DEBUG (UI): Found Status object in ReplicatedStorage: " .. tostring(statusValue))
+
 
 -- Function to update the label
 local function updateStatus()
     local newText = statusValue.Value
     statusLabel.Text = newText
-    print("DEBUG (UI): StatusLabel text set to: '" .. tostring(newText) .. "'")
+    print("DEBUG (UI): statusValue.Changed fired. Set StatusLabel.Text to: '" .. tostring(newText) .. "'")
 end
 
 -- Listen for changes and set initial value
+print("DEBUG (UI): Connecting to .Changed event.")
 statusValue.Changed:Connect(updateStatus)
+print("DEBUG (UI): Setting initial text.")
 updateStatus() -- Set the initial text
 
 print("GameUIController initialized.")
