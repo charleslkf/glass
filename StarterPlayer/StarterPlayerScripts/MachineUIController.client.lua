@@ -53,7 +53,6 @@ local isGameActive = false
 local nlMouseUpConnection = nil
 local nlFrameLeaveConnection = nil
 
-
 local function closeAllGames()
 	if not isGameActive then return end
 	isGameActive = false
@@ -61,7 +60,6 @@ local function closeAllGames()
 	skillCheckFrame.Visible = false
 	memoryFrame.Visible = false
 	numberLinkFrame.Visible = false
-
 	if nlMouseUpConnection then nlMouseUpConnection:Disconnect(); nlMouseUpConnection = nil end
 	if nlFrameLeaveConnection then nlFrameLeaveConnection:Disconnect(); nlFrameLeaveConnection = nil end
 end
@@ -70,7 +68,6 @@ local function runSkillCheck(machine, currentProgress, neededProgress)
 	isGameActive = true; currentMachine = machine
 	skillCheckProgressLabel.Text = string.format("Progress: %d / %d", currentProgress, neededProgress)
 	if currentProgress >= neededProgress then skillCheckProgressLabel.Text = "Mission Completed!"; task.wait(1.5); closeAllGames(); return end
-
 	task.wait(1.5); skillCheckFrame.Visible = true; handle.Position = UDim2.new(0, 0, -0.2, 0)
 	successZone.Position = UDim2.new(math.random(15, 65) / 100, 0, 0, 0)
 	local tween = TweenService:Create(handle, TweenInfo.new(1.2, Enum.EasingStyle.Linear), {Position = UDim2.new(0.96, 0, -0.2, 0)})
@@ -94,7 +91,6 @@ local function runMemoryGame(machine, gridSize, pattern, currentProgress, needed
 	for _, child in ipairs(memoryFrame:GetChildren()) do if child:IsA("TextButton") then child:Destroy() end end
 	memoryFrame.Visible = true; memoryGrid.CellSize = UDim2.new(1/gridSize,-10,1/gridSize,-10); memoryStatus.Text = string.format("Progress: %d / %d", currentProgress, neededProgress)
 	if currentProgress >= neededProgress then memoryStatus.Text = "Mission Completed!"; task.wait(1.5); closeAllGames(); return end
-
 	local gridButtons={}; for i=1,gridSize*gridSize do local btn=Instance.new("TextButton",memoryFrame); btn.Name="GridButton"..i; btn.Text=""; btn.BackgroundColor3=Color3.fromRGB(90,90,90); table.insert(gridButtons,btn) end
 	task.wait(1); for _,tileIndex in ipairs(pattern) do local btn=gridButtons[tileIndex]; btn.BackgroundColor3=Color3.fromRGB(150,150,255); task.wait(0.6); btn.BackgroundColor3=Color3.fromRGB(90,90,90); task.wait(0.2) end
 	memoryStatus.Text = string.format("Your turn! (%d/%d)", currentProgress, neededProgress)
@@ -118,24 +114,20 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 	numberLinkFrame.Visible = true
 	nlProgressLabel.Text = "Connect all 6 pairs!"
 
-	-- Game state variables
 	local gridSize = puzzleData[1]
 	local endpoints = {}
-	local paths = {} -- paths[color] = {cell_indices}
+	local paths = {}
 	local cell_buttons = {}
 	local completedPairs = 0
-
 	local isDragging = false
 	local activeColor = nil
 	local currentPath = {}
 
-	-- Clear old grid
 	for _, child in ipairs(nlGridFrame:GetChildren()) do
 		if not child:IsA("UIGridLayout") then child:Destroy() end
 	end
 	nlGridLayout.CellSize = UDim2.new(1/gridSize, -4, 1/gridSize, -4)
 
-	-- Setup puzzle data
 	local pairColors = {Color3.fromRGB(255, 87, 87), Color3.fromRGB(87, 255, 87), Color3.fromRGB(87, 87, 255), Color3.fromRGB(255, 255, 87), Color3.fromRGB(255, 87, 255), Color3.fromRGB(87, 255, 255)}
 	for i = 2, #puzzleData do
 		local pairInfo = puzzleData[i]
@@ -170,23 +162,20 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 
 	local function onDragEnd()
 		if not isDragging then return end
-
 		local lastCell = currentPath[#currentPath]
 		local startCell = currentPath[1]
+		if not startCell then isDragging = false; return end
 		local partnerCell = endpoints[startCell].partner
-
 		if lastCell == partnerCell then
 			finalizePath(currentPath, activeColor)
 		else
 			clearPath(currentPath, activeColor)
 		end
-
 		isDragging = false
 		activeColor = nil
 		currentPath = {}
 	end
 
-	-- Create grid cells
 	for i = 1, gridSize * gridSize do
 		local cellButton = Instance.new("TextButton", nlGridFrame)
 		cellButton.Name = tostring(i)
@@ -195,28 +184,23 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 		cellButton.BorderSizePixel = 0
 		local uiCorner = Instance.new("UICorner", cellButton); uiCorner.CornerRadius = UDim.new(0, 4)
 		cell_buttons[i] = cellButton
-
 		if endpoints[i] then
 			cellButton.BackgroundColor3 = endpoints[i].color
 		end
-
 		cellButton.MouseButton1Down:Connect(function()
 			if endpoints[i] then
 				isDragging = true
 				activeColor = endpoints[i].color
 				currentPath = {i}
-
 				if #paths[activeColor] > 0 then
 					completedPairs = completedPairs - 1
 					clearPath(paths[activeColor], activeColor)
 				end
 			end
 		end)
-
 		cellButton.MouseEnter:Connect(function()
 			if not isDragging or not activeColor then return end
 			if table.find(currentPath, i) then return end
-
 			local isOccupied = false
 			for color, path in pairs(paths) do
 				if color ~= activeColor and table.find(path, i) then
@@ -224,11 +208,9 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 					break
 				end
 			end
-
 			if not isOccupied then
 				table.insert(currentPath, i)
 				if endpoints[i] and endpoints[i].color ~= activeColor then
-					-- Dragged over wrong endpoint, invalid
 					onDragEnd()
 				else
 					cellButton.BackgroundColor3 = activeColor
@@ -237,17 +219,14 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 		end)
 	end
 
-	-- Connect drag end to mouse up event
 	nlMouseUpConnection = UserInputService.InputEnded:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			onDragEnd()
 		end
 	end)
 
-	-- Also connect to GUI leave event
 	nlFrameLeaveConnection = mainFrame.MouseLeave:Connect(onDragEnd)
 end
-
 
 -- --- Event Connections ---
 startSkillCheckEvent.OnClientEvent:Connect(runSkillCheck)
