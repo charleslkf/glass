@@ -1,4 +1,4 @@
--- ServerScriptService/RoundManager.module.lua
+-- ServerScriptService/RoundManager.server.lua
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -26,7 +26,6 @@ local INTERMISSION_DURATION = 15
 local GATE_OPEN_DURATION = 20
 
 local function startRound()
-    print("DEBUG: startRound() called.")
     local currentLevel = GameStateManager:GetCurrentLevel()
     status.Value = string.format("Level %d is starting!", currentLevel)
     task.wait(3)
@@ -55,7 +54,6 @@ local function startRound()
     end
 
     status.Value = "Roles have been assigned! The round has started."
-    print("DEBUG: Roles assigned. Starting main round loop.")
 
     -- Main round loop
     timeLeft = ROUND_DURATION
@@ -102,19 +100,11 @@ local function startRound()
         end
 
         if roundInProgress then
-            local statusString = string.format("Level: %d | Time: %d | Survivors: %d", currentLevel, timeLeft, survivorsAlive)
-            status.Value = statusString
-            print("DEBUG (Server): Round loop running. Setting status to: '" .. statusString .. "'")
+            status.Value = string.format("Level: %d | Time: %d | Survivors: %d", currentLevel, timeLeft, survivorsAlive)
             timeLeft = timeLeft - 1
             task.wait(1)
-        else
-            print("DEBUG (Server): Round loop ending because roundInProgress is false.")
         end
     end
-    if timeLeft <= 0 then
-        print("DEBUG (Server): Round loop ending because time is up.")
-    end
-
 
     if timeLeft <= 0 and roundInProgress then
         status.Value = "Time's up! The Killer wins!"
@@ -129,45 +119,33 @@ local function startRound()
         end
     end
 
-    print("DEBUG: startRound() returning outcome: " .. tostring(outcome))
     return outcome
 end
 
 local function intermission()
-    print("DEBUG: intermission() started.")
     status.Value = "Intermission. Waiting for players..."
     while #Players:GetPlayers() < MIN_PLAYERS_TO_START do
         status.Value = string.format("Waiting for players... (%d/%d)", #Players:GetPlayers(), MIN_PLAYERS_TO_START)
-        print("DEBUG: Waiting for players...")
         task.wait(1)
     end
 
-    print("DEBUG: Enough players have joined.")
     status.Value = "Enough players have joined! Starting game soon..."
     for i = INTERMISSION_DURATION, 0, -1 do
         status.Value = string.format("Game starts in: %d", i)
-        print("DEBUG: Intermission countdown: " .. i)
         task.wait(1)
     end
-    print("DEBUG: intermission() finished.")
 end
 
 -- Main Game Loop
 function RoundManager:Start()
-    print("DEBUG: RoundManager:Start() called.")
     -- Main Game Loop
     while true do
-        print("DEBUG: Top of main 'while true' loop. Calling intermission.")
         intermission()
-        print("DEBUG: Intermission finished. Calling GameStateManager:StartGame().")
         GameStateManager:StartGame()
-        print("DEBUG: GameStateManager:StartGame() finished.")
 
         local gameActive = true
         while gameActive do
-            print("DEBUG: Top of 'while gameActive' loop. Calling startRound().")
             local roundOutcome = startRound()
-            print("DEBUG: startRound() finished with outcome: " .. tostring(roundOutcome))
 
             if roundOutcome == "SURVIVORS_WIN" then
                 -- Gate is now open!

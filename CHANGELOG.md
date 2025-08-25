@@ -2,14 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.2.0] - 2025-08-24
-
-### Added
-- **"Number Link" Mini-Game:** Re-introduced the matching pairs game with a fresh implementation based on user-provided code.
-    - Added `StartNumberLinkMiniGame` and `NumberLinkResult` RemoteEvents to handle game flow.
-    - The `MachineManager` now includes "NumberLink" as a possible machine type and sends puzzle data to the client.
-    - The `MachineUIController` now contains all client-side logic to create the UI grid and handle player input for drawing paths between matching numbers.
-
 ## [1.1.0] - 2025-08-23
 
 ### Added

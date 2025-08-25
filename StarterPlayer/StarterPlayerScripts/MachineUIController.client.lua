@@ -45,7 +45,6 @@ local nlTitle = Instance.new("TextLabel", numberLinkFrame); nlTitle.Size = UDim2
 local nlTitleCorner = Instance.new("UICorner", nlTitle); nlTitleCorner.CornerRadius = UDim.new(0, 8)
 local nlGridFrame = Instance.new("Frame", numberLinkFrame); nlGridFrame.Size = UDim2.new(1, -20, 1, -70); nlGridFrame.Position = UDim2.new(0.5, 0, 0.5, 10); nlGridFrame.AnchorPoint = Vector2.new(0.5, 0.5); nlGridFrame.BackgroundTransparency = 1
 local nlGridLayout = Instance.new("UIGridLayout", nlGridFrame); nlGridLayout.CellPadding = UDim2.new(0, 4, 0, 4)
--- FIXED: Combined the two progress labels into one correct version.
 local nlProgressLabel = Instance.new("TextLabel", numberLinkFrame); nlProgressLabel.Name = "ProgressLabel"; nlProgressLabel.Size = UDim2.new(1, -20, 0, 20); nlProgressLabel.Position = UDim2.new(0.5, 0, 1, -15); nlProgressLabel.AnchorPoint = Vector2.new(0.5, 1); nlProgressLabel.BackgroundTransparency = 1; nlProgressLabel.Font = Enum.Font.SourceSansBold; nlProgressLabel.TextColor3 = Color3.new(1,1,1); nlProgressLabel.TextSize = 18; nlProgressLabel.Text = "Progress: 0 / 6"
 
 -- --- Logic ---
@@ -108,42 +107,33 @@ local function runMemoryGame(machine, gridSize, pattern, currentProgress, needed
 end
 
 local function runNumberLinkGame(machine, puzzleData, currentProgress, neededProgress)
-	isGameActive = true; currentMachine = machine
+	isGameActive = true
+	currentMachine = machine
 	numberLinkFrame.Visible = true
-	-- FIXED: This now correctly updates the single progress label we created.
 	nlProgressLabel.Text = string.format("Progress: %d / %d", currentProgress, neededProgress)
 
 	-- Game state variables
 	local gridSize = puzzleData[1]
 	local puzzlePairs = {}
-	local paths = {}
-	local gridCells = {}
+	local firstSelection = nil
 	local completedPairs = 0
-	local isDrawing = false
-	local activeColor = nil
-	local currentPath = {}
 	local inputConnections = {}
 
-	for _, child in ipairs(nlGridFrame:GetChildren()) do if not child:IsA("UIGridLayout") then child:Destroy() end end
+	-- Clear old grid
+	for _, child in ipairs(nlGridFrame:GetChildren()) do
+		if not child:IsA("UIGridLayout") then
+			child:Destroy()
+		end
+	end
 	nlGridLayout.CellSize = UDim2.new(1/gridSize, -4, 1/gridSize, -4)
 
+	-- Setup puzzle data client-side
 	local pairColors = {Color3.fromRGB(255, 87, 87), Color3.fromRGB(87, 255, 87), Color3.fromRGB(87, 87, 255), Color3.fromRGB(255, 255, 87), Color3.fromRGB(255, 87, 255), Color3.fromRGB(87, 255, 255)}
 	for i = 2, #puzzleData do
 		local pairInfo = puzzleData[i]
 		local color = pairColors[i - 1]
-		puzzlePairs[pairInfo[1]] = {color = color, isEndpoint = true, partner = pairInfo[2]}
-		puzzlePairs[pairInfo[2]] = {color = color, isEndpoint = true, partner = pairInfo[1]}
-		paths[color] = {}
-	end
-
-	for i = 1, gridSize * gridSize do
-		local cell = Instance.new("Frame", nlGridFrame); cell.Name = tostring(i); cell.BackgroundColor3 = Color3.fromRGB(60, 60, 60); cell.BorderSizePixel = 0
-		local uiCorner = Instance.new("UICorner", cell); uiCorner.CornerRadius = UDim.new(0, 4)
-		gridCells[i] = cell
-		if puzzlePairs[i] then
-			local dot = Instance.new("Frame", cell); dot.Size = UDim2.new(0.7, 0, 0.7, 0); dot.Position = UDim2.new(0.5, 0, 0.5, 0); dot.AnchorPoint = Vector2.new(0.5, 0.5); dot.BackgroundColor3 = puzzlePairs[i].color
-			local dotCorner = Instance.new("UICorner", dot); dotCorner.CornerRadius = UDim.new(1, 0)
-		end
+		puzzlePairs[pairInfo.start] = {number = pairInfo.number, color = color, partner = pairInfo.end, button = nil}
+		puzzlePairs[pairInfo.end] = {number = pairInfo.number, color = color, partner = pairInfo.start, button = nil}
 	end
 
 	local function cleanup()
@@ -153,80 +143,57 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 
 	local function checkCompletion()
 		if completedPairs == (#puzzleData - 1) then
-			local totalCells = gridSize * gridSize
-			local filledCells = 0
-			for _, path in pairs(paths) do filledCells = filledCells + #path end
-			filledCells = filledCells - completedPairs
-			if filledCells == totalCells then
-				cleanup()
-				numberLinkResultEvent:FireServer(currentMachine, true)
-			end
+			cleanup()
+			numberLinkResultEvent:FireServer(currentMachine, true)
 		end
 	end
 
-	local function getCellFromPosition(pos)
-		for i, cell in ipairs(gridCells) do
-			if pos.X >= cell.AbsolutePosition.X and pos.X <= cell.AbsolutePosition.X + cell.AbsoluteSize.X and pos.Y >= cell.AbsolutePosition.Y and pos.Y <= cell.AbsolutePosition.Y + cell.AbsoluteSize.Y then
-				return cell, i
-			end
-		end
-		return nil, nil
-	end
+	-- Create grid cells and dots
+	for i = 1, gridSize * gridSize do
+		local cellButton = Instance.new("TextButton", nlGridFrame)
+		cellButton.Name = tostring(i)
+		cellButton.Text = ""
+		cellButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+		cellButton.BorderSizePixel = 0
+		local uiCorner = Instance.new("UICorner", cellButton); uiCorner.CornerRadius = UDim.new(0, 4)
 
-	table.insert(inputConnections, UserInputService.InputBegan:Connect(function(input, gp)
-		if gp or not isGameActive or not numberLinkFrame.Visible then return end
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			local cell, cellIndex = getCellFromPosition(input.Position)
-			if cell and puzzlePairs[cellIndex] and puzzlePairs[cellIndex].isEndpoint then
-				isDrawing = true
-				activeColor = puzzlePairs[cellIndex].color
-				if #paths[activeColor] > 0 then
-					for _, pathCellIndex in ipairs(paths[activeColor]) do gridCells[pathCellIndex].BackgroundColor3 = Color3.fromRGB(60, 60, 60) end
-					paths[activeColor] = {}
-					completedPairs = completedPairs - 1
-				end
-				currentPath = {cellIndex}
-				cell.BackgroundColor3 = activeColor
-			end
-		end
-	end))
+		if puzzlePairs[i] then
+			puzzlePairs[i].button = cellButton
+			cellButton.Text = tostring(puzzlePairs[i].number)
+			cellButton.Font = Enum.Font.SourceSansBold
+			cellButton.TextColor3 = Color3.new(1,1,1)
+			cellButton.TextScaled = true
+			cellButton.BackgroundColor3 = puzzlePairs[i].color
 
-	table.insert(inputConnections, UserInputService.InputEnded:Connect(function(input, gp)
-		if gp or not isGameActive or not numberLinkFrame.Visible then return end
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			if isDrawing and activeColor and #currentPath > 1 then
-				local lastCellIndex = currentPath[#currentPath]
-				if puzzlePairs[lastCellIndex] and puzzlePairs[lastCellIndex].isEndpoint and puzzlePairs[lastCellIndex].color == activeColor and lastCellIndex ~= currentPath[1] then
-					paths[activeColor] = currentPath
-					completedPairs = completedPairs + 1
-					checkCompletion()
-				else
-					for _, pathCellIndex in ipairs(currentPath) do
-						if not (puzzlePairs[pathCellIndex] and puzzlePairs[pathCellIndex].isEndpoint) then gridCells[pathCellIndex].BackgroundColor3 = Color3.fromRGB(60, 60, 60) end
+			local conn = cellButton.MouseButton1Click:Connect(function()
+				if firstSelection then
+					-- This is the second selection
+					local firstPairData = puzzlePairs[firstSelection.index]
+					local secondPairData = puzzlePairs[i]
+
+					if i ~= firstSelection.index and secondPairData and firstPairData.partner == i and secondPairData.number == firstPairData.number then
+						-- Correct match
+						firstSelection.button.Visible = false
+						cellButton.Visible = false
+						completedPairs = completedPairs + 1
+						checkCompletion()
+					else
+						-- Incorrect match, reset selection
+						firstSelection.button.BorderSizePixel = 0
 					end
+					firstSelection = nil
+				else
+					-- This is the first selection
+					firstSelection = {index = i, button = cellButton}
+					cellButton.BorderSizePixel = 2
+					cellButton.BorderColor3 = Color3.new(1,1,1)
 				end
-			end
-			isDrawing = false; activeColor = nil; currentPath = {}
+			end)
+			table.insert(inputConnections, conn)
 		end
-	end))
-
-	table.insert(inputConnections, UserInputService.InputChanged:Connect(function(input, gp)
-		if gp or not isGameActive or not numberLinkFrame.Visible then return end
-		if input.UserInputType == Enum.UserInputType.MouseMovement and isDrawing and activeColor then
-			local cell, cellIndex = getCellFromPosition(input.Position)
-			if cell and not table.find(currentPath, cellIndex) then
-				local occupied = false
-				for color, path in pairs(paths) do
-					if color ~= activeColor and table.find(path, cellIndex) then occupied = true; break end
-				end
-				if not occupied then
-					table.insert(currentPath, cellIndex)
-					cell.BackgroundColor3 = activeColor
-				end
-			end
-		end
-	end))
+	end
 end
+
 
 -- --- Event Connections ---
 startSkillCheckEvent.OnClientEvent:Connect(runSkillCheck)

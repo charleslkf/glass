@@ -1,32 +1,35 @@
 -- ServerScriptService/EventSetup.server.lua
 
-print("RUNNING FINAL DEBUG VERSION of EventSetup.server.lua")
+-- This script creates all the RemoteEvents needed for the mini-games.
+-- It ensures that they exist before any other script tries to access them.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local eventNames = {
-	"StartSkillCheckMiniGame",
-	"SkillCheckResult",
-	"StartMemoryMiniGame",
-	"MemoryResult",
-	"CancelMiniGame",
-	"MiniGameComplete",
-	"StartNumberLinkMiniGame",
-	"NumberLinkResult"
+    -- For Skill Check Mini-Game
+    "StartSkillCheckMiniGame",
+    "SkillCheckResult",
+
+    -- For Memory Mini-Game
+    "StartMemoryMiniGame",
+    "MemoryResult",
+
+    -- For Number Link Mini-Game
+    "StartNumberLinkMiniGame",
+    "NumberLinkResult",
+
+    -- General Mini-Game Events
+    "CancelMiniGame",       -- Fired by client when they walk away
+    "MiniGameComplete"     -- Fired by server when a player fully completes a machine's objectives
 }
 
-print("Event names to be created:", #eventNames)
-
-for index, name in ipairs(eventNames) do
-	print("Loop " .. index .. ": Processing event '" .. name .. "'") -- This will show us each step of the loop
-	if not ReplicatedStorage:FindFirstChild(name) then
-		local event = Instance.new("RemoteEvent")
-		event.Name = name
-		event.Parent = ReplicatedStorage
-		print("--> SUCCESS: Created RemoteEvent: " .. name)
-	else
-		print("--> INFO: Event already exists: " .. name)
-	end
+for _, name in ipairs(eventNames) do
+    if not ReplicatedStorage:FindFirstChild(name) then
+        local event = Instance.new("RemoteEvent")
+        event.Name = name
+        event.Parent = ReplicatedStorage
+        print("Created RemoteEvent: " .. name)
+    end
 end
 
 print("All mini-game RemoteEvents are ready.")
