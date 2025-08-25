@@ -14,10 +14,6 @@ local eventNames = {
     "StartMemoryMiniGame",
     "MemoryResult",
 
-    -- For Number Link Mini-Game
-    "StartNumberLinkMiniGame",
-    "NumberLinkResult",
-
     -- General Mini-Game Events
     "CancelMiniGame",       -- Fired by client when they walk away
     "MiniGameComplete"     -- Fired by server when a player fully completes a machine's objectives
