@@ -22,18 +22,20 @@ local MACHINE_POSITIONS = { Vector3.new(0,3,20), Vector3.new(20,3,0), Vector3.ne
 local COOLDOWN_DURATION = 25
 local SKILL_CHECKS_NEEDED = 6
 local MEMORY_GAMES_NEEDED = 6
-local NUMBER_LINKS_NEEDED = 6
+local NUMBER_LINKS_NEEDED = 1
 local MAX_INTERACTION_DISTANCE = 20
 
 -- State tracking tables
 local machineProgress = {}
 local activePlayers = {} -- [player] = machineInstance
 
--- Pre-defined puzzles for Number Link. Format: {gridSize, {start, end}, {start, end}, ...}
+-- Pre-defined puzzles for Number Link.
 local numberLinkPuzzles = {
-	{5, {1, 21}, {2, 22}, {3, 23}},
-	{5, {1, 25}, {5, 21}, {12, 14}},
-	{5, {6, 16}, {7, 17}, {8, 18}},
+	-- 8x8 grid with 6 pairs
+	{8,
+		{start = 1, end = 18}, {start = 3, end = 27}, {start = 5, end = 30},
+		{start = 8, end = 48}, {start = 33, end = 57}, {start = 38, end = 63}
+	},
 }
 
 local function triggerNewMemoryGame(player, machine, progress)

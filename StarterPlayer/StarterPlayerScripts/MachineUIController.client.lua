@@ -50,6 +50,9 @@ local nlProgressLabel = Instance.new("TextLabel", numberLinkFrame); nlProgressLa
 -- --- Logic ---
 local currentMachine = nil
 local isGameActive = false
+local nlMouseUpConnection = nil
+local nlFrameLeaveConnection = nil
+
 
 local function closeAllGames()
 	if not isGameActive then return end
@@ -58,6 +61,9 @@ local function closeAllGames()
 	skillCheckFrame.Visible = false
 	memoryFrame.Visible = false
 	numberLinkFrame.Visible = false
+
+	if nlMouseUpConnection then nlMouseUpConnection:Disconnect(); nlMouseUpConnection = nil end
+	if nlFrameLeaveConnection then nlFrameLeaveConnection:Disconnect(); nlFrameLeaveConnection = nil end
 end
 
 local function runSkillCheck(machine, currentProgress, neededProgress)
@@ -110,45 +116,77 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 	isGameActive = true
 	currentMachine = machine
 	numberLinkFrame.Visible = true
-	nlProgressLabel.Text = string.format("Progress: %d / %d", currentProgress, neededProgress)
+	nlProgressLabel.Text = "Connect all 6 pairs!"
 
 	-- Game state variables
 	local gridSize = puzzleData[1]
-	local puzzlePairs = {}
-	local firstSelection = nil
+	local endpoints = {}
+	local paths = {} -- paths[color] = {cell_indices}
+	local cell_buttons = {}
 	local completedPairs = 0
-	local inputConnections = {}
+
+	local isDragging = false
+	local activeColor = nil
+	local currentPath = {}
 
 	-- Clear old grid
 	for _, child in ipairs(nlGridFrame:GetChildren()) do
-		if not child:IsA("UIGridLayout") then
-			child:Destroy()
-		end
+		if not child:IsA("UIGridLayout") then child:Destroy() end
 	end
 	nlGridLayout.CellSize = UDim2.new(1/gridSize, -4, 1/gridSize, -4)
 
-	-- Setup puzzle data client-side
+	-- Setup puzzle data
 	local pairColors = {Color3.fromRGB(255, 87, 87), Color3.fromRGB(87, 255, 87), Color3.fromRGB(87, 87, 255), Color3.fromRGB(255, 255, 87), Color3.fromRGB(255, 87, 255), Color3.fromRGB(87, 255, 255)}
 	for i = 2, #puzzleData do
 		local pairInfo = puzzleData[i]
 		local color = pairColors[i - 1]
-		puzzlePairs[pairInfo.start] = {number = pairInfo.number, color = color, partner = pairInfo.end, button = nil}
-		puzzlePairs[pairInfo.end] = {number = pairInfo.number, color = color, partner = pairInfo.start, button = nil}
+		endpoints[pairInfo.start] = { color = color, partner = pairInfo.end }
+		endpoints[pairInfo.end] = { color = color, partner = pairInfo.start }
+		paths[color] = {}
 	end
 
-	local function cleanup()
-		for _, conn in ipairs(inputConnections) do conn:Disconnect() end
-		inputConnections = {}
-	end
-
-	local function checkCompletion()
-		if completedPairs == (#puzzleData - 1) then
-			cleanup()
+	local function checkWinCondition()
+		if completedPairs == #pairColors then
+			task.wait(0.5)
 			numberLinkResultEvent:FireServer(currentMachine, true)
 		end
 	end
 
-	-- Create grid cells and dots
+	local function clearPath(path, color)
+		for _, cellIndex in ipairs(path) do
+			if not endpoints[cellIndex] then
+				cell_buttons[cellIndex].BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+			end
+		end
+		paths[color] = {}
+	end
+
+	local function finalizePath(path, color)
+		paths[color] = path
+		completedPairs = completedPairs + 1
+		nlProgressLabel.Text = string.format("Pairs connected: %d / %d", completedPairs, #pairColors)
+		checkWinCondition()
+	end
+
+	local function onDragEnd()
+		if not isDragging then return end
+
+		local lastCell = currentPath[#currentPath]
+		local startCell = currentPath[1]
+		local partnerCell = endpoints[startCell].partner
+
+		if lastCell == partnerCell then
+			finalizePath(currentPath, activeColor)
+		else
+			clearPath(currentPath, activeColor)
+		end
+
+		isDragging = false
+		activeColor = nil
+		currentPath = {}
+	end
+
+	-- Create grid cells
 	for i = 1, gridSize * gridSize do
 		local cellButton = Instance.new("TextButton", nlGridFrame)
 		cellButton.Name = tostring(i)
@@ -156,42 +194,58 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 		cellButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 		cellButton.BorderSizePixel = 0
 		local uiCorner = Instance.new("UICorner", cellButton); uiCorner.CornerRadius = UDim.new(0, 4)
+		cell_buttons[i] = cellButton
 
-		if puzzlePairs[i] then
-			puzzlePairs[i].button = cellButton
-			cellButton.Text = tostring(puzzlePairs[i].number)
-			cellButton.Font = Enum.Font.SourceSansBold
-			cellButton.TextColor3 = Color3.new(1,1,1)
-			cellButton.TextScaled = true
-			cellButton.BackgroundColor3 = puzzlePairs[i].color
-
-			local conn = cellButton.MouseButton1Click:Connect(function()
-				if firstSelection then
-					-- This is the second selection
-					local firstPairData = puzzlePairs[firstSelection.index]
-					local secondPairData = puzzlePairs[i]
-
-					if i ~= firstSelection.index and secondPairData and firstPairData.partner == i and secondPairData.number == firstPairData.number then
-						-- Correct match
-						firstSelection.button.Visible = false
-						cellButton.Visible = false
-						completedPairs = completedPairs + 1
-						checkCompletion()
-					else
-						-- Incorrect match, reset selection
-						firstSelection.button.BorderSizePixel = 0
-					end
-					firstSelection = nil
-				else
-					-- This is the first selection
-					firstSelection = {index = i, button = cellButton}
-					cellButton.BorderSizePixel = 2
-					cellButton.BorderColor3 = Color3.new(1,1,1)
-				end
-			end)
-			table.insert(inputConnections, conn)
+		if endpoints[i] then
+			cellButton.BackgroundColor3 = endpoints[i].color
 		end
+
+		cellButton.MouseButton1Down:Connect(function()
+			if endpoints[i] then
+				isDragging = true
+				activeColor = endpoints[i].color
+				currentPath = {i}
+
+				if #paths[activeColor] > 0 then
+					completedPairs = completedPairs - 1
+					clearPath(paths[activeColor], activeColor)
+				end
+			end
+		end)
+
+		cellButton.MouseEnter:Connect(function()
+			if not isDragging or not activeColor then return end
+			if table.find(currentPath, i) then return end
+
+			local isOccupied = false
+			for color, path in pairs(paths) do
+				if color ~= activeColor and table.find(path, i) then
+					isOccupied = true
+					break
+				end
+			end
+
+			if not isOccupied then
+				table.insert(currentPath, i)
+				if endpoints[i] and endpoints[i].color ~= activeColor then
+					-- Dragged over wrong endpoint, invalid
+					onDragEnd()
+				else
+					cellButton.BackgroundColor3 = activeColor
+				end
+			end
+		end)
 	end
+
+	-- Connect drag end to mouse up event
+	nlMouseUpConnection = UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			onDragEnd()
+		end
+	end)
+
+	-- Also connect to GUI leave event
+	nlFrameLeaveConnection = mainFrame.MouseLeave:Connect(onDragEnd)
 end
 
 
