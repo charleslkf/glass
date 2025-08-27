@@ -137,16 +137,13 @@ local function intermission()
 end
 
 -- Main Game Loop
-function RoundManager:Start()
-    -- Main Game Loop
-    while true do
-        intermission()
-        GameStateManager:StartGame()
-
-        local gameActive = true
-        while gameActive do
+local function OnStateChanged(newState)
+    task.spawn(function()
+        if newState == "Lobby" then
+            intermission()
+            GameStateManager:SetState("InRound")
+        elseif newState == "InRound" then
             local roundOutcome = startRound()
-
             if roundOutcome == "SURVIVORS_WIN" then
                 -- Gate is now open!
                 for i = GATE_OPEN_DURATION, 0, -1 do
@@ -155,29 +152,35 @@ function RoundManager:Start()
                 end
                 status.Value = "The gate is now closed!"
                 task.wait(2)
-                -- Placeholder: For now, we assume everyone made it. A future step would check this.
 
                 local gameContinues = GameStateManager:AdvanceLevel()
                 if not gameContinues then
                     status.Value = "Congratulations! Survivors have completed all levels!"
                     task.wait(10)
-                    gameActive = false
-                else
-                    status.Value = "Survivors have won the level! Proceeding to the next."
-                    task.wait(5)
+                    GameStateManager:SetState("Lobby") -- Or a "PostGame" state
                 end
             elseif roundOutcome == "KILLER_WIN" then
                 status.Value = "The Killer has won. The game will now reset."
                 task.wait(10)
                 GameStateManager:ResetGame()
-                gameActive = false
             else -- Handle ABORTED or any other unexpected outcome
                 status.Value = "Round ended unexpectedly. Returning to lobby."
                 task.wait(5)
-                gameActive = false
+                GameStateManager:SetState("Lobby")
             end
+        elseif newState == "Intermission" then
+            status.Value = "Survivors have won the level! Proceeding to the next."
+            task.wait(5)
+            GameStateManager:SetState("InRound") -- Start the next round
         end
-    end
+    end)
+end
+
+-- The Start function will now just set the initial state and connect the event listener.
+function RoundManager:Start()
+    GameStateManager.OnStateChanged:Connect(OnStateChanged)
+    -- Set the initial state to begin the game loop
+    GameStateManager:SetState("Lobby")
 end
 
 return RoundManager
