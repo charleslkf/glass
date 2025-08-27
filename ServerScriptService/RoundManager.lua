@@ -9,8 +9,13 @@ local GameStateManager = require(ServerScriptService:WaitForChild("GameStateMana
 local RoundManager = {}
 
 -- Get/Create Status StringValue
-local status = ReplicatedStorage:FindFirstChild("Status") or Instance.new("StringValue", ReplicatedStorage)
-status.Name = "Status"
+local status = ReplicatedStorage:FindFirstChild("Status")
+if not status then
+    status = Instance.new("StringValue")
+    status.Name = "Status"
+    status.Value = "Waiting for players..." -- Set default value on creation
+    status.Parent = ReplicatedStorage
+end
 
 local timeLeft = 0
 
