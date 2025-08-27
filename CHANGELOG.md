@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.1.0] - 2025-08-27
+
+### Changed
+- **Major Refactoring of Client-Side UI:**
+    - Extracted all mini-game logic from the monolithic `MachineUIController.client.lua` into separate, dedicated modules (`SkillCheck.lua`, `MemoryGame.lua`, `NumberLink.lua`).
+    - Created a new `MiniGames` directory to house the new modules, improving project organization.
+    - `MachineUIController.client.lua` is now a lightweight controller that loads and delegates to the appropriate mini-game module. This greatly improves code modularity and maintainability.
+
 ## [2.0.0] - 2025-08-27
 
 ### Added
