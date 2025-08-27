@@ -6,6 +6,7 @@
       "$path": "ServerScriptService"
     },
     "StarterPlayer": {
+      "$className": "StarterPlayer",
       "$path": "StarterPlayer"
     }
   }
