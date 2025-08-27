@@ -44,6 +44,10 @@ function NumberLink.Create(mainFrame, themeManager)
     frame.BorderSizePixel = 0
     frame.Visible = false
 
+    local corner = Instance.new("UICorner", frame)
+    corner.Name = "NumberLinkFrameCorner" -- Unique Name
+    corner.CornerRadius = UDim.new(0, 9)
+
     local title = Instance.new("TextLabel", frame)
     title.Size = UDim2.new(1, 0, 0, 50)
     title.Text = "Connect the Pairs"
@@ -51,6 +55,10 @@ function NumberLink.Create(mainFrame, themeManager)
     title.TextColor3 = themeManager.get("Text")
     title.TextSize = 24
     title.BackgroundColor3 = themeManager.get("Primary")
+
+    local titleCorner = Instance.new("UICorner", title)
+    titleCorner.Name = "NumberLinkTitleCorner" -- Unique Name
+    titleCorner.CornerRadius = UDim.new(0, 9)
 
     local gridFrame = Instance.new("Frame", frame)
     gridFrame.Size = UDim2.new(1, -20, 1, -70)
