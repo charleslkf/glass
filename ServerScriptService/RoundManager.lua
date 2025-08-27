@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local GameStateManager = require(ServerScriptService:WaitForChild("GameStateManager"))
+local PlayerManager = require(ServerScriptService:WaitForChild("PlayerManager"))
 
 local RoundManager = {}
 
@@ -43,20 +44,8 @@ local function startRound()
         return "ABORTED"
     end
 
-    -- Assign roles
-    local survivorRoles = {"Survivor", "Stunner", "Helper"}
-    local killer = players[math.random(1, #players)]
-
-    for _, player in ipairs(players) do
-        if player == killer then
-            player:SetAttribute("Role", "Killer")
-            print(player.Name .. " has been chosen as the Killer!")
-        else
-            local assignedRole = survivorRoles[math.random(1, #survivorRoles)]
-            player:SetAttribute("Role", assignedRole)
-            print(player.Name .. " is a " .. assignedRole)
-        end
-    end
+    -- Assign roles using the PlayerManager
+    PlayerManager:AssignRoles(players)
 
     status.Value = "Roles have been assigned! The round has started."
 
