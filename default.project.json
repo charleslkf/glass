@@ -1,0 +1,12 @@
+{
+  "name": "roblox-project",
+  "tree": {
+    "$className": "DataModel",
+    "ServerScriptService": {
+      "$path": "ServerScriptService"
+    },
+    "StarterPlayer": {
+      "$path": "StarterPlayer"
+    }
+  }
+}
