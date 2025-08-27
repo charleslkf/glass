@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2025-08-27
+
+### Added
+- **UI Theming System:** Implemented a new `ThemeManager` module to centralize UI color management, allowing for easy theming. The initial implementation includes a full "Dark Theme" for all mini-game UIs.
+- **Project Configuration:**
+    - Added a `default.project.json` file to formally structure the project for use with Rojo.
+    - Added a `VERSION` file to track build versions.
+    - Added a `.gitkeep` file to the `StarterCharacterScripts` directory to ensure it is tracked by Git.
+- **"Number Link" Mini-Game:** Re-implemented the "Number Link" mini-game, which was previously removed. The game is now stable.
+
+### Changed
+- **File Naming Convention:** Refactored key `ModuleScript` files (`GameStateManager`, `RoundManager`, `ThemeManager`) to remove the `.module` suffix from their filenames, standardizing the project structure and resolving critical loading errors.
+
+### Fixed
+- **Multiple Critical Loading Errors:** Resolved a series of `Infinite yield` errors on both the client and server. The root cause was a combination of filename mismatches and script dependencies failing to load in the correct order.
+- **Multiple Syntax Errors:**
+    - Fixed a server-side syntax error in `MachineManager.server.lua` caused by using the Lua keyword `end` as a table key.
+    - Fixed a persistent, subtle client-side syntax error in `MachineUIController.client.lua` within the `runNumberLinkGame` function.
+
 ## [1.1.0] - 2025-08-23
 
 ### Added
