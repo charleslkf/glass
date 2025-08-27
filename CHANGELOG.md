@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.1.5] - 2025-08-27
+### Chore
+- Corrected the version number in the `VERSION` file.
+
+## [3.1.4] - 2025-08-27
+### Fixed
+- **UI Visibility Bug:** Fixed a race condition that caused the status display UI to be blank on game start. The `Status` StringValue in `ReplicatedStorage` is now initialized with a default value to ensure the UI has content on its first render.
+
+## [3.1.3] - 2025-08-27
+### Fixed
+- **Server Startup Failure:** Fixed a critical bug where the game loop was not starting. Created a new `Main.server.lua` script to act as a single, reliable entry point for all server-side logic and removed the incorrect startup call from `MachineManager.server.lua`.
+
+## [3.1.2] - 2025-08-27
+### Changed
+- **State-Driven Game Loop:** Refactored the `RoundManager` to be driven by the new `GameStateManager`. The old `while true` loop was removed and replaced with an event handler that listens for state changes ("Lobby", "InRound", "Intermission"), creating a more robust and scalable game loop architecture.
+### Added
+- **Core State Machine:** Implemented the first version of the `GameStateManager`, which now tracks the overall game state.
+
 ## [3.1.0] - 2025-08-27
 
 ### Changed

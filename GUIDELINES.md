@@ -35,6 +35,19 @@ To ensure we are always on the same page, we will use the following terms:
 - **Submission:** A set of code changes that are committed and pushed to a branch on GitHub.
 - **Version:** The version number in the `VERSION` file, which corresponds to a specific **Submission**.
 
+## 3. Context Management
+
+To ensure I (Jules, the AI engineer) can work efficiently without getting confused by our long conversation history, we will adhere to the following principles:
+
+### 3.1. Documentation as the Source of Truth
+- The `ROADMAP.md` file will be treated as the primary guide for our development goals and priorities.
+- If we need to change direction or priorities, we will update the roadmap first.
+- The `GUIDELINES.md` file (this document) will be the source of truth for our workflow rules.
+
+### 3.2. Clear Task Transitions
+- When we complete a major task or milestone as defined in the roadmap, the user can signal a clear transition by saying "Let's start the next task/milestone."
+- This will help me "archive" the previous context and focus on the new objective.
+
 ---
 
 By adhering to these guidelines, we can maintain a clear, organized, and productive development environment.
