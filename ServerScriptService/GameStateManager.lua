@@ -5,6 +5,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameState = {}
 GameState.__index = GameState
 
+-- State Management
+local currentState = "Lobby"
+local onStateChanged = Instance.new("BindableEvent")
+GameState.OnStateChanged = onStateChanged.Event
+
 -- Create a NumberValue for the level if it doesn't exist
 local levelValue = ReplicatedStorage:FindFirstChild("CurrentLevel")
 if not levelValue then
@@ -16,10 +21,22 @@ end
 
 local MAX_LEVEL = 10
 
+function GameState:SetState(newState)
+    if newState ~= currentState then
+        currentState = newState
+        onStateChanged:Fire(newState)
+        print("Game state changed to: " .. newState)
+    end
+end
+
+function GameState:GetState()
+    return currentState
+end
+
 function GameState:StartGame()
-    if levelValue.Value == 0 then
+    if currentState == "Lobby" then
         levelValue.Value = 1
-        print("Game started! Current level: " .. levelValue.Value)
+        self:SetState("InRound")
     end
 end
 
@@ -27,6 +44,7 @@ function GameState:AdvanceLevel()
     if levelValue.Value > 0 and levelValue.Value < MAX_LEVEL then
         levelValue.Value = levelValue.Value + 1
         print("Level advanced! Current level: " .. levelValue.Value)
+        self:SetState("Intermission") -- Start intermission after advancing
         return true -- Level advanced successfully
     else
         print("Final level completed! Survivors win the game!")
@@ -37,7 +55,7 @@ end
 
 function GameState:ResetGame()
     levelValue.Value = 0
-    print("Game state has been reset. Returning to lobby.")
+    self:SetState("Lobby")
 end
 
 function GameState:GetCurrentLevel()
