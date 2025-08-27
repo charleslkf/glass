@@ -135,8 +135,8 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 	for i = 2, #puzzleData do
 		local pairInfo = puzzleData[i]
 		local color = pairColors[i - 1]
-		endpoints[pairInfo.start] = { color = color, partner = pairInfo.end }
-		endpoints[pairInfo.end] = { color = color, partner = pairInfo.start }
+		endpoints[pairInfo.start] = { color = color, partner = pairInfo.endPos }
+		endpoints[pairInfo.endPos] = { color = color, partner = pairInfo.start }
 		paths[color] = {}
 	end
 
