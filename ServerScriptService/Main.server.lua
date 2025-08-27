@@ -4,8 +4,12 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 
 -- We require the RoundManager module, which in turn requires the GameStateManager.
--- This ensures all necessary modules are loaded before we start the game.
+-- We require all major manager modules to ensure they are loaded and running.
+local PlayerManager = require(ServerScriptService:WaitForChild("PlayerManager"))
 local RoundManager = require(ServerScriptService:WaitForChild("RoundManager"))
+
+-- Initialize the managers
+PlayerManager:Init()
 
 -- Start the game loop.
 RoundManager:Start()
