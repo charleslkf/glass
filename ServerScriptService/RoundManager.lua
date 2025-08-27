@@ -171,10 +171,11 @@ local function OnStateChanged(newState)
 end
 
 -- The Start function will now just set the initial state and connect the event listener.
+-- The Start function will now connect the event listener and manually trigger the initial state.
 function RoundManager:Start()
     GameStateManager.OnStateChanged:Connect(OnStateChanged)
-    -- Set the initial state to begin the game loop
-    GameStateManager:SetState("Lobby")
+    -- Manually call the handler for the initial state to kick off the loop
+    OnStateChanged(GameStateManager:GetState())
 end
 
 return RoundManager
