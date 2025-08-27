@@ -45,7 +45,7 @@ function NumberLink.Create(mainFrame, themeManager)
     frame.Visible = false
 
     local corner = Instance.new("UICorner", frame)
-    corner.CornerRadius = UDim.new(0, 8)
+    corner.CornerRadius = UDim.new(0, 9)
 
     local title = Instance.new("TextLabel", frame)
     title.Size = UDim2.new(1, 0, 0, 50)
@@ -56,7 +56,7 @@ function NumberLink.Create(mainFrame, themeManager)
     title.BackgroundColor3 = themeManager.get("Primary")
 
     local titleCorner = Instance.new("UICorner", title)
-    titleCorner.CornerRadius = UDim.new(0, 8)
+    titleCorner.CornerRadius = UDim.new(0, 9)
 
     local gridFrame = Instance.new("Frame", frame)
     gridFrame.Size = UDim2.new(1, -20, 1, -70)
