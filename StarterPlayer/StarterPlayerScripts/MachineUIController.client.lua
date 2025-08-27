@@ -111,7 +111,6 @@ local function runMemoryGame(machine, gridSize, pattern, currentProgress, needed
 	end
 end
 
---[[
 local function runNumberLinkGame(machine, puzzleData, currentProgress, neededProgress)
 	isGameActive = true
 	currentMachine = machine
@@ -231,12 +230,11 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 
 	nlFrameLeaveConnection = mainFrame.MouseLeave:Connect(onDragEnd)
 end
---]]
 
 -- --- Event Connections ---
 startSkillCheckEvent.OnClientEvent:Connect(runSkillCheck)
 startMemoryEvent.OnClientEvent:Connect(runMemoryGame)
--- startNumberLinkEvent.OnClientEvent:Connect(runNumberLinkGame)
+startNumberLinkEvent.OnClientEvent:Connect(runNumberLinkGame)
 
 cancelEvent.OnClientEvent:Connect(closeAllGames)
 miniGameCompleteEvent.OnClientEvent:Connect(function() print("Client received MiniGameComplete signal."); closeAllGames() end)
