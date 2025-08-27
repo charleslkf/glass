@@ -154,12 +154,6 @@ for _, pos in ipairs(MACHINE_POSITIONS) do createMachine(pos, machineTypes[math.
 print("MachineManager initialized, now with Number Link machines.")
 
 -- Wait a moment for all scripts to load before starting the game loop
-task.wait(0.1)
-
--- Start the main game loop in a separate thread
-task.spawn(function()
-	RoundManager:Start()
-end)
 
 -- Background loop to check player distance from machines
 while task.wait(1) do
