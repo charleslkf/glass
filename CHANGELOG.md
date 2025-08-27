@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.1.7] - 2025-08-27
+### Changed
+- **Refactored `PlayerManager`:** Converted `PlayerManager` from a self-running script into a proper ModuleScript.
+- **Centralized Role Assignment:** Moved the responsibility for assigning player roles from `RoundManager` to a new, dedicated `PlayerManager:AssignRoles()` function, improving code modularity.
+
+## [3.1.6] - 2025-08-27
+### Docs
+- Updated `ROADMAP.md` to reflect completed tasks.
+- Updated `GUIDELINES.md` with new rules for context management.
+- Updated `CHANGELOG.md` to be current with all recent versions.
+
 ## [3.1.5] - 2025-08-27
 ### Chore
 - Corrected the version number in the `VERSION` file.

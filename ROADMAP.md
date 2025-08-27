@@ -29,7 +29,7 @@ This document outlines the specific coding tasks required to build the game, sta
         - Start a short intermission timer before returning to the Lobby state.
 
 ### Task 1.3: Enhance the `PlayerManager`
-- **Status:** To Do
+- **Status:** Complete
 - **File:** `ServerScriptService/PlayerManager.lua`
 - **Logic:**
     - Add a function `AssignRoles()` that takes the list of players.
