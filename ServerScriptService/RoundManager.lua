@@ -35,8 +35,8 @@ end
 
 machineCompletedEvent.Event:Connect(onMachineCompleted)
 
-local MIN_PLAYERS_TO_START = 1
-local ROUND_DURATION = 60
+local MIN_PLAYERS_TO_START = 2
+local ROUND_DURATION = 120
 local INTERMISSION_DURATION = 15
 local GATE_OPEN_DURATION = 20
 

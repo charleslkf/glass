@@ -99,7 +99,8 @@ skillCheckResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccess
 		machineProgress[machine][player] += 1
 		local currentProgress = machineProgress[machine][player]
 		if currentProgress >= SKILL_CHECKS_NEEDED then
-			completeMachine(machine, player); resetPlayerProgress(player)
+			resetPlayerProgress(player)
+			completeMachine(machine, player)
 		else
 			task.wait(0.5); startSkillCheckEvent:FireClient(player, machine, currentProgress, SKILL_CHECKS_NEEDED)
 		end
@@ -115,7 +116,8 @@ memoryResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
 		machineProgress[machine][player] += 1
 		local currentProgress = machineProgress[machine][player]
 		if currentProgress >= MEMORY_GAMES_NEEDED then
-			completeMachine(machine, player); resetPlayerProgress(player)
+			resetPlayerProgress(player)
+			completeMachine(machine, player)
 		else
 			task.wait(0.5); triggerNewMemoryGame(player, machine, currentProgress)
 		end
@@ -131,7 +133,8 @@ numberLinkResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccess
 		machineProgress[machine][player] += 1
 		local currentProgress = machineProgress[machine][player]
 		if currentProgress >= NUMBER_LINKS_NEEDED then
-			completeMachine(machine, player); resetPlayerProgress(player)
+			resetPlayerProgress(player)
+			completeMachine(machine, player)
 		else
 			task.wait(0.5); triggerNewNumberLinkGame(player, machine, currentProgress)
 		end
