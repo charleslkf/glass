@@ -2,42 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
-## [3.1.7] - 2025-08-27
-### Changed
-- **Refactored `PlayerManager`:** Converted `PlayerManager` from a self-running script into a proper ModuleScript.
-- **Centralized Role Assignment:** Moved the responsibility for assigning player roles from `RoundManager` to a new, dedicated `PlayerManager:AssignRoles()` function, improving code modularity.
+## [3.2.0] - 2025-08-27
 
-## [3.1.6] - 2025-08-27
-### Docs
-- Updated `ROADMAP.md` to reflect completed tasks.
-- Updated `GUIDELINES.md` with new rules for context management.
-- Updated `CHANGELOG.md` to be current with all recent versions.
-
-## [3.1.5] - 2025-08-27
-### Chore
-- Corrected the version number in the `VERSION` file.
-
-## [3.1.4] - 2025-08-27
-### Fixed
-- **UI Visibility Bug:** Fixed a race condition that caused the status display UI to be blank on game start. The `Status` StringValue in `ReplicatedStorage` is now initialized with a default value to ensure the UI has content on its first render.
-
-## [3.1.3] - 2025-08-27
-### Fixed
-- **Server Startup Failure:** Fixed a critical bug where the game loop was not starting. Created a new `Main.server.lua` script to act as a single, reliable entry point for all server-side logic and removed the incorrect startup call from `MachineManager.server.lua`.
-
-## [3.1.2] - 2025-08-27
-### Changed
-- **State-Driven Game Loop:** Refactored the `RoundManager` to be driven by the new `GameStateManager`. The old `while true` loop was removed and replaced with an event handler that listens for state changes ("Lobby", "InRound", "Intermission"), creating a more robust and scalable game loop architecture.
 ### Added
-- **Core State Machine:** Implemented the first version of the `GameStateManager`, which now tracks the overall game state.
-
-## [3.1.0] - 2025-08-27
+- **Core State Machine:** Implemented a `GameStateManager` to track the overall game state ("Lobby", "InRound", "Intermission").
+- **Project Documentation:** Created `GUIDELINES.md` for workflow standards and `ROADMAP.md` for future development planning.
 
 ### Changed
-- **Major Refactoring of Client-Side UI:**
-    - Extracted all mini-game logic from the monolithic `MachineUIController.client.lua` into separate, dedicated modules (`SkillCheck.lua`, `MemoryGame.lua`, `NumberLink.lua`).
-    - Created a new `MiniGames` directory to house the new modules, improving project organization.
-    - `MachineUIController.client.lua` is now a lightweight controller that loads and delegates to the appropriate mini-game module. This greatly improves code modularity and maintainability.
+- **State-Driven Game Loop:** Refactored the `RoundManager` to be driven by the new `GameStateManager`, creating a robust, state-driven architecture.
+- **Centralized Role Assignment:** Refactored the `PlayerManager` into a proper module and centralized all role assignment logic within it.
+- **Server Entry Point:** Created a `Main.server.lua` script to act as a single, reliable entry point for all server logic.
+
+### Fixed
+- **UI Race Condition:** Fixed a bug where the status UI would be blank on startup by setting a default value.
+- **Server Startup Failures:** Resolved multiple critical `Infinite yield` errors by correcting file names and creating a proper startup sequence.
+- **Client UI Bug:** Fixed a client-specific error related to `UICorner` rendering.
 
 ## [2.0.0] - 2025-08-27
 
