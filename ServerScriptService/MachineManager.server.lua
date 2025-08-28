@@ -17,6 +17,7 @@ local startNumberLinkEvent = ReplicatedStorage:WaitForChild("StartNumberLinkMini
 local numberLinkResultEvent = ReplicatedStorage:WaitForChild("NumberLinkResult")
 local cancelEvent = ReplicatedStorage:WaitForChild("CancelMiniGame")
 local miniGameCompleteEvent = ReplicatedStorage:WaitForChild("MiniGameComplete")
+local machineCompletedEvent = ReplicatedStorage:WaitForChild("MachineCompletedEvent")
 
 local MACHINE_POSITIONS = { Vector3.new(0,3,20), Vector3.new(20,3,0), Vector3.new(0,3,-20), Vector3.new(-20,3,0), Vector3.new(15,3,15), Vector3.new(-15,3,-15) }
 local COOLDOWN_DURATION = 25
@@ -63,7 +64,7 @@ end
 local function completeMachine(machine, player)
 	miniGameCompleteEvent:FireClient(player)
 	task.wait(1.5)
-	RoundManager:AddTime(5)
+	machineCompletedEvent:Fire()
 	machine.ProximityPrompt.Enabled = false; machine.BrickColor = BrickColor.new("Lime green"); task.wait(COOLDOWN_DURATION); machine.ProximityPrompt.Enabled = true; machine.BrickColor = BrickColor.new("Medium stone grey")
 end
 
