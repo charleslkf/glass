@@ -79,10 +79,15 @@ function NumberLink:Run(machine, puzzleData, currentProgress, neededProgress)
     end
 
     local function onDragEnd()
-        if not isDragging then return end
+        if not isDragging then
+            return
+        end
         local lastCell = currentPath[#currentPath]
         local startCell = currentPath[1]
-        if not startCell then isDragging = false; return end
+        if not startCell then
+            isDragging = false
+            return
+        end
         local partnerCell = self.endpoints[startCell].partner
         if lastCell == partnerCell then
             self:finalizePath(currentPath, activeColor)
