@@ -131,10 +131,14 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 	local pairColors = {Color3.fromRGB(255, 87, 87), Color3.fromRGB(87, 255, 87), Color3.fromRGB(87, 87, 255), Color3.fromRGB(255, 255, 87), Color3.fromRGB(255, 87, 255), Color3.fromRGB(87, 255, 255)}
 	for i = 2, #puzzleData do
 		local pairInfo = puzzleData[i]
-		local color = pairColors[i - 1]
-		endpoints[pairInfo.start] = { color = color, partner = pairInfo.end }
-		endpoints[pairInfo.end] = { color = color, partner = pairInfo.start }
-		paths[color] = {}
+		if pairInfo then
+			local color = pairColors[i - 1]
+			local startPos = pairInfo.start
+			local endPos = pairInfo.endPoint
+			endpoints[startPos] = { color = color, partner = endPos }
+			endpoints[endPos] = { color = color, partner = startPos }
+			paths[color] = {}
+		end
 	end
 
 	local function checkWinCondition()
