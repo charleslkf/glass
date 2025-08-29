@@ -30,7 +30,7 @@ local machineProgress = {}
 local activePlayers = {} -- [player] = machineInstance
 
 -- Pre-defined puzzles for Number Link.
-local numberLinkPuzzles = {{8, {start=1,end=18}, {start=3,end=27}, {start=5,end=30}, {start=8,end=48}, {start=33,end=57}, {start=38,end=63}}}
+local numberLinkPuzzles = {{8, {start=1,endPoint=18}, {start=3,endPoint=27}, {start=5,endPoint=30}, {start=8,endPoint=48}, {start=33,endPoint=57}, {start=38,endPoint=63}}}
 
 local function triggerNewMemoryGame(player, machine, progress)
 	local gridSize = 3; local patternLength = 5
