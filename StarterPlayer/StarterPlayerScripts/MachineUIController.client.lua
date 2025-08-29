@@ -8,18 +8,21 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Modules
-local ThemeManager = require(script.Parent:WaitForChild("ThemeManager"))
-local SkillCheck = require(script.Parent.MiniGames:WaitForChild("SkillCheck"))
-local MemoryGame = require(script.Parent.MiniGames:WaitForChild("MemoryGame"))
-local NumberLink = require(script.Parent.MiniGames:WaitForChild("NumberLink"))
-
 -- Remote Events
 local startSkillCheckEvent = ReplicatedStorage:WaitForChild("StartSkillCheckMiniGame")
+local skillCheckResultEvent = ReplicatedStorage:WaitForChild("SkillCheckResult")
 local startMemoryEvent = ReplicatedStorage:WaitForChild("StartMemoryMiniGame")
+local memoryResultEvent = ReplicatedStorage:WaitForChild("MemoryResult")
 local startNumberLinkEvent = ReplicatedStorage:WaitForChild("StartNumberLinkMiniGame")
+local numberLinkResultEvent = ReplicatedStorage:WaitForChild("NumberLinkResult")
 local cancelEvent = ReplicatedStorage:WaitForChild("CancelMiniGame")
 local miniGameCompleteEvent = ReplicatedStorage:WaitForChild("MiniGameComplete")
+
+-- Mini-Game Modules
+local MiniGames = script.Parent:WaitForChild("MiniGames")
+local SkillCheck = require(MiniGames:WaitForChild("SkillCheck"))
+local MemoryGame = require(MiniGames:WaitForChild("MemoryGame"))
+local NumberLink = require(MiniGames:WaitForChild("NumberLink"))
 
 local MAX_INTERACTION_DISTANCE = 12
 
@@ -33,71 +36,84 @@ mainFrame.Name = "MainFrame"
 mainFrame.Size = UDim2.new(1, 0, 1, 0)
 mainFrame.BackgroundTransparency = 1
 
--- Create all mini-game UIs
-SkillCheck.Create(mainFrame, ThemeManager)
-MemoryGame.Create(mainFrame, ThemeManager)
-NumberLink.Create(mainFrame, ThemeManager)
+-- --- Logic ---
+local isGameActive = false
+local currentMachine = nil
+local activeGameModule = nil
 
--- Logic
-local activeGame = nil
+-- Initialize Mini-Game Modules
+local skillCheckGame = SkillCheck.new(mainFrame, skillCheckResultEvent)
+local memoryGame = MemoryGame.new(mainFrame, memoryResultEvent)
+local numberLinkGame = NumberLink.new(mainFrame, numberLinkResultEvent)
 
-local function closeAllGames()
-    if activeGame then
-        activeGame.Close()
-        activeGame = nil
-    end
+local function closeCurrentGame()
+	if not isGameActive then return end
+
+	isGameActive = false
+	currentMachine = nil
+	if activeGameModule then
+		activeGameModule:Close()
+		activeGameModule = nil
+	end
 end
 
--- Event Connections
+-- --- Event Connections ---
 startSkillCheckEvent.OnClientEvent:Connect(function(machine, currentProgress, neededProgress)
-    closeAllGames()
-    activeGame = SkillCheck
-    SkillCheck.Run(machine, currentProgress, neededProgress, closeAllGames, ThemeManager)
+	closeCurrentGame() -- Ensure no other game is running
+	isGameActive = true
+	currentMachine = machine
+	activeGameModule = skillCheckGame
+	skillCheckGame:Run(machine, currentProgress, neededProgress)
 end)
 
 startMemoryEvent.OnClientEvent:Connect(function(machine, gridSize, pattern, currentProgress, neededProgress)
-    closeAllGames()
-    activeGame = MemoryGame
-    MemoryGame.Run(machine, gridSize, pattern, currentProgress, neededProgress, closeAllGames, ThemeManager)
+	closeCurrentGame()
+	isGameActive = true
+	currentMachine = machine
+	activeGameModule = memoryGame
+	memoryGame:Run(machine, gridSize, pattern, currentProgress, neededProgress)
 end)
 
 startNumberLinkEvent.OnClientEvent:Connect(function(machine, puzzleData, currentProgress, neededProgress)
-    closeAllGames()
-    activeGame = NumberLink
-    NumberLink.Run(machine, puzzleData, currentProgress, neededProgress, closeAllGames, ThemeManager)
+	closeCurrentGame()
+	isGameActive = true
+	currentMachine = machine
+	activeGameModule = numberLinkGame
+	numberLinkGame:Run(machine, puzzleData, currentProgress, neededProgress)
 end)
 
-cancelEvent.OnClientEvent:Connect(closeAllGames)
+cancelEvent.OnClientEvent:Connect(closeCurrentGame)
 miniGameCompleteEvent.OnClientEvent:Connect(function()
-    print("Client received MiniGameComplete signal.")
-    closeAllGames()
+	print("Client received MiniGameComplete signal.")
+	closeCurrentGame()
 end)
 
 UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    if gameProcessedEvent or not activeGame then return end
-    if input.KeyCode == Enum.KeyCode.Backspace then
-        cancelEvent:FireServer(activeGame.CurrentMachine)
-        closeAllGames()
-    end
+	if gameProcessedEvent or not isGameActive then return end
+	if input.KeyCode == Enum.KeyCode.Backspace then
+		cancelEvent:FireServer(currentMachine)
+		closeCurrentGame()
+	end
 end)
 
 RunService.RenderStepped:Connect(function()
-    if activeGame and activeGame.CurrentMachine then
-        local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-        if not rootPart then closeAllGames(); return end
-        if typeof(activeGame.CurrentMachine) ~= "Instance" or not activeGame.CurrentMachine.Parent then closeAllGames(); return end
+	if isGameActive and currentMachine then
+		local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+		if not rootPart then closeCurrentGame(); return end
 
-        local success, distance = pcall(function()
-            return (rootPart.Position - activeGame.CurrentMachine.Position).Magnitude
-        end)
+		-- Use a pcall to prevent errors if the machine is destroyed mid-frame
+		local success, distance = pcall(function()
+			return (rootPart.Position - currentMachine.Position).Magnitude
+		end)
 
-        if success and distance > MAX_INTERACTION_DISTANCE then
-            cancelEvent:FireServer(activeGame.CurrentMachine)
-            closeAllGames()
-        elseif not success then
-            closeAllGames()
-        end
-    end
+		if success and distance > MAX_INTERACTION_DISTANCE then
+			cancelEvent:FireServer(currentMachine)
+			closeCurrentGame()
+		elseif not success then
+			-- This can happen if the machine instance is destroyed.
+			closeCurrentGame()
+		end
+	end
 end)
 
-print("MachineUIController initialized and refactored.")
+print("MachineUIController (Refactored) initialized.")

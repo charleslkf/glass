@@ -1,26 +1,9 @@
--- ServerScriptService/PlayerManager.lua
+-- ServerScriptService/PlayerManager.server.lua
 
 local Players = game:GetService("Players")
 
-local PlayerManager = {}
-
 local SURVIVOR_HEALTH = 200
 local KILLER_HEALTH = 2500
-
-function PlayerManager:AssignRoles(players)
-    -- Assign roles
-    local survivorRoles = {"Survivor", "Stunner", "Helper"}
-    local killer = players[math.random(1, #players)]
-
-    for _, player in ipairs(players) do
-        if player == killer then
-            player:SetAttribute("Role", "Killer")
-        else
-            local assignedRole = survivorRoles[math.random(1, #survivorRoles)]
-            player:SetAttribute("Role", assignedRole)
-        end
-    end
-end
 
 local function setupPlayer(player)
     -- Called when a player joins the game
@@ -70,14 +53,10 @@ local function setupPlayer(player)
     end)
 end
 
-function PlayerManager:Init()
-    -- Connect the setup function for each player who joins
-    Players.PlayerAdded:Connect(setupPlayer)
+-- Connect the setup function for each player who joins
+Players.PlayerAdded:Connect(setupPlayer)
 
-    -- Also set up any players who are already in the game when the script runs
-    for _, player in ipairs(Players:GetPlayers()) do
-        setupPlayer(player)
-    end
+-- Also set up any players who are already in the game when the script runs
+for _, player in ipairs(Players:GetPlayers()) do
+    setupPlayer(player)
 end
-
-return PlayerManager
