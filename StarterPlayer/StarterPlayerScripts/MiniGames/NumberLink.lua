@@ -1,161 +1,93 @@
-local NumberLink = {}
-
--- Services
+-- MiniGames/NumberLink.lua
 local UserInputService = game:GetService("UserInputService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Events
-local numberLinkResultEvent = ReplicatedStorage:WaitForChild("NumberLinkResult")
+local NumberLink = {}
+NumberLink.__index = NumberLink
 
--- Module Fields
-NumberLink.Frame = nil
-NumberLink.IsGameActive = false
-NumberLink.CurrentMachine = nil
-NumberLink.MouseUpConnection = nil
-NumberLink.FrameLeaveConnection = nil
+function NumberLink.new(mainFrame, resultsEvent)
+    local self = setmetatable({}, NumberLink)
 
--- Private Functions
-local function closeGame(closeCallback)
-    NumberLink.IsGameActive = false
-    NumberLink.CurrentMachine = nil
-    if NumberLink.Frame then
-        NumberLink.Frame.Visible = false
-    end
-    if NumberLink.MouseUpConnection then
-        NumberLink.MouseUpConnection:Disconnect()
-        NumberLink.MouseUpConnection = nil
-    end
-    if NumberLink.FrameLeaveConnection then
-        NumberLink.FrameLeaveConnection:Disconnect()
-        NumberLink.FrameLeaveConnection = nil
-    end
-    if closeCallback then
-        closeCallback()
-    end
+    self.resultsEvent = resultsEvent
+    self.isGameActive = false
+    self.currentMachine = nil
+
+    self.mouseUpConnection = nil
+    self.frameLeaveConnection = nil
+    self.cell_buttons = {}
+    self.paths = {}
+    self.endpoints = {}
+
+    -- Create UI
+    self.frame = Instance.new("Frame", mainFrame)
+    self.frame.Name = "NumberLinkFrame"
+    self.frame.Size = UDim2.new(0, 400, 0, 450)
+    self.frame.Position = UDim2.new(0.5, -200, 0.5, -225)
+    self.frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    self.frame.BorderSizePixel = 0
+    self.frame.Visible = false
+
+    local nlCorner = Instance.new("UICorner", self.frame); nlCorner.CornerRadius = UDim.new(0, 8)
+    local nlTitle = Instance.new("TextLabel", self.frame); nlTitle.Size = UDim2.new(1, 0, 0, 50); nlTitle.Text = "Connect the Pairs"; nlTitle.Font = Enum.Font.SourceSansBold; nlTitle.TextColor3 = Color3.new(1, 1, 1); nlTitle.TextSize = 24; nlTitle.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    local nlTitleCorner = Instance.new("UICorner", nlTitle); nlTitleCorner.CornerRadius = UDim.new(0, 8)
+
+    self.gridFrame = Instance.new("Frame", self.frame)
+    self.gridFrame.Size = UDim2.new(1, -20, 1, -70)
+    self.gridFrame.Position = UDim2.new(0.5, 0, 0.5, 10)
+    self.gridFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    self.gridFrame.BackgroundTransparency = 1
+
+    self.gridLayout = Instance.new("UIGridLayout", self.gridFrame)
+    self.gridLayout.CellPadding = UDim2.new(0, 4, 0, 4)
+
+    self.progressLabel = Instance.new("TextLabel", self.frame)
+    self.progressLabel.Name = "ProgressLabel"
+    self.progressLabel.Size = UDim2.new(1, -20, 0, 20)
+    self.progressLabel.Position = UDim2.new(0.5, 0, 1, -15)
+    self.progressLabel.AnchorPoint = Vector2.new(0.5, 1)
+    self.progressLabel.BackgroundTransparency = 1
+    self.progressLabel.Font = Enum.Font.SourceSansBold
+    self.progressLabel.TextColor3 = Color3.new(1, 1, 1)
+    self.progressLabel.TextSize = 18
+    self.progressLabel.Text = "Progress: 0 / 6"
+
+    return self
 end
 
--- Public Functions
-function NumberLink.Create(mainFrame, themeManager)
-    local frame = Instance.new("Frame", mainFrame)
-    frame.Name = "NumberLinkFrame"
-    frame.Size = UDim2.new(0, 400, 0, 450)
-    frame.Position = UDim2.new(0.5, -200, 0.5, -225)
-    frame.BackgroundColor3 = themeManager.get("Background")
-    frame.BorderSizePixel = 0
-    frame.Visible = false
+function NumberLink:Run(machine, puzzleData, currentProgress, neededProgress)
+    self.isGameActive = true
+    self.currentMachine = machine
+    self:cleanupGrid()
 
-    local corner = Instance.new("UICorner", frame)
-    corner.Name = "NumberLinkFrameCorner" -- Unique Name
-    corner.CornerRadius = UDim.new(0, 9)
-
-    local title = Instance.new("TextLabel", frame)
-    title.Size = UDim2.new(1, 0, 0, 50)
-    title.Text = "Connect the Pairs"
-    title.Font = Enum.Font.SourceSansBold
-    title.TextColor3 = themeManager.get("Text")
-    title.TextSize = 24
-    title.BackgroundColor3 = themeManager.get("Primary")
-
-    local titleCorner = Instance.new("UICorner", title)
-    titleCorner.Name = "NumberLinkTitleCorner" -- Unique Name
-    titleCorner.CornerRadius = UDim.new(0, 9)
-
-    local gridFrame = Instance.new("Frame", frame)
-    gridFrame.Size = UDim2.new(1, -20, 1, -70)
-    gridFrame.Position = UDim2.new(0.5, 0, 0.5, 10)
-    gridFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-    gridFrame.BackgroundTransparency = 1
-
-    local gridLayout = Instance.new("UIGridLayout", gridFrame)
-    gridLayout.CellPadding = UDim2.new(0, 4, 0, 4)
-
-    local progressLabel = Instance.new("TextLabel", frame)
-    progressLabel.Name = "ProgressLabel"
-    progressLabel.Size = UDim2.new(1, -20, 0, 20)
-    progressLabel.Position = UDim2.new(0.5, 0, 1, -15)
-    progressLabel.AnchorPoint = Vector2.new(0.5, 1)
-    progressLabel.BackgroundTransparency = 1
-    progressLabel.Font = Enum.Font.SourceSansBold
-    progressLabel.TextColor3 = themeManager.get("Text")
-    progressLabel.TextSize = 18
-    progressLabel.Text = "Progress: 0 / 6"
-
-    NumberLink.Frame = frame
-    return frame
-end
-
-function NumberLink.Run(machine, puzzleData, currentProgress, neededProgress, closeCallback, themeManager)
-    if not NumberLink.Frame then return end
-
-    NumberLink.IsGameActive = true
-    NumberLink.CurrentMachine = machine
-    NumberLink.Frame.Visible = true
-
-    local progressLabel = NumberLink.Frame:FindFirstChild("ProgressLabel")
-    local gridFrame = NumberLink.Frame:FindFirstChild("Frame")
-    local gridLayout = gridFrame:FindFirstChild("UIGridLayout")
-
-    progressLabel.Text = "Connect all 6 pairs!"
+    self.frame.Visible = true
+    self.progressLabel.Text = "Connect all 6 pairs!"
 
     local gridSize = puzzleData[1]
-    local endpoints = {}
-    local paths = {}
-    local cell_buttons = {}
-    local completedPairs = 0
     local isDragging = false
     local activeColor = nil
     local currentPath = {}
+    self.completedPairs = 0
 
-    for _, child in ipairs(gridFrame:GetChildren()) do
-        if not child:IsA("UIGridLayout") then child:Destroy() end
-    end
-    gridLayout.CellSize = UDim2.new(1 / gridSize, -4, 1 / gridSize, -4)
+    self.gridLayout.CellSize = UDim2.new(1 / gridSize, -4, 1 / gridSize, -4)
 
-    local pairColors = themeManager.get("PairColors")
+    local pairColors = {Color3.fromRGB(255, 87, 87), Color3.fromRGB(87, 255, 87), Color3.fromRGB(87, 87, 255), Color3.fromRGB(255, 255, 87), Color3.fromRGB(255, 87, 255), Color3.fromRGB(87, 255, 255)}
     for i = 2, #puzzleData do
         local pairInfo = puzzleData[i]
         local color = pairColors[i - 1]
-        endpoints[pairInfo.start] = { color = color, partner = pairInfo.endPos }
-        endpoints[pairInfo.endPos] = { color = color, partner = pairInfo.start }
-        paths[color] = {}
-    end
-
-    local function checkWinCondition()
-        if completedPairs == #pairColors then
-            task.wait(0.5)
-            numberLinkResultEvent:FireServer(NumberLink.CurrentMachine, true)
-        end
-    end
-
-    local function clearPath(path, color)
-        for _, cellIndex in ipairs(path) do
-            if not endpoints[cellIndex] then
-                cell_buttons[cellIndex].BackgroundColor3 = themeManager.get("Secondary")
-            end
-        end
-        paths[color] = {}
-    end
-
-    local function finalizePath(path, color)
-        paths[color] = path
-        completedPairs = completedPairs + 1
-        progressLabel.Text = string.format("Pairs connected: %d / %d", completedPairs, #pairColors)
-        checkWinCondition()
+        self.endpoints[pairInfo.start] = { color = color, partner = pairInfo.end }
+        self.endpoints[pairInfo.end] = { color = color, partner = pairInfo.start }
+        self.paths[color] = {}
     end
 
     local function onDragEnd()
         if not isDragging then return end
         local lastCell = currentPath[#currentPath]
         local startCell = currentPath[1]
-        if not startCell then
-            isDragging = false
-            return
-        end
-        local partnerCell = endpoints[startCell].partner
+        if not startCell then isDragging = false; return end
+        local partnerCell = self.endpoints[startCell].partner
         if lastCell == partnerCell then
-            finalizePath(currentPath, activeColor)
+            self:finalizePath(currentPath, activeColor)
         else
-            clearPath(currentPath, activeColor)
+            self:clearPath(currentPath, activeColor)
         end
         isDragging = false
         activeColor = nil
@@ -163,33 +95,34 @@ function NumberLink.Run(machine, puzzleData, currentProgress, neededProgress, cl
     end
 
     for i = 1, gridSize * gridSize do
-        local cellButton = Instance.new("TextButton", gridFrame)
+        local cellButton = Instance.new("TextButton", self.gridFrame)
         cellButton.Name = tostring(i)
         cellButton.Text = ""
-        cellButton.BackgroundColor3 = themeManager.get("Secondary")
+        cellButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
         cellButton.BorderSizePixel = 0
-        local uiCorner = Instance.new("UICorner", cellButton)
-        uiCorner.CornerRadius = UDim.new(0, 4)
-        cell_buttons[i] = cellButton
-        if endpoints[i] then
-            cellButton.BackgroundColor3 = endpoints[i].color
+        local uiCorner = Instance.new("UICorner", cellButton); uiCorner.CornerRadius = UDim.new(0, 4)
+        self.cell_buttons[i] = cellButton
+        if self.endpoints[i] then
+            cellButton.BackgroundColor3 = self.endpoints[i].color
         end
+
         cellButton.MouseButton1Down:Connect(function()
-            if endpoints[i] then
+            if self.endpoints[i] then
                 isDragging = true
-                activeColor = endpoints[i].color
+                activeColor = self.endpoints[i].color
                 currentPath = {i}
-                if #paths[activeColor] > 0 then
-                    completedPairs = completedPairs - 1
-                    clearPath(paths[activeColor], activeColor)
+                if #self.paths[activeColor] > 0 then
+                    self.completedPairs = self.completedPairs - 1
+                    self:clearPath(self.paths[activeColor], activeColor)
                 end
             end
         end)
+
         cellButton.MouseEnter:Connect(function()
             if not isDragging or not activeColor then return end
             if table.find(currentPath, i) then return end
             local isOccupied = false
-            for color, path in pairs(paths) do
+            for color, path in pairs(self.paths) do
                 if color ~= activeColor and table.find(path, i) then
                     isOccupied = true
                     break
@@ -197,7 +130,7 @@ function NumberLink.Run(machine, puzzleData, currentProgress, neededProgress, cl
             end
             if not isOccupied then
                 table.insert(currentPath, i)
-                if endpoints[i] and endpoints[i].color ~= activeColor then
+                if self.endpoints[i] and self.endpoints[i].color ~= activeColor then
                     onDragEnd()
                 else
                     cellButton.BackgroundColor3 = activeColor
@@ -206,17 +139,54 @@ function NumberLink.Run(machine, puzzleData, currentProgress, neededProgress, cl
         end)
     end
 
-    NumberLink.MouseUpConnection = UserInputService.InputEnded:Connect(function(input)
+    self.mouseUpConnection = UserInputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             onDragEnd()
         end
     end)
 
-    NumberLink.FrameLeaveConnection = NumberLink.Frame.MouseLeave:Connect(onDragEnd)
+    self.frameLeaveConnection = self.frame.MouseLeave:Connect(onDragEnd)
 end
 
-function NumberLink.Close()
-    closeGame(nil)
+function NumberLink:checkWinCondition()
+    if self.completedPairs == 6 then -- There are always 6 pairs
+        task.wait(0.5)
+        self.resultsEvent:FireServer(self.currentMachine, true)
+    end
+end
+
+function NumberLink:clearPath(path, color)
+    for _, cellIndex in ipairs(path) do
+        if not self.endpoints[cellIndex] then
+            self.cell_buttons[cellIndex].BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        end
+    end
+    self.paths[color] = {}
+end
+
+function NumberLink:finalizePath(path, color)
+    self.paths[color] = path
+    self.completedPairs = self.completedPairs + 1
+    self.progressLabel.Text = string.format("Pairs connected: %d / 6", self.completedPairs)
+    self:checkWinCondition()
+end
+
+function NumberLink:cleanupGrid()
+    for _, btn in ipairs(self.cell_buttons) do
+        btn:Destroy()
+    end
+    self.cell_buttons = {}
+    self.paths = {}
+    self.endpoints = {}
+end
+
+function NumberLink:Close()
+    if self.mouseUpConnection then self.mouseUpConnection:Disconnect(); self.mouseUpConnection = nil end
+    if self.frameLeaveConnection then self.frameLeaveConnection:Disconnect(); self.frameLeaveConnection = nil end
+    self:cleanupGrid()
+    self.isGameActive = false
+    self.currentMachine = nil
+    self.frame.Visible = false
 end
 
 return NumberLink

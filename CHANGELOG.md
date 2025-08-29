@@ -2,40 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
-## [3.2.0] - 2025-08-27
+*Note: A repository reset to an earlier state resulted in the loss of some version history in this file. The versions are being re-established from this point forward.*
 
-### Added
-- **Core State Machine:** Implemented a `GameStateManager` to track the overall game state ("Lobby", "InRound", "Intermission").
-- **Project Documentation:** Created `GUIDELINES.md` for workflow standards and `ROADMAP.md` for future development planning.
-
+## [3.3.0] - 2025-08-29
 ### Changed
-- **State-Driven Game Loop:** Refactored the `RoundManager` to be driven by the new `GameStateManager`, creating a robust, state-driven architecture.
-- **Centralized Role Assignment:** Refactored the `PlayerManager` into a proper module and centralized all role assignment logic within it.
-- **Server Entry Point:** Created a `Main.server.lua` script to act as a single, reliable entry point for all server logic.
-
-### Fixed
-- **UI Race Condition:** Fixed a bug where the status UI would be blank on startup by setting a default value.
-- **Server Startup Failures:** Resolved multiple critical `Infinite yield` errors by correcting file names and creating a proper startup sequence.
-- **Client UI Bug:** Fixed a client-specific error related to `UICorner` rendering.
-
-## [2.0.0] - 2025-08-27
-
-### Added
-- **UI Theming System:** Implemented a new `ThemeManager` module to centralize UI color management, allowing for easy theming. The initial implementation includes a full "Dark Theme" for all mini-game UIs.
-- **Project Configuration:**
-    - Added a `default.project.json` file to formally structure the project for use with Rojo.
-    - Added a `VERSION` file to track build versions.
-    - Added a `.gitkeep` file to the `StarterCharacterScripts` directory to ensure it is tracked by Git.
-- **"Number Link" Mini-Game:** Re-implemented the "Number Link" mini-game, which was previously removed. The game is now stable.
-
-### Changed
-- **File Naming Convention:** Refactored key `ModuleScript` files (`GameStateManager`, `RoundManager`, `ThemeManager`) to remove the `.module` suffix from their filenames, standardizing the project structure and resolving critical loading errors.
-
-### Fixed
-- **Multiple Critical Loading Errors:** Resolved a series of `Infinite yield` errors on both the client and server. The root cause was a combination of filename mismatches and script dependencies failing to load in the correct order.
-- **Multiple Syntax Errors:**
-    - Fixed a server-side syntax error in `MachineManager.server.lua` caused by using the Lua keyword `end` as a table key.
-    - Fixed a persistent, subtle client-side syntax error in `MachineUIController.client.lua` within the `runNumberLinkGame` function.
+- **Client-Side Architecture Refactor:** Completely refactored the client-side game logic for improved modularity and maintainability.
+    - The monolithic `MachineUIController.client.lua` was broken down into a lean controller.
+    - All mini-game logic (Skill Check, Memory Game, Number Link) was extracted into its own dedicated module within a new `MiniGames` directory.
+    - The main controller now delegates all game-specific logic to the appropriate module.
 
 ## [1.1.0] - 2025-08-23
 

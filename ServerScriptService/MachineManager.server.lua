@@ -17,7 +17,6 @@ local startNumberLinkEvent = ReplicatedStorage:WaitForChild("StartNumberLinkMini
 local numberLinkResultEvent = ReplicatedStorage:WaitForChild("NumberLinkResult")
 local cancelEvent = ReplicatedStorage:WaitForChild("CancelMiniGame")
 local miniGameCompleteEvent = ReplicatedStorage:WaitForChild("MiniGameComplete")
-local machineCompletedEvent = ReplicatedStorage:WaitForChild("MachineCompletedEvent")
 
 local MACHINE_POSITIONS = { Vector3.new(0,3,20), Vector3.new(20,3,0), Vector3.new(0,3,-20), Vector3.new(-20,3,0), Vector3.new(15,3,15), Vector3.new(-15,3,-15) }
 local COOLDOWN_DURATION = 25
@@ -31,8 +30,7 @@ local machineProgress = {}
 local activePlayers = {} -- [player] = machineInstance
 
 -- Pre-defined puzzles for Number Link.
-local puzzle1 = {8, {start=1,endPos=18}, {start=3,endPos=27}, {start=5,endPos=30}, {start=8,endPos=48}, {start=33,endPos=57}, {start=38,endPos=63}}
-local numberLinkPuzzles = {puzzle1}
+local numberLinkPuzzles = {{8, {start=1,end=18}, {start=3,end=27}, {start=5,end=30}, {start=8,end=48}, {start=33,end=57}, {start=38,end=63}}}
 
 local function triggerNewMemoryGame(player, machine, progress)
 	local gridSize = 3; local patternLength = 5
@@ -64,7 +62,7 @@ end
 local function completeMachine(machine, player)
 	miniGameCompleteEvent:FireClient(player)
 	task.wait(1.5)
-	machineCompletedEvent:Fire()
+	RoundManager:AddTime(5)
 	machine.ProximityPrompt.Enabled = false; machine.BrickColor = BrickColor.new("Lime green"); task.wait(COOLDOWN_DURATION); machine.ProximityPrompt.Enabled = true; machine.BrickColor = BrickColor.new("Medium stone grey")
 end
 
@@ -99,8 +97,7 @@ skillCheckResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccess
 		machineProgress[machine][player] += 1
 		local currentProgress = machineProgress[machine][player]
 		if currentProgress >= SKILL_CHECKS_NEEDED then
-			resetPlayerProgress(player)
-			completeMachine(machine, player)
+			completeMachine(machine, player); resetPlayerProgress(player)
 		else
 			task.wait(0.5); startSkillCheckEvent:FireClient(player, machine, currentProgress, SKILL_CHECKS_NEEDED)
 		end
@@ -116,8 +113,7 @@ memoryResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
 		machineProgress[machine][player] += 1
 		local currentProgress = machineProgress[machine][player]
 		if currentProgress >= MEMORY_GAMES_NEEDED then
-			resetPlayerProgress(player)
-			completeMachine(machine, player)
+			completeMachine(machine, player); resetPlayerProgress(player)
 		else
 			task.wait(0.5); triggerNewMemoryGame(player, machine, currentProgress)
 		end
@@ -133,8 +129,7 @@ numberLinkResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccess
 		machineProgress[machine][player] += 1
 		local currentProgress = machineProgress[machine][player]
 		if currentProgress >= NUMBER_LINKS_NEEDED then
-			resetPlayerProgress(player)
-			completeMachine(machine, player)
+			completeMachine(machine, player); resetPlayerProgress(player)
 		else
 			task.wait(0.5); triggerNewNumberLinkGame(player, machine, currentProgress)
 		end
@@ -158,6 +153,12 @@ for _, pos in ipairs(MACHINE_POSITIONS) do createMachine(pos, machineTypes[math.
 print("MachineManager initialized, now with Number Link machines.")
 
 -- Wait a moment for all scripts to load before starting the game loop
+task.wait(0.1)
+
+-- Start the main game loop in a separate thread
+task.spawn(function()
+	RoundManager:Start()
+end)
 
 -- Background loop to check player distance from machines
 while task.wait(1) do
