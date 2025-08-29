@@ -2,15 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-*Note: A repository reset to an earlier state resulted in the loss of some version history in this file. The versions are being re-established from this point forward.*
-
-## [3.3.0] - 2025-08-29
-### Changed
-- **Client-Side Architecture Refactor:** Completely refactored the client-side game logic for improved modularity and maintainability.
-    - The monolithic `MachineUIController.client.lua` was broken down into a lean controller.
-    - All mini-game logic (Skill Check, Memory Game, Number Link) was extracted into its own dedicated module within a new `MiniGames` directory.
-    - The main controller now delegates all game-specific logic to the appropriate module.
-
 ## [1.1.0] - 2025-08-23
 
 ### Added
