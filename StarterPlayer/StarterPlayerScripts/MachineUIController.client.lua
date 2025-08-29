@@ -164,7 +164,10 @@ local function runNumberLinkGame(machine, puzzleData, currentProgress, neededPro
 		if not isDragging then return end
 		local lastCell = currentPath[#currentPath]
 		local startCell = currentPath[1]
-		if not startCell then isDragging = false; return end
+		if not startCell then
+			isDragging = false
+			return
+		end
 		local partnerCell = endpoints[startCell].partner
 		if lastCell == partnerCell then
 			finalizePath(currentPath, activeColor)

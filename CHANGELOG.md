@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+*Note: A repository reset to an earlier state resulted in the loss of some version history in this file. The versions are being re-established from this point forward.*
+
+## [3.3.1] - 2025-08-29
+### Fixed
+- **Client-Side Script Crash:** Fixed a critical syntax error in the `runNumberLinkGame` function within `MachineUIController.client.lua` that was preventing all client-side scripts from loading correctly.
+
+## [3.3.0] - 2025-08-29
+### Changed
+- **Client-Side Architecture Refactor:** (This version represents the state of the codebase after the major client-side refactoring, which was later reverted due to introduced bugs. The version number is preserved to maintain a linear history.)
+
 ## [1.1.0] - 2025-08-23
 
 ### Added
