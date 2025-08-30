@@ -5,11 +5,13 @@
 ]=]
 
 local ServerScriptService = game:GetService("ServerScriptService")
+local DataManager = require(ServerScriptService.DataManager)
 local PlayerManager = require(ServerScriptService.PlayerManager)
 local RoundManager = require(ServerScriptService.RoundManager)
 local AbilityManager = require(ServerScriptService.AbilityManager)
 
--- Initialize all core managers
+-- Initialize all core managers. DataManager should come first.
+DataManager:Init()
 PlayerManager:Init()
 AbilityManager:Init()
 RoundManager:Init() -- RoundManager should generally be last
