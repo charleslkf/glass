@@ -17,6 +17,10 @@ EventManager.PlaySoundEvent = Instance.new("RemoteEvent")
 EventManager.PlaySoundEvent.Name = "PlaySoundEvent"
 EventManager.PlaySoundEvent.Parent = eventsFolder
 
+EventManager.UseAbilityEvent = Instance.new("RemoteEvent")
+EventManager.UseAbilityEvent.Name = "UseAbilityEvent"
+EventManager.UseAbilityEvent.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")

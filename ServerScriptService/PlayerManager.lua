@@ -92,11 +92,15 @@ end
 --[=[
 	Assigns roles to all players currently in the game.
 	It selects one Killer, then assigns Stunner and Helper roles from the remaining players if possible.
+	It also equips the corresponding default ability for each role.
 ]=]
 function PlayerManager:AssignRoles()
 	local allPlayers = Players:GetPlayers()
 	local playerCount = #allPlayers
 	if playerCount == 0 then return end
+
+	-- Require AbilityManager here to avoid circular dependencies at startup
+	local AbilityManager = require(game:GetService("ServerScriptService").AbilityManager)
 
 	-- Reset all current roles
 	for player, _ in pairs(playerRoles) do
@@ -113,6 +117,7 @@ function PlayerManager:AssignRoles()
 	local killerIndex = math.random(1, playerCount)
 	local killer = availablePlayers[killerIndex]
 	playerRoles[killer] = "Killer"
+	AbilityManager:EquipAbility(killer, "DefaultKillerAbility")
 	table.remove(availablePlayers, killerIndex)
 	print(killer.Name .. " has been chosen as the Killer.")
 
@@ -121,6 +126,7 @@ function PlayerManager:AssignRoles()
 		local stunnerIndex = math.random(1, #availablePlayers)
 		local stunner = availablePlayers[stunnerIndex]
 		playerRoles[stunner] = "Stunner"
+		AbilityManager:EquipAbility(stunner, "DefaultSurvivorAbility")
 		table.remove(availablePlayers, stunnerIndex)
 		print(stunner.Name .. " is the Stunner.")
 	end
@@ -130,6 +136,7 @@ function PlayerManager:AssignRoles()
 		local helperIndex = math.random(1, #availablePlayers)
 		local helper = availablePlayers[helperIndex]
 		playerRoles[helper] = "Helper"
+		AbilityManager:EquipAbility(helper, "DefaultSurvivorAbility")
 		table.remove(availablePlayers, helperIndex)
 		print(helper.Name .. " is the Helper.")
 	end
@@ -137,6 +144,7 @@ function PlayerManager:AssignRoles()
 	-- 4. Assign the rest as Survivors
 	for _, player in ipairs(availablePlayers) do
 		playerRoles[player] = "Survivor"
+		AbilityManager:EquipAbility(player, "DefaultSurvivorAbility")
 		print(player.Name .. " is a Survivor.")
 	end
 end
