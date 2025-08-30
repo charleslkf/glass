@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.21] - 2025-08-30
+
+### Added
+- **Shop UI Foundation**: Created the foundational client-side UI for the shop.
+  - A new `ShopUIController.client.lua` script in `StarterPlayerScripts` now programmatically creates the shop UI.
+  - The UI consists of a main shop frame and a button to toggle its visibility.
+
 ## [1.0.20] - 2025-08-30
 
 ### Added
