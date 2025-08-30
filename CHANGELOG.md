@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.36] - 2025-08-30
+
+### Changed
+- **VFX System (Diagnostic)**: Simplified the `ParticleEmitter` creation in `VFXManager` to a bare-bones version to test the hypothesis that a specific property was causing the visual effect to not render.
+
 ## [1.0.35] - 2025-08-30
 
 ### Fixed
