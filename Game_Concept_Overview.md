@@ -1,26 +1,60 @@
-Game Concept Overview
-Inspiration and Aspirations
-This game draws inspiration from several well-known titles. The goal is to create a game, developed collaboratively between me and my dad, that achieves similar popularity and recognition. The core gameplay will revolve around the theme of "forsaken," and will incorporate elements from three distinct games.
-Game Structure and Setting
-Unlike traditional elevator-based games, this one will be set in the woods, with players working towards a specific goal or limit. A leaderboard will track how quickly players reach that goal. The limit is set to 10 days or 10 levels, with each round featuring a maximum of 10 players.
-At the start of each round, one player will be randomly chosen to become the killer. The chosen player will remain the killer for the entire round, with a visible bar indicating the chance of being selected as the killer in future rounds.
-Gameplay Mechanics
-Each round will have 10 machines inspired by Dandy World. Items such as med kits and energy drinks will appear on the floor, but each player can only pick up two at a time, reflecting features from both Dandy World and Forsaken.
-Players are divided into three roles: stunners (attackers), survivors, and helpers. Helpers possess the unique ability to regenerate other players' stamina and provide boosts. Every character will have a unique ability, which depends on the chosen character, and may come with a price tag. There will also be skins available for all characters, each costing the same.
-Health and Abilities
-Players will have a maximum health of either 200 or 240, while killers will have 2,500 or 3,000. Attackers have a slight chance of defeating the killer, though it is very difficult. If the killer is eliminated, the round ends with the survivors victorious.
-Objectives and Timing
-The killer’s objective is to eliminate all players before they reach level 10. Each round lasts one minute. If time runs out and players haven’t met their goal, the killer wins. Killing a survivor reduces the timer by five seconds, while completing machines adds ten seconds to the round, giving survivors more time to advance.
-After advancing to the next round, the timer resets (between one and two minutes) and the process repeats. If a player is left behind when the gate closes (open for only 20 seconds), they are eliminated.
-Killer Variations and Player Limits
-There can be up to four killers if the server hosts more than 12 players. Normally, there are two killers, but never more than four. With ten players, there is one killer and nine survivors. The maximum server capacity is 13 players, intentionally leaving one slot open to avoid issues with simultaneous joining.
-Rewards and Skins
-Limited-time skins will be available for events such as Easter, Christmas, St. Patrick’s Day, Halloween, New Year, and local celebrations in Thailand. Seasonal skins (summer, winter, rainy season, fall) will also be available. Missed event skins can return the following year, often with new options added.
-Players can earn in-game currency by winning as either the killer or a survivor. If a player’s team wins but they have died, they still receive a reduced reward. However, setting the player to AFK (away from keyboard) disables rewards for fairness. Winning a round grants 50 in-game currency, while a win after death yields 15.
-Additional Features and Characters
-The game may feature guest characters from other games, each with unique abilities focused on attack or support roles. Care will be taken to avoid copyright issues.
-Machines and Mini-Games
+# Game Concept Overview
+
+## 1. Inspiration and Aspirations
+This game draws inspiration from several well-known titles. The goal is to create a game, developed collaboratively between me and my dad, that achieves similar popularity and recognition. The core gameplay will revolve around the theme of **"forsaken"** and will incorporate elements from three distinct games.
+
+## 2. Game Structure and Setting
+- **Setting:** The game is set in the woods, not in a traditional elevator-based environment.
+- **Goal:** Players work towards a specific goal or limit (10 days or 10 levels). A leaderboard will track the fastest completion times.
+- **Round Size:** Each round features a maximum of **10 players**.
+- **The Killer:** At the start of each round, one player is randomly chosen as the killer. This role is kept for the entire round. A visible bar will indicate a player's chance of being selected in future rounds.
+
+## 3. Gameplay Mechanics
+### Player Roles
+Players are divided into three roles:
+- **Stunners (Attackers):** Focused on confronting the killer.
+- **Survivors:** Focused on completing objectives.
+- **Helpers:** Possess the unique ability to regenerate other players' stamina and provide boosts.
+
+### Items and Abilities
+- **Items:** **Med kits** and **energy drinks** will appear on the floor. Each player can only carry two items at a time.
+- **Character Abilities:** Every character has a unique ability, which may come with a price tag.
+- **Skins:** Skins will be available for all characters, with each costing the same amount.
+
+## 4. Health and Combat
+- **Player Health:** **200 or 240 HP**.
+- **Killer Health:** **2,500 or 3,000 HP**.
+- **Combat:** Attackers have a slight, but very difficult, chance of defeating the killer. If the killer is eliminated, the round ends, and survivors win.
+
+## 5. Objectives and Timing
+- **Killer's Objective:** Eliminate all players before they reach level 10.
+- **Round Timer:** Each round lasts **one minute**. The timer resets to 1-2 minutes after advancing to the next level.
+- **Time Modifiers:**
+    - Killing a survivor reduces the timer by **5 seconds**.
+    - Completing a machine adds **10 seconds**.
+- **Advancing:** When the gate opens, players have **20 seconds** to pass through or be eliminated.
+
+## 6. Player and Killer Limits
+- **10 Players:** 1 Killer, 9 Survivors.
+- **>12 Players:** Can have up to 4 killers (normally 2).
+- **Max Server Capacity:** 13 players (leaving one slot open to prevent join issues).
+
+## 7. Rewards and Customization
+### In-Game Currency
+- **Winning (Survivor or Killer):** 50 currency.
+- **Winning (but died during the round):** 15 currency.
+- **AFK Players:** Receive no rewards.
+
+### Skins
+- **Event Skins:** Limited-time skins for events like Easter, Christmas, Halloween, New Year, and Thai celebrations.
+- **Seasonal Skins:** Summer, winter, rainy season, fall.
+- **Returning Skins:** Missed event skins may return the following year with new options.
+
+## 8. Additional Features
+- **Guest Characters:** May feature guest characters from other games with unique abilities, while avoiding copyright issues.
+
+## 9. Machines and Mini-Games
 There are three types of machines:
-•	Classic Machine: Inspired by Forsaken, operates with familiar mechanics from that game.
-•	Memory Machine: Players must recall and replicate a pattern presented at the start. The grid increases in size with each level (starting at 3x3 and maxing at 6x6), making the challenge progressively harder.
-•	Skill Check Machine: Based on Dandy World and 99 Nights, players must hit skill checks in sequence. Missing one reduces their progress, and dropping to zero requires them to restart.
+- **Classic Machine:** Inspired by *Forsaken*, with familiar mechanics.
+- **Memory Machine:** Players replicate a pattern on a grid that increases in size with each level (from 3x3 to 6x6).
+- **Skill Check Machine:** Inspired by *Dandy World* and *99 Nights*, players must hit a sequence of skill checks. Missing a check reduces progress.
