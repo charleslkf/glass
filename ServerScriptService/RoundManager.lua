@@ -55,6 +55,9 @@ function RoundManager:Init()
 	MachineManager.MachineCompleted.Event:Connect(function(machineInstance)
 		self:OnMachineCompleted(machineInstance)
 	end)
+
+	-- Manually trigger the logic for the initial state to kick-start the game
+	self:OnStateChanged(GameStateManager.State)
 end
 
 --[=[
