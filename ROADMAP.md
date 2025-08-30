@@ -7,7 +7,7 @@ This document outlines the specific coding tasks required to build the game, sta
 **Objective:** To create a functional round-based system on the server that can manage players, states, and timers.
 
 ### Task 1.1: Enhance the `GameStateManager`
-- **Status:** Complete
+
 - **File:** `ServerScriptService/GameStateManager.lua`
 - **Logic:**
     - Add a `state` variable (e.g., "Lobby", "InRound", "Intermission").
@@ -15,7 +15,7 @@ This document outlines the specific coding tasks required to build the game, sta
     - Fire a `BindableEvent` whenever the state changes so other server scripts can react.
 
 ### Task 1.2: Enhance the `RoundManager`
-- **Status:** Complete
+
 - **File:** `ServerScriptService/RoundManager.lua`
 - **Logic:**
     - Listen for state changes from `GameStateManager`.
@@ -29,7 +29,7 @@ This document outlines the specific coding tasks required to build the game, sta
         - Start a short intermission timer before returning to the Lobby state.
 
 ### Task 1.3: Enhance the `PlayerManager`
-- **Status:** Complete
+
 - **File:** `ServerScriptService/PlayerManager.lua`
 - **Logic:**
     - Add a function `AssignRoles()` that takes the list of players.
