@@ -22,7 +22,7 @@ function SoundManager:Init()
 	-- In the future, we can populate this from a folder in ReplicatedStorage
 	-- For now, we'll define a placeholder sound here.
 	local machineCompleteSound = Instance.new("Sound")
-	machineCompleteSound.SoundId = "rbxassetid://9120386453" -- A generic "success" sound from the library
+	machineCompleteSound.SoundId = "rbxassetid://3997124966" -- User-provided ID
 	machineCompleteSound.Name = "MachineComplete"
 	machineCompleteSound.Parent = game.SoundService -- Store sounds in SoundService
 
