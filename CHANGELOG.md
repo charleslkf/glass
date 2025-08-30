@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.32] - 2025-08-30
+
+### Added
+- **Ability Usage Mechanic**: Implemented the full loop for using an ability.
+  - Players are now equipped with a default ability when roles are assigned.
+  - `AbilityUIController` now listens for the 'Q' key press and fires a `RemoteEvent` to the server.
+  - `AbilityManager` listens for this event and executes the player's equipped ability.
+
 ## [1.0.31] - 2025-08-30
 
 ### Changed

@@ -6,12 +6,26 @@
 	ability, its cooldown, and handling the input to use the ability.
 ]=]
 
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GameEvents = ReplicatedStorage:WaitForChild("GameEvents")
+local UseAbilityEvent = GameEvents:WaitForChild("UseAbilityEvent")
+
 print("AbilityUIController loaded for player.")
 
 -- This is a placeholder for the full UI implementation.
--- In the future, this script will:
--- 1. Create a ScreenGui with an ImageButton and a TextLabel for the cooldown.
--- 2. Get the player's assigned ability from the server (likely via a RemoteFunction or attributes).
--- 3. Listen for input (e.g., a key press or a click on the button).
--- 4. When input is detected, fire a RemoteEvent to the server to request using the ability.
--- 5. Receive updates from the server about the ability's cooldown and update the UI.
+-- In the future, this script will create the UI elements.
+
+local function onInputBegan(input, gameProcessedEvent)
+	-- Ignore input if the user is typing in a textbox
+	if gameProcessedEvent then return end
+
+	-- Check if the 'Q' key was pressed
+	if input.KeyCode == Enum.KeyCode.Q then
+		print("'Q' key pressed. Firing UseAbilityEvent to server.")
+		UseAbilityEvent:FireServer()
+	end
+end
+
+-- Listen for input
+UserInputService.InputBegan:Connect(onInputBegan)

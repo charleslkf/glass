@@ -7,6 +7,7 @@ local AbilityManager = {}
 AbilityManager.__index = AbilityManager
 
 local ServerScriptService = game:GetService("ServerScriptService")
+local EventManager = require(ServerScriptService.EventManager)
 local AbilitiesFolder = ServerScriptService:WaitForChild("CharacterAbilities")
 
 -- A dictionary to hold the loaded ability modules
@@ -26,6 +27,11 @@ function AbilityManager:Init()
 			print("Loaded ability module: " .. moduleName)
 		end
 	end
+
+	-- Listen for the event from the client
+	EventManager.UseAbilityEvent.OnServerEvent:Connect(function(player)
+		self:UseAbility(player)
+	end)
 end
 
 --[=[
