@@ -57,30 +57,53 @@ end
 
 --[=[
 	Assigns roles to all players currently in the game.
-	It randomly selects one player as the "Killer" and the rest as "Survivors".
+	It selects one Killer, then assigns Stunner and Helper roles from the remaining players if possible.
 ]=]
 function PlayerManager:AssignRoles()
 	local allPlayers = Players:GetPlayers()
-	if #allPlayers == 0 then return end
+	local playerCount = #allPlayers
+	if playerCount == 0 then return end
 
-	-- Reset roles
+	-- Reset all current roles
 	for player, _ in pairs(playerRoles) do
 		playerRoles[player] = nil
 	end
 
-	-- Select a random killer
-	local killerIndex = math.random(1, #allPlayers)
-	local killer = allPlayers[killerIndex]
+	-- Create a temporary list of players to pick from
+	local availablePlayers = {}
+	for _, p in ipairs(allPlayers) do
+		table.insert(availablePlayers, p)
+	end
 
-	-- Assign roles
-	for i, player in ipairs(allPlayers) do
-		if i == killerIndex then
-			playerRoles[player] = "Killer"
-			print(player.Name .. " has been chosen as the Killer.")
-		else
-			playerRoles[player] = "Survivor"
-			print(player.Name .. " is a Survivor.")
-		end
+	-- 1. Select the Killer
+	local killerIndex = math.random(1, playerCount)
+	local killer = availablePlayers[killerIndex]
+	playerRoles[killer] = "Killer"
+	table.remove(availablePlayers, killerIndex)
+	print(killer.Name .. " has been chosen as the Killer.")
+
+	-- 2. Select a Stunner if there are enough players left
+	if #availablePlayers > 0 then
+		local stunnerIndex = math.random(1, #availablePlayers)
+		local stunner = availablePlayers[stunnerIndex]
+		playerRoles[stunner] = "Stunner"
+		table.remove(availablePlayers, stunnerIndex)
+		print(stunner.Name .. " is the Stunner.")
+	end
+
+	-- 3. Select a Helper if there are enough players left
+	if #availablePlayers > 0 then
+		local helperIndex = math.random(1, #availablePlayers)
+		local helper = availablePlayers[helperIndex]
+		playerRoles[helper] = "Helper"
+		table.remove(availablePlayers, helperIndex)
+		print(helper.Name .. " is the Helper.")
+	end
+
+	-- 4. Assign the rest as Survivors
+	for _, player in ipairs(availablePlayers) do
+		playerRoles[player] = "Survivor"
+		print(player.Name .. " is a Survivor.")
 	end
 end
 
