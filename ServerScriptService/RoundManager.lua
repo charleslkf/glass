@@ -127,17 +127,6 @@ function RoundManager:StartRound()
 		end
 	end)
 
-	-- DEBUG: After 5 seconds, have the killer attack a survivor to test the health system
-	task.delay(5, function()
-		if GameStateManager.State ~= "InRound" then return end
-
-		local killers = PlayerManager:GetPlayersByRole("Killer")
-		local survivors = PlayerManager:GetPlayersByRole("Survivor")
-
-		if #killers > 0 and #survivors > 0 then
-			PlayerManager:KillerAttack(killers[1], survivors[1])
-		end
-	end)
 end
 
 --[=[
