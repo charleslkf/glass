@@ -60,6 +60,9 @@ function VFXManager:PlayVFX(vfxName: string, position: Vector3)
 		local emitter = vfxTemplate:Clone()
 		emitter.Parent = vfxPart
 
+		-- Wait for one frame to ensure the part has replicated before emitting.
+		wait()
+
 		-- Emit a burst of particles
 		emitter:Emit(20)
 
