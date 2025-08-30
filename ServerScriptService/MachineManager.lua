@@ -7,6 +7,7 @@ local MachineManager = {}
 MachineManager.__index = MachineManager
 
 local ServerScriptService = game:GetService("ServerScriptService")
+local EventManager = require(ServerScriptService.EventManager)
 local MinigamesFolder = ServerScriptService:WaitForChild("MachineMinigames")
 
 -- A dictionary to hold the loaded minigame modules, e.g., { ClassicMachine = require(...) }
@@ -84,6 +85,9 @@ function MachineManager:Debug_CompleteMachine(machineInstance: table)
 		machineInstance.IsCompleted = true
 		print("A machine has been completed (via debug)!")
 		self.MachineCompleted:Fire(machineInstance)
+
+		-- Fire the remote event to all clients to play the sound
+		EventManager.PlaySoundEvent:FireAllClients("MachineComplete")
 	end
 end
 

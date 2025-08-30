@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.24] - 2025-08-30
+
+### Added
+- **Sound System Foundation**: Created the foundational client-side `SoundManager.client.lua` to handle playing sound effects.
+- **Event Manager**: Created a new `EventManager.lua` to manage global `RemoteEvent`s.
+- **Machine Completion Sound**: The `MachineManager` now fires a remote event when a machine is completed, and the `SoundManager` listens for this event to play a "success" sound. This serves as the first implementation and test of the sound system.
+
 ## [1.0.23] - 2025-08-30
 
 ### Fixed
