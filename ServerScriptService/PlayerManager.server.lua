@@ -2,6 +2,8 @@
 
 local Players = game:GetService("Players")
 
+local PlayerManager = {}
+
 local SURVIVOR_HEALTH = 200
 local KILLER_HEALTH = 2500
 
@@ -53,10 +55,15 @@ local function setupPlayer(player)
     end)
 end
 
--- Connect the setup function for each player who joins
-Players.PlayerAdded:Connect(setupPlayer)
+function PlayerManager.Start()
+    -- Connect the setup function for each player who joins
+    Players.PlayerAdded:Connect(setupPlayer)
 
--- Also set up any players who are already in the game when the script runs
-for _, player in ipairs(Players:GetPlayers()) do
-    setupPlayer(player)
+    -- Also set up any players who are already in the game when the script runs
+    for _, player in ipairs(Players:GetPlayers()) do
+        setupPlayer(player)
+    end
+    print("PlayerManager started.")
 end
+
+return PlayerManager

@@ -33,3 +33,12 @@ for _, name in ipairs(eventNames) do
 end
 
 print("All mini-game RemoteEvents are ready.")
+
+-- Create the shared Status StringValue if it doesn't exist
+if not ReplicatedStorage:FindFirstChild("Status") then
+    local statusValue = Instance.new("StringValue")
+    statusValue.Name = "Status"
+    statusValue.Value = "Waiting for players..."
+    statusValue.Parent = ReplicatedStorage
+    print("Created StringValue: Status")
+end

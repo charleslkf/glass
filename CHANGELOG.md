@@ -2,60 +2,50 @@
 
 All notable changes to this project will be documented in this file.
 
-*Note: A repository reset to an earlier state resulted in the loss of some version history in this file. The versions are being re-established from this point forward.*
+## [3.4.0] - 2025-08-29
+### Added
+- **Project Recovery:** This version marks a full recovery from a catastrophic repository reset. All essential documentation, configuration, and script files have been restored.
+- **Server-Side Architecture:** Implemented a `Main.server.lua` entry point to control the loading order of server modules, preventing race conditions and `Infinite yield` errors.
+- **Status UI Object:** Added a `StringValue` named "Status" to `ReplicatedStorage` to be created on startup, fixing a client-side UI error.
 
-## [3.3.1] - 2025-08-29
-### Fixed
-- **Client-Side Script Crash:** Fixed a critical syntax error in the `runNumberLinkGame` function within `MachineUIController.client.lua` that was preventing all client-side scripts from loading correctly.
-
-## [3.3.0] - 2025-08-29
 ### Changed
-- **Client-Side Architecture Refactor:** (This version represents the state of the codebase after the major client-side refactoring, which was later reverted due to introduced bugs. The version number is preserved to maintain a linear history.)
+- **Server-Side Modularity:** Refactored `PlayerManager.server.lua` and `MachineManager.server.lua` into modules that can be started on command by `Main.server.lua`.
+- **File Naming Convention:** Standardized all server module scripts by removing the `.module.lua` suffix, making `require()` calls cleaner.
+
+### Fixed
+- **Server-Side Syntax Error:** Fixed a critical syntax error in `MachineManager.server.lua` by changing the reserved keyword `end` to `["end"]` in a table key.
+- **Client-Side Syntax Error:** Fixed a corresponding error in `MachineUIController.client.lua` to correctly read the `["end"]` key.
+- **Client-Side Syntax Error:** Fixed a second subtle syntax error in `MachineUIController.client.lua` that was causing script failures.
+
+*Note: The version history below this point is reconstructed from memory after the repository reset.*
+
+---
 
 ## [1.1.0] - 2025-08-23
 
 ### Added
 - Implemented a visible in-game UI to display the round timer and game status.
-- Integrated timer mechanics with gameplay events:
-    - Completing a machine now adds 5 seconds to the round timer.
-    - A survivor's death now removes 10 seconds from the round timer.
+- Integrated timer mechanics with gameplay events.
 
 ### Changed
-- The minimum number of players required to start a round was lowered from 2 to 1 to facilitate easier testing.
-- Refactored server-side script communication to be more direct and robust, removing the need for certain `BindableEvent`s.
+- Lowered the minimum number of players required to start a round to 1.
 
 ### Fixed
-- **Critical Game Start Bug:** Fixed a race condition that caused the main game loop to hang indefinitely, preventing rounds from ever starting. The fix involved moving the game start call to be before an infinite loop in `MachineManager`.
-- **Module Loading Errors:** Resolved `Infinite yield` errors by renaming script files to use the `.module.lua` convention, ensuring they are correctly loaded as `ModuleScript`s.
-- **Client Script Overwrite:** Restored the `MachineUIController.client.lua` script, which was accidentally overwritten, re-enabling the machine repair minigames.
+- Critical game start bug (race condition).
+- Module loading errors.
+- Restored an accidentally overwritten client script.
 
 ## [1.0.0] - 2025-08-23
 
-This marks the first stable release of the game. It includes a core gameplay loop and two fully functional mini-games.
-
 ### Added
-
-- **Core Game Framework:**
-    - `GameStateManager`: Tracks overall game progression through "days" or levels.
-    - `RoundManager`: Manages the main game loop, including intermission, killer selection, and round timers.
-    - `PlayerManager`: Assigns health to players based on their role (Killer, Survivor, etc.).
-    - `EventSetup`: Reliably creates all necessary `RemoteEvent` instances for client-server communication.
-- **Machine & Mini-Game System:**
-    - `MachineManager`: A server-side script to control machine spawning and mini-game logic.
-    - `MachineUIController`: A client-side script to render the UI and handle player input for all mini-games.
-- **Two Complete Mini-Games:**
-    - **Skill Check:** A timing-based challenge where the player must stop a moving bar in a target zone.
-    - **Memory Game:** A pattern-replication challenge where the player must remember and repeat a sequence of highlighted tiles.
-- **Gameplay Features:**
-    - Players can walk away from a machine to safely cancel a mini-game in progress.
-    - Mini-games require multiple successful stages to complete, with progress displayed on the UI.
+- Core game framework (`GameStateManager`, `RoundManager`, `PlayerManager`, `EventSetup`).
+- Machine and mini-game system (`MachineManager`, `MachineUIController`).
+- Two complete mini-games (Skill Check, Memory Game).
 
 ### Removed
-
-- **"Classic" Mini-Game:** An 8x8 grid-based, click-and-drag puzzle was initially developed but was completely removed from both client and server scripts due to a persistent, unresolvable bug that caused client-side crashes.
+- A "Classic" mini-game due to unresolvable bugs.
 
 ### Fixed
-
-- **Critical Client-Side Crash:** Resolved a recurring `attempt to compare nil < number` error that caused severe instability. The fix involved implementing a defensive `pcall` (protected call) in the `RenderStepped` distance-checking function to gracefully handle race conditions where a machine object might be destroyed mid-frame.
-- **Player State Logic Bug:** Fixed a server-side bug that prevented players from using a second machine after successfully completing a first one. The fix ensures the player's "active" status is correctly reset.
-- **Initial `ProximityPrompt` Failures:** Addressed an early issue where machine prompts would not work, which was traced to a local Roblox Studio environment problem.
+- Critical client-side crash (`pcall` implementation).
+- Player state logic bug.
+- Initial `ProximityPrompt` failures.

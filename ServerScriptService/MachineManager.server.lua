@@ -2,21 +2,23 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
-local ServerScriptService = game:GetService("ServerScriptService")
 local Players = game:GetService("Players")
 
-local GameStateManager = require(ServerScriptService:WaitForChild("GameStateManager"))
-local RoundManager = require(ServerScriptService:WaitForChild("RoundManager"))
+local MachineManager = {}
+
+-- Module dependencies
+local GameStateManager
+local RoundManager
 
 -- Events
-local startSkillCheckEvent = ReplicatedStorage:WaitForChild("StartSkillCheckMiniGame")
-local skillCheckResultEvent = ReplicatedStorage:WaitForChild("SkillCheckResult")
-local startMemoryEvent = ReplicatedStorage:WaitForChild("StartMemoryMiniGame")
-local memoryResultEvent = ReplicatedStorage:WaitForChild("MemoryResult")
-local startNumberLinkEvent = ReplicatedStorage:WaitForChild("StartNumberLinkMiniGame")
-local numberLinkResultEvent = ReplicatedStorage:WaitForChild("NumberLinkResult")
-local cancelEvent = ReplicatedStorage:WaitForChild("CancelMiniGame")
-local miniGameCompleteEvent = ReplicatedStorage:WaitForChild("MiniGameComplete")
+local startSkillCheckEvent
+local skillCheckResultEvent
+local startMemoryEvent
+local memoryResultEvent
+local startNumberLinkEvent
+local numberLinkResultEvent
+local cancelEvent
+local miniGameCompleteEvent
 
 local MACHINE_POSITIONS = { Vector3.new(0,3,20), Vector3.new(20,3,0), Vector3.new(0,3,-20), Vector3.new(-20,3,0), Vector3.new(15,3,15), Vector3.new(-15,3,-15) }
 local COOLDOWN_DURATION = 25
@@ -30,7 +32,7 @@ local machineProgress = {}
 local activePlayers = {} -- [player] = machineInstance
 
 -- Pre-defined puzzles for Number Link.
-local numberLinkPuzzles = {{8, {start=1,endPoint=18}, {start=3,endPoint=27}, {start=5,endPoint=30}, {start=8,endPoint=48}, {start=33,endPoint=57}, {start=38,endPoint=63}}}
+local numberLinkPuzzles = {{8, {start=1,["end"]=18}, {start=3,["end"]=27}, {start=5,["end"]=30}, {start=8,["end"]=48}, {start=33,["end"]=57}, {start=38,["end"]=63}}}
 
 local function triggerNewMemoryGame(player, machine, progress)
 	local gridSize = 3; local patternLength = 5
@@ -89,86 +91,99 @@ local function createMachine(position, machineType)
 	end)
 end
 
--- Event Listeners
-skillCheckResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
-	if activePlayers[player] ~= machine then return end
-	if not machineProgress[machine][player] then machineProgress[machine][player] = 0 end
-	if wasSuccessful then
-		machineProgress[machine][player] += 1
-		local currentProgress = machineProgress[machine][player]
-		if currentProgress >= SKILL_CHECKS_NEEDED then
-			completeMachine(machine, player); resetPlayerProgress(player)
-		else
-			task.wait(0.5); startSkillCheckEvent:FireClient(player, machine, currentProgress, SKILL_CHECKS_NEEDED)
-		end
-	else
-		task.wait(0.5); startSkillCheckEvent:FireClient(player, machine, machineProgress[machine][player], SKILL_CHECKS_NEEDED)
-	end
-end)
+function MachineManager.Start(loadedModules)
+    -- Set module dependencies
+    GameStateManager = loadedModules.GameStateManager
+    RoundManager = loadedModules.RoundManager
 
-memoryResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
-	if activePlayers[player] ~= machine then return end
-	if not machineProgress[machine][player] then machineProgress[machine][player] = 0 end
-	if wasSuccessful then
-		machineProgress[machine][player] += 1
-		local currentProgress = machineProgress[machine][player]
-		if currentProgress >= MEMORY_GAMES_NEEDED then
-			completeMachine(machine, player); resetPlayerProgress(player)
-		else
-			task.wait(0.5); triggerNewMemoryGame(player, machine, currentProgress)
-		end
-	else
-		task.wait(0.5); triggerNewMemoryGame(player, machine, machineProgress[machine][player])
-	end
-end)
+    -- Get RemoteEvents
+    startSkillCheckEvent = ReplicatedStorage:WaitForChild("StartSkillCheckMiniGame")
+    skillCheckResultEvent = ReplicatedStorage:WaitForChild("SkillCheckResult")
+    startMemoryEvent = ReplicatedStorage:WaitForChild("StartMemoryMiniGame")
+    memoryResultEvent = ReplicatedStorage:WaitForChild("MemoryResult")
+    startNumberLinkEvent = ReplicatedStorage:WaitForChild("StartNumberLinkMiniGame")
+    numberLinkResultEvent = ReplicatedStorage:WaitForChild("NumberLinkResult")
+    cancelEvent = ReplicatedStorage:WaitForChild("CancelMiniGame")
+    miniGameCompleteEvent = ReplicatedStorage:WaitForChild("MiniGameComplete")
 
-numberLinkResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
-	if activePlayers[player] ~= machine then return end
-	if not machineProgress[machine][player] then machineProgress[machine][player] = 0 end
-	if wasSuccessful then
-		machineProgress[machine][player] += 1
-		local currentProgress = machineProgress[machine][player]
-		if currentProgress >= NUMBER_LINKS_NEEDED then
-			completeMachine(machine, player); resetPlayerProgress(player)
-		else
-			task.wait(0.5); triggerNewNumberLinkGame(player, machine, currentProgress)
-		end
-	else
-		machineProgress[machine][player] = 0
-		task.wait(0.5); triggerNewNumberLinkGame(player, machine, 0)
-	end
-end)
+    -- Event Listeners
+    skillCheckResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
+        if activePlayers[player] ~= machine then return end
+        if not machineProgress[machine][player] then machineProgress[machine][player] = 0 end
+        if wasSuccessful then
+            machineProgress[machine][player] += 1
+            local currentProgress = machineProgress[machine][player]
+            if currentProgress >= SKILL_CHECKS_NEEDED then
+                completeMachine(machine, player); resetPlayerProgress(player)
+            else
+                task.wait(0.5); startSkillCheckEvent:FireClient(player, machine, currentProgress, SKILL_CHECKS_NEEDED)
+            end
+        else
+            task.wait(0.5); startSkillCheckEvent:FireClient(player, machine, machineProgress[machine][player], SKILL_CHECKS_NEEDED)
+        end
+    end)
 
+    memoryResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
+        if activePlayers[player] ~= machine then return end
+        if not machineProgress[machine][player] then machineProgress[machine][player] = 0 end
+        if wasSuccessful then
+            machineProgress[machine][player] += 1
+            local currentProgress = machineProgress[machine][player]
+            if currentProgress >= MEMORY_GAMES_NEEDED then
+                completeMachine(machine, player); resetPlayerProgress(player)
+            else
+                task.wait(0.5); triggerNewMemoryGame(player, machine, currentProgress)
+            end
+        else
+            task.wait(0.5); triggerNewMemoryGame(player, machine, machineProgress[machine][player])
+        end
+    end)
 
-cancelEvent.OnServerEvent:Connect(function(player, machine)
-	if activePlayers[player] == machine then
-		print("Server received cancel event for player " .. player.Name .. ". Resetting progress.")
-		resetPlayerProgress(player)
-	end
-end)
+    numberLinkResultEvent.OnServerEvent:Connect(function(player, machine, wasSuccessful)
+        if activePlayers[player] ~= machine then return end
+        if not machineProgress[machine][player] then machineProgress[machine][player] = 0 end
+        if wasSuccessful then
+            machineProgress[machine][player] += 1
+            local currentProgress = machineProgress[machine][player]
+            if currentProgress >= NUMBER_LINKS_NEEDED then
+                completeMachine(machine, player); resetPlayerProgress(player)
+            else
+                task.wait(0.5); triggerNewNumberLinkGame(player, machine, currentProgress)
+            end
+        else
+            machineProgress[machine][player] = 0
+            task.wait(0.5); triggerNewNumberLinkGame(player, machine, 0)
+        end
+    end)
 
--- Initialize machines
-local machineTypes = {"SkillCheck", "Memory", "NumberLink"}
-for _, pos in ipairs(MACHINE_POSITIONS) do createMachine(pos, machineTypes[math.random(1,#machineTypes)]) end
-print("MachineManager initialized, now with Number Link machines.")
+    cancelEvent.OnServerEvent:Connect(function(player, machine)
+        if activePlayers[player] == machine then
+            print("Server received cancel event for player " .. player.Name .. ". Resetting progress.")
+            resetPlayerProgress(player)
+        end
+    end)
 
--- Wait a moment for all scripts to load before starting the game loop
-task.wait(0.1)
+    -- Initialize machines
+    local machineTypes = {"SkillCheck", "Memory", "NumberLink"}
+    for _, pos in ipairs(MACHINE_POSITIONS) do createMachine(pos, machineTypes[math.random(1,#machineTypes)]) end
+    print("MachineManager initialized, now with Number Link machines.")
 
--- Start the main game loop in a separate thread
-task.spawn(function()
-	RoundManager:Start()
-end)
+    -- Background loop to check player distance from machines
+    task.spawn(function()
+        while task.wait(1) do
+            for player, machine in pairs(activePlayers) do
+                if not player.Parent or not player.Character or not player.CCharacter:FindFirstChild("HumanoidRootPart") then
+                    resetPlayerProgress(player)
+                else
+                    if (player.Character.HumanoidRootPart.Position - machine.Position).Magnitude > MAX_INTERACTION_DISTANCE then
+                        cancelEvent:FireClient(player); resetPlayerProgress(player)
+                    end
+                end
+            end
+        end
+    end)
 
--- Background loop to check player distance from machines
-while task.wait(1) do
-	for player, machine in pairs(activePlayers) do
-		if not player.Parent or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
-			resetPlayerProgress(player)
-		else
-			if (player.Character.HumanoidRootPart.Position - machine.Position).Magnitude > MAX_INTERACTION_DISTANCE then
-				cancelEvent:FireClient(player); resetPlayerProgress(player)
-			end
-		end
-	end
+    print("MachineManager started.")
 end
+
+return MachineManager
