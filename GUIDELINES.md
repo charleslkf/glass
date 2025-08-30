@@ -48,6 +48,13 @@ To ensure I (Jules, the AI engineer) can work efficiently without getting confus
 - When we complete a major task or milestone as defined in the roadmap, the user can signal a clear transition by saying "Let's start the next task/milestone."
 - This will help me "archive" the previous context and focus on the new objective.
 
+## 4. Collaboration Model
+
+### 4.1. The User as "Eyes and Hands"
+- For tasks that require actions inside Roblox Studio which I cannot perform (e.g., finding a valid asset ID from the Toolbox, checking complex visual layouts, diagnosing environment-specific bugs), I can and should instruct you, the user, to act as my "eyes and hands".
+- I will provide clear, step-by-step instructions for these tasks.
+- This allows us to overcome the limitations of my file-based environment and work together more effectively.
+
 ---
 
 By adhering to these guidelines, we can maintain a clear, organized, and productive development environment.

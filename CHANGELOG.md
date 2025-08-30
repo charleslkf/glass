@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.27] - 2025-08-30
+
+### Changed
+- Updated the `GUIDELINES.md` to include a new section on the user acting as "eyes and hands" for tasks inside Roblox Studio.
+
+### Fixed
+- **Invalid Sound ID**: Replaced the invalid sound ID with a user-provided, valid one (`3997124966`) in `SoundManager.client.lua`. This finally resolves the sound asset loading error.
+
 ## [1.0.26] - 2025-08-30
 
 ### Fixed
