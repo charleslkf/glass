@@ -117,23 +117,15 @@ function RoundManager:StartRound()
 	machinesToComplete = #MachineManager:GetActiveMachines()
 	print("Round goal: Complete " .. machinesToComplete .. " machine(s).")
 
-	-- DIAGNOSTIC: Timers are temporarily commented out to isolate the bug.
-	--[[
 	-- Start a timer that can be cancelled
 	roundTimerThread = task.spawn(function()
 		wait(ROUND_TIME)
 		print("Round timer finished. Killer wins.")
-		GameStateManager:SetState("Intermission")
-	end)
-
-	-- DEBUG: Auto-complete the machine after 10 seconds to test the win condition
-	task.delay(10, function()
+		-- Ensure the round hasn't already ended
 		if GameStateManager.State == "InRound" then
-			local machine = MachineManager:GetActiveMachines()[1]
-			MachineManager:Debug_CompleteMachine(machine)
+			GameStateManager:SetState("Intermission")
 		end
 	end)
-	--]]
 end
 
 --[=[
