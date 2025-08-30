@@ -48,10 +48,28 @@ function MachineManager:CreateMachine(machineType: string, puzzleData: table)
 	local newMachine = module.new(puzzleData)
 	table.insert(activeMachines, newMachine)
 
-	-- In a real game, the machine instance itself would fire an event.
-	-- For now, we'll use a debug function to simulate this.
+	-- Create a physical representation of the machine in the workspace
+	self:_CreateMachinePart(newMachine, machineType)
 
 	return newMachine
+end
+
+--[=[
+	Creates and configures the physical part for a machine.
+	@param machineInstance table The logical machine object.
+	@param machineType string The type of the machine.
+]=]
+function MachineManager:_CreateMachinePart(machineInstance: table, machineType: string)
+	local part = Instance.new("Part")
+	part.Size = Vector3.new(5, 5, 5)
+	part.Anchored = true
+	part.Position = Vector3.new(math.random(-50, 50), 2.5, math.random(-50, 50))
+	part.BrickColor = BrickColor.random()
+	part.Name = machineType .. " (Machine)"
+	part.Parent = workspace
+
+	-- Link the physical part to the logical object
+	machineInstance.Part = part
 end
 
 --[=[
@@ -82,11 +100,19 @@ end
 ]=]
 function MachineManager:ResetAllMachines()
 	for _, machineInstance in ipairs(activeMachines) do
+		-- Reset the logical state
 		if machineInstance.Reset then
 			machineInstance:Reset()
 		end
+		-- Destroy the physical part
+		if machineInstance.Part then
+			machineInstance.Part:Destroy()
+			machineInstance.Part = nil
+		end
 	end
-	print("All active machines have been reset.")
+	-- Clear the table of active machines for the new round
+	table.clear(activeMachines)
+	print("All active machines have been reset and their parts destroyed.")
 end
 
 return MachineManager

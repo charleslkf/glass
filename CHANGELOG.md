@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2025-08-29
+
+### Fixed
+- **Server Crash on Init**: Fixed a critical bug in `RoundManager.lua` where incorrect syntax (`:Connect` instead of `.Event:Connect`) was used for `BindableEvents`, causing the server scripts to crash on startup.
+
+## [1.0.3] - 2025-08-29
+
+### Added
+- **Game Logic Entry Point**: Created `Main.server.lua` to act as the main entry point for the game, which initializes the `RoundManager` and starts the game loop.
+
+### Fixed
+- Resolved an issue where the game logic modules were not being loaded or run.
+
 ## [1.0.2] - 2025-08-29
 
 ### Added
