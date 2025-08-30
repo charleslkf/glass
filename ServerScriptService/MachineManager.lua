@@ -72,6 +72,21 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 
 	-- Link the physical part to the logical object
 	machineInstance.Part = part
+
+	-- Add a ProximityPrompt for player interaction
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.ActionText = "Repair Machine"
+	prompt.ObjectText = machineType
+	prompt.HoldDuration = 2 -- Player must hold the key for 2 seconds
+	prompt.Parent = part
+
+	-- When the prompt is triggered, complete the machine
+	prompt.Triggered:Connect(function(player)
+		print(player.Name .. " interacted with a " .. machineType)
+		-- For now, interacting instantly completes the machine.
+		-- Later, this will open the minigame UI.
+		self:Debug_CompleteMachine(machineInstance)
+	end)
 end
 
 --[=[
