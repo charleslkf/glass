@@ -1,6 +1,4 @@
-# This is the code that goes INSIDE your .yml file
-
-name: Create PR from Jules's Branch
+name: Create PR from Feature Branch
 
 permissions:
   contents: write
@@ -19,17 +17,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create Pull Request
-        id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: '✨ Feature: Initial Game Structure by Jules'
+          title: 'Feature: Initial Game Structure'
           base: 'feature/core-gameplay-and-minigames'
           branch: 'feat/initial-game-structure'
           body: |
-            This PR was automatically created when new commits were pushed to `feat/initial-game-structure`.
+            This PR was automatically created from the feature branch.
             - **Author**: @${{ github.actor }}
           assignees: ${{ github.actor }}
-          labels: |
-            new-feature
-            needs-review
+          labels: new-feature, needs-review
