@@ -7,10 +7,13 @@
 local RoundManager = {}
 RoundManager.__index = RoundManager
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local GameStateManager = require(ServerScriptService.GameStateManager)
+local PlayerManager = require(ServerScriptService.PlayerManager)
+local MachineManager = require(ServerScriptService.MachineManager)
 
 -- Constants
 local MIN_PLAYERS_TO_START = 2
@@ -45,12 +48,27 @@ end
 	Handles the lobby logic, starting a countdown if enough players are present.
 ]=]
 function RoundManager:Lobby()
-	print("Now in Lobby state.")
+	print("Now in Lobby state. Waiting for players...")
+
+	-- Wait until there are enough players to start
+	while #Players:GetPlayers() < MIN_PLAYERS_TO_START do
+		print("Waiting for more players... Have " .. #Players:GetPlayers() .. "/" .. MIN_PLAYERS_TO_START)
+		wait(5) -- Check every 5 seconds
+	end
+
+	print("Enough players have joined. Starting countdown...")
 	-- Simple countdown loop for demonstration
 	for i = LOBBY_COUNTDOWN_TIME, 1, -1 do
 		print("Countdown: " .. i)
+		-- Check if a player leaves during countdown
+		if #Players:GetPlayers() < MIN_PLAYERS_TO_START then
+			print("A player left. Halting countdown.")
+			self:Lobby() -- Re-run the lobby logic
+			return
+		end
 		wait(1)
 	end
+
 	GameStateManager:SetState("InRound")
 end
 
@@ -59,6 +77,10 @@ end
 ]=]
 function RoundManager:StartRound()
 	print("Round started!")
+
+	-- Assign roles to players
+	PlayerManager:AssignRoles()
+
 	-- Main round timer
 	wait(ROUND_TIME)
 	GameStateManager:SetState("Intermission")
@@ -69,6 +91,10 @@ end
 ]=]
 function RoundManager:Intermission()
 	print("Intermission.")
+
+	-- Reset all machines for the next round
+	MachineManager:ResetAllMachines()
+
 	wait(INTERMISSION_TIME)
 	GameStateManager:SetState("Lobby")
 end
