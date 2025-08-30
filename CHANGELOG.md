@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.25] - 2025-08-30
+
+### Fixed
+- **Sound System Testing**: Re-added a `task.delay` debug trigger to `RoundManager.lua`. This was previously removed and prevented the sound system from being tested. This allows the `MachineComplete` sound effect to be triggered for verification.
+
 ## [1.0.24] - 2025-08-30
 
 ### Added

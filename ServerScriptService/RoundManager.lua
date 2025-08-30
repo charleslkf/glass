@@ -127,6 +127,15 @@ function RoundManager:StartRound()
 		end
 	end)
 
+	-- DEBUG: Auto-complete the machine after 10 seconds to test the sound event
+	task.delay(10, function()
+		if GameStateManager.State == "InRound" then
+			local machine = MachineManager:GetActiveMachines()[1]
+			if machine then
+				MachineManager:Debug_CompleteMachine(machine)
+			end
+		end
+	end)
 end
 
 --[=[
