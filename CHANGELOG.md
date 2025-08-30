@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.23] - 2025-08-30
+
+### Fixed
+- **Rojo Sync Configuration**: Updated `default.project.json` to use a more specific path for `StarterPlayerScripts`. This prevents conflicts with default objects in the user's place file and resolves the Rojo sync failure.
+
 ## [1.0.22] - 2025-08-30
 
 ### Fixed
