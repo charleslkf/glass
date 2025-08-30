@@ -8,7 +8,6 @@ local RoundManager = {}
 RoundManager.__index = RoundManager
 
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local GameStateManager = require(ServerScriptService.GameStateManager)
@@ -21,12 +20,40 @@ local LOBBY_COUNTDOWN_TIME = 10 -- 10 seconds
 local INTERMISSION_TIME = 5 -- 5 seconds
 local ROUND_TIME = 120 -- 2 minutes
 
+local completedMachines = 0
+local machinesToComplete = 0
+local roundTimerThread = nil
+
+--[=[
+	Handles the completion of a single machine.
+]=]
+function RoundManager:OnMachineCompleted(machineInstance: table)
+	completedMachines += 1
+	print("RoundManager: A machine was completed! Progress: " .. completedMachines .. "/" .. machinesToComplete)
+
+	if completedMachines >= machinesToComplete then
+		print("All machines completed! Survivors win the round.")
+		if roundTimerThread then
+			task.cancel(roundTimerThread)
+			roundTimerThread = nil
+		end
+		GameStateManager:SetState("Intermission")
+	end
+end
+
 --[=[
 	Initializes the RoundManager, connecting it to the GameStateManager's events.
 ]=]
 function RoundManager:Init()
+	-- Initialize other managers first
+	MachineManager:Init()
+
 	GameStateManager.StateChanged:Connect(function(newState)
 		self:OnStateChanged(newState)
+	end)
+
+	MachineManager.MachineCompleted:Connect(function(machineInstance)
+		self:OnMachineCompleted(machineInstance)
 	end)
 end
 
@@ -50,17 +77,14 @@ end
 function RoundManager:Lobby()
 	print("Now in Lobby state. Waiting for players...")
 
-	-- Wait until there are enough players to start
 	while #Players:GetPlayers() < MIN_PLAYERS_TO_START do
 		print("Waiting for more players... Have " .. #Players:GetPlayers() .. "/" .. MIN_PLAYERS_TO_START)
-		wait(5) -- Check every 5 seconds
+		wait(5)
 	end
 
 	print("Enough players have joined. Starting countdown...")
-	-- Simple countdown loop for demonstration
 	for i = LOBBY_COUNTDOWN_TIME, 1, -1 do
 		print("Countdown: " .. i)
-		-- Check if a player leaves during countdown
 		if #Players:GetPlayers() < MIN_PLAYERS_TO_START then
 			print("A player left. Halting countdown.")
 			self:Lobby() -- Re-run the lobby logic
@@ -78,12 +102,32 @@ end
 function RoundManager:StartRound()
 	print("Round started!")
 
-	-- Assign roles to players
 	PlayerManager:AssignRoles()
 
-	-- Main round timer
-	wait(ROUND_TIME)
-	GameStateManager:SetState("Intermission")
+	-- Set up the round goal
+	completedMachines = 0
+	local activeMachines = MachineManager:GetActiveMachines()
+	if #activeMachines == 0 then
+		print("No machines found, creating one for the round.")
+		MachineManager:CreateMachine("ClassicMachine", {GridSize=3, Dots={{1,1,3,3}}})
+	end
+	machinesToComplete = #MachineManager:GetActiveMachines()
+	print("Round goal: Complete " .. machinesToComplete .. " machine(s).")
+
+	-- Start a timer that can be cancelled
+	roundTimerThread = task.spawn(function()
+		wait(ROUND_TIME)
+		print("Round timer finished. Killer wins.")
+		GameStateManager:SetState("Intermission")
+	end)
+
+	-- DEBUG: Auto-complete the machine after 10 seconds to test the win condition
+	task.delay(10, function()
+		if GameStateManager.State == "InRound" then
+			local machine = MachineManager:GetActiveMachines()[1]
+			MachineManager:Debug_CompleteMachine(machine)
+		end
+	end)
 end
 
 --[=[
@@ -92,7 +136,6 @@ end
 function RoundManager:Intermission()
 	print("Intermission.")
 
-	-- Reset all machines for the next round
 	MachineManager:ResetAllMachines()
 
 	wait(INTERMISSION_TIME)

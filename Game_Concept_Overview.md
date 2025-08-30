@@ -55,6 +55,10 @@ Players are divided into three roles:
 
 ## 9. Machines and Mini-Games
 There are three types of machines:
-- **Classic Machine:** Inspired by *Forsaken*, with familiar mechanics.
+- **Classic Machine:** Inspired by *Forsaken*, operates with familiar mechanics from that game.
+    - **Classic Machine Rules (Matching Pairs):** The minigame is a "pipe" or "flow" puzzle with the following rules:
+        - **Match the Pairs:** Players must draw a continuous line to connect two dots of the same color.
+        - **Follow the Grid:** Lines must be drawn horizontally or vertically on the grid squares, not diagonally.
+        - **No Crossing Paths:** The path for one color cannot intersect with the path for another color. Each path must occupy its own unique set of squares on the grid.
 - **Memory Machine:** Players replicate a pattern on a grid that increases in size with each level (from 3x3 to 6x6).
 - **Skill Check Machine:** Inspired by *Dandy World* and *99 Nights*, players must hit a sequence of skill checks. Missing a check reduces progress.
