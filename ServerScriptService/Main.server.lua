@@ -1,13 +1,21 @@
 --[=[
 	@script Main.server
-	This script is the main entry point for the server-side game logic.
-	It initializes the core managers and starts the game loop.
+	DIAGNOSTIC VERSION: This script is temporarily modified to test the MachineManager in isolation.
 ]=]
 
+print("[Diagnostic Test v2] Starting...")
+
 local ServerScriptService = game:GetService("ServerScriptService")
-local RoundManager = require(ServerScriptService.RoundManager)
+local MachineManager = require(ServerScriptService.MachineManager)
 
--- Start the game!
-RoundManager:Init()
+-- Initialize only the MachineManager and its dependencies
+MachineManager:Init()
+print("[Diagnostic Test v2] MachineManager Initialized.")
 
-print("Main.server.lua executed: RoundManager has been initialized.")
+-- Wait a moment before creating the machine
+wait(3)
+
+print("[Diagnostic Test v2] Calling CreateMachine...")
+MachineManager:CreateMachine("ClassicMachine", {})
+
+print("[Diagnostic Test v2] Script finished.")
