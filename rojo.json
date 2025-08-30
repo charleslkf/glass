@@ -1,0 +1,9 @@
+{
+  "name": "DNF-Roblox",
+  "tree": {
+    "$className": "DataModel",
+    "ServerScriptService": {
+      "$path": "ServerScriptService"
+    }
+  }
+}
