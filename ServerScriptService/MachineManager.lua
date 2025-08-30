@@ -60,6 +60,7 @@ end
 	@param machineType string The type of the machine.
 ]=]
 function MachineManager:_CreateMachinePart(machineInstance: table, machineType: string)
+	print("Creating physical machine part of type: " .. machineType)
 	local part = Instance.new("Part")
 	part.Size = Vector3.new(5, 5, 5)
 	part.Anchored = true
