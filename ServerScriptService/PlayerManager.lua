@@ -8,8 +8,52 @@ PlayerManager.__index = PlayerManager
 
 local Players = game:GetService("Players")
 
+-- Constants
+local DEFAULT_HEALTH = 100
+
 -- A table to store the roles of players
 local playerRoles = {}
+-- A table to store the health of players
+local playerHealths = {}
+
+
+--[=[
+	Handles a player joining the game.
+]=]
+function PlayerManager:OnPlayerAdded(player: Player)
+	print("Player added: " .. player.Name)
+	-- Assign default health
+	playerHealths[player] = DEFAULT_HEALTH
+	print(player.Name .. " initialized with " .. DEFAULT_HEALTH .. " health.")
+end
+
+--[=[
+	Handles a player leaving the game.
+]=]
+function PlayerManager:OnPlayerRemoving(player: Player)
+	print("Player removed: " .. player.Name)
+	-- Clean up player data
+	playerRoles[player] = nil
+	playerHealths[player] = nil
+end
+
+--[=[
+	Initializes the PlayerManager, connecting to player events.
+]=]
+function PlayerManager:Init()
+	Players.PlayerAdded:Connect(function(player)
+		self:OnPlayerAdded(player)
+	end)
+
+	Players.PlayerRemoving:Connect(function(player)
+		self:OnPlayerRemoving(player)
+	end)
+
+	-- Handle any players who are already in the game when this initializes
+	for _, player in ipairs(Players:GetPlayers()) do
+		self:OnPlayerAdded(player)
+	end
+end
 
 --[=[
 	Assigns roles to all players currently in the game.
@@ -47,6 +91,28 @@ end
 ]=]
 function PlayerManager:GetRole(player: Player)
 	return playerRoles[player] or "Unknown"
+end
+
+--[=[
+	Deals damage to a player and handles their death.
+	@param player Player The player to damage.
+	@param amount number The amount of damage to deal.
+]=]
+function PlayerManager:TakeDamage(player: Player, amount: number)
+	if not playerHealths[player] then
+		warn("Attempted to deal damage to a player with no health tracked: " .. player.Name)
+		return
+	end
+
+	playerHealths[player] -= amount
+	print(player.Name .. " took " .. amount .. " damage, health is now " .. playerHealths[player])
+
+	if playerHealths[player] <= 0 then
+		print(player.Name .. " has been eliminated!")
+		-- In the future, this will handle respawning, spectating, etc.
+		-- For now, we can just set their health to 0 to prevent multiple "deaths"
+		playerHealths[player] = 0
+	end
 end
 
 return PlayerManager

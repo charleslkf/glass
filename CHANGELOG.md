@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.15] - 2025-08-30
+
+### Added
+- **Health System Foundation**: Implemented the foundational logic for player health in `PlayerManager.lua`.
+  - Players are now assigned a default health value when they join.
+  - A `TakeDamage(player, amount)` function was added to manage health reduction and player death.
+  - Player health data is now cleaned up when they leave the game.
+- The `PlayerManager` is now initialized from `Main.server.lua` to ensure its event listeners are active.
+
+## [1.0.14] - 2025-08-30
+
+### Changed
+- **Documentation**: Updated `CHANGELOG.md` to include all prior bug fixes and diagnostic versions.
+
 ## [1.0.13] - 2025-08-30
 
 ### Fixed
