@@ -1,0 +1,35 @@
+# This is the code that goes INSIDE your .yml file
+
+name: Create PR from Jules's Branch
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  push:
+    branches:
+      - 'feat/initial-game-structure'
+
+jobs:
+  create_pull_request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: '✨ Feature: Initial Game Structure by Jules'
+          base: 'feature/core-gameplay-and-minigames'
+          branch: 'feat/initial-game-structure'
+          body: |
+            This PR was automatically created when new commits were pushed to `feat/initial-game-structure`.
+            - **Author**: @${{ github.actor }}
+          assignees: ${{ github.actor }}
+          labels: |
+            new-feature
+            needs-review
