@@ -1,0 +1,17 @@
+name: Create Pull Request
+
+on:
+  push:
+    branches:
+      - feat/initial-game-structure
+
+jobs:
+  pull-request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: pull-request
+        uses: "repo-sync/pull-request@v2"
+        with:
+          source_branch: "feat/initial-game-structure"
+          destination_branch: "feature/core-gameplay-and-minigames"
+          github_token: "${{ secrets.GITHUB_TOKEN }}"
