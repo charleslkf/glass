@@ -7,9 +7,11 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 local PlayerManager = require(ServerScriptService.PlayerManager)
 local RoundManager = require(ServerScriptService.RoundManager)
+local AbilityManager = require(ServerScriptService.AbilityManager)
 
 -- Initialize all core managers
 PlayerManager:Init()
-RoundManager:Init()
+AbilityManager:Init()
+RoundManager:Init() -- RoundManager should generally be last
 
 print("Main.server.lua executed: All managers have been initialized.")
