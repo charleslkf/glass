@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.29] - 2025-08-30
+
+### Added
+- **Click-to-Attack Mechanic**: Implemented the killer's primary attack mechanic.
+  - A `ClickDetector` is now added to each player's character when they spawn.
+  - When a player with the "Killer" role clicks on another player, it now triggers the `KillerAttack` function, dealing damage.
+
 ## [1.0.28] - 2025-08-30
 
 ### Added

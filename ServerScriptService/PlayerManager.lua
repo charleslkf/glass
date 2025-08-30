@@ -25,6 +25,36 @@ function PlayerManager:OnPlayerAdded(player: Player)
 	-- Assign default health
 	playerHealths[player] = DEFAULT_HEALTH
 	print(player.Name .. " initialized with " .. DEFAULT_HEALTH .. " health.")
+
+	-- Handle character loading
+	player.CharacterAdded:Connect(function(character)
+		self:OnCharacterAdded(player, character)
+	end)
+
+	-- Handle character if it's already loaded
+	if player.Character then
+		self:OnCharacterAdded(player, player.Character)
+	end
+end
+
+--[=[
+	Handles a player's character spawning into the game.
+]=]
+function PlayerManager:OnCharacterAdded(player: Player, character: Model)
+	local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+	if not humanoidRootPart then return end
+
+	-- Add a ClickDetector to allow other players to interact with this character
+	local clickDetector = Instance.new("ClickDetector")
+	clickDetector.MaxActivationDistance = 10 -- How close the attacker must be
+	clickDetector.Parent = humanoidRootPart
+
+	clickDetector.MouseClick:Connect(function(attackerPlayer)
+		-- When a player clicks on this character, treat it as an attack
+		self:KillerAttack(attackerPlayer, player)
+	end)
+
+	print("Added ClickDetector to " .. player.Name)
 end
 
 --[=[
