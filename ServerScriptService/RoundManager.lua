@@ -103,34 +103,15 @@ end
 	Starts the main game round.
 ]=]
 function RoundManager:StartRound()
-	print("Round started!")
+	print("[Diagnostic Test v3] Round started!")
+	print("[Diagnostic Test v3] Bypassing role assignment and timers.")
 
-	PlayerManager:AssignRoles()
+	-- The only thing this function will do is create a machine.
+	print("[Diagnostic Test v3] Calling CreateMachine...")
+	MachineManager:CreateMachine("ClassicMachine", {GridSize=3, Dots={{1,1,3,3}}})
+	print("[Diagnostic Test v3] CreateMachine has been called.")
 
-	-- Set up the round goal
-	completedMachines = 0
-	local activeMachines = MachineManager:GetActiveMachines()
-	if #activeMachines == 0 then
-		print("No machines found, creating one for the round.")
-		MachineManager:CreateMachine("ClassicMachine", {GridSize=3, Dots={{1,1,3,3}}})
-	end
-	machinesToComplete = #MachineManager:GetActiveMachines()
-	print("Round goal: Complete " .. machinesToComplete .. " machine(s).")
-
-	-- Start a timer that can be cancelled
-	roundTimerThread = task.spawn(function()
-		wait(ROUND_TIME)
-		print("Round timer finished. Killer wins.")
-		GameStateManager:SetState("Intermission")
-	end)
-
-	-- DEBUG: Auto-complete the machine after 10 seconds to test the win condition
-	task.delay(10, function()
-		if GameStateManager.State == "InRound" then
-			local machine = MachineManager:GetActiveMachines()[1]
-			MachineManager:Debug_CompleteMachine(machine)
-		end
-	end)
+	-- No timers, no state changes. We are just testing if the part appears.
 end
 
 --[=[
