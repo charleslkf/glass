@@ -6,7 +6,9 @@
       "$path": "ServerScriptService"
     },
     "StarterPlayer": {
-      "$path": "StarterPlayer"
+      "StarterPlayerScripts": {
+        "$path": "StarterPlayer/StarterPlayerScripts"
+      }
     }
   }
 }
