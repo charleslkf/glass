@@ -27,13 +27,18 @@ function PlayerManager:OnPlayerAdded(player: Player)
 	print(player.Name .. " initialized with " .. DEFAULT_HEALTH .. " health.")
 
 	-- Handle character loading
+	print("[Debug] Setting up CharacterAdded connection for " .. player.Name)
 	player.CharacterAdded:Connect(function(character)
+		print("[Debug] CharacterAdded event fired for " .. player.Name)
 		self:OnCharacterAdded(player, character)
 	end)
 
 	-- Handle character if it's already loaded
 	if player.Character then
+		print("[Debug] Character for " .. player.Name .. " already exists. Firing OnCharacterAdded manually.")
 		self:OnCharacterAdded(player, player.Character)
+	else
+		print("[Debug] Character for " .. player.Name .. " does not exist yet.")
 	end
 end
 
@@ -41,8 +46,14 @@ end
 	Handles a player's character spawning into the game.
 ]=]
 function PlayerManager:OnCharacterAdded(player: Player, character: Model)
-	local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-	if not humanoidRootPart then return end
+	print("[Debug] OnCharacterAdded called for " .. player.Name)
+	local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 6) -- Wait up to 6 seconds
+
+	if not humanoidRootPart then
+		warn("[Debug] Could not find HumanoidRootPart for " .. player.Name .. " after waiting.")
+		return
+	end
+	print("[Debug] Found HumanoidRootPart for " .. player.Name)
 
 	-- Add a ClickDetector to allow other players to interact with this character
 	local clickDetector = Instance.new("ClickDetector")
