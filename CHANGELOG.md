@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.13] - 2025-08-30
+
+### Fixed
+- **Invisible Machine Bug**: Fixed a subtle race condition that prevented machine parts from being rendered visibly. The `task.delay` used for debugging was removed from `RoundManager`, and the main round timer was restored, resulting in a stable and visible part creation process.
+
 ## [1.0.8] - 2025-08-29
 
 ### Added
