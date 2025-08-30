@@ -103,6 +103,11 @@ function MachineManager:Debug_CompleteMachine(machineInstance: table)
 
 		-- Fire the remote event to all clients to play the sound
 		EventManager.PlaySoundEvent:FireAllClients("MachineComplete")
+
+		-- Fire the remote event to all clients to play the VFX
+		if machineInstance.Part then
+			EventManager.PlayVFXEvent:FireAllClients("MachineComplete", machineInstance.Part.Position)
+		end
 	end
 end
 

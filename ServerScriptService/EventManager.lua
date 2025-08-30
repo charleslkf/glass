@@ -21,6 +21,10 @@ EventManager.UseAbilityEvent = Instance.new("RemoteEvent")
 EventManager.UseAbilityEvent.Name = "UseAbilityEvent"
 EventManager.UseAbilityEvent.Parent = eventsFolder
 
+EventManager.PlayVFXEvent = Instance.new("RemoteEvent")
+EventManager.PlayVFXEvent.Name = "PlayVFXEvent"
+EventManager.PlayVFXEvent.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")
