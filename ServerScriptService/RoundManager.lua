@@ -48,11 +48,11 @@ function RoundManager:Init()
 	-- Initialize other managers first
 	MachineManager:Init()
 
-	GameStateManager.StateChanged:Connect(function(newState)
+	GameStateManager.StateChanged.Event:Connect(function(newState)
 		self:OnStateChanged(newState)
 	end)
 
-	MachineManager.MachineCompleted:Connect(function(machineInstance)
+	MachineManager.MachineCompleted.Event:Connect(function(machineInstance)
 		self:OnMachineCompleted(machineInstance)
 	end)
 end
