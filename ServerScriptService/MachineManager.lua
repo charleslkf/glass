@@ -33,6 +33,7 @@ end
 	Sets up event listeners. This should be called once from Main.server.lua.
 ]=]
 function MachineManager:Init()
+	-- Listener for the Classic Machine
 	EventManager.SubmitClassicMachineSolution.OnServerEvent:Connect(function(player, machineID: string, solution: table)
 		local machineInstance = activeMachines[machineID]
 
@@ -45,9 +46,27 @@ function MachineManager:Init()
 
 		if isCorrect then
 			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is correct!")
+			machineInstance.IsCompleted = true
+			MachineManager.MachineCompleted:Fire(machineInstance)
+		else
+			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is incorrect.")
+		end
+	end)
 
-			-- The RoundManager is listening for this event. This is a much cleaner way to decouple the managers.
-			machineInstance.IsCompleted = true -- Mark as completed to prevent re-submission
+	-- Listener for the new Memory Machine
+	EventManager.SubmitMemoryMachineSolution.OnServerEvent:Connect(function(player, machineID: string, solution: table)
+		local machineInstance = activeMachines[machineID]
+
+		if not machineInstance or machineInstance.IsCompleted then
+			warn(player.Name .. " submitted a solution for an invalid or already completed machine: " .. machineID)
+			return
+		end
+
+		local isCorrect = machineInstance:ValidateSolution(solution)
+
+		if isCorrect then
+			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is correct!")
+			machineInstance.IsCompleted = true
 			MachineManager.MachineCompleted:Fire(machineInstance)
 		else
 			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is incorrect.")
@@ -103,9 +122,21 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 	prompt.Triggered:Connect(function(player)
 		print(player.Name .. " interacted with a " .. machineType)
 
+		if machineInstance.IsCompleted then
+			print("Machine is already completed.")
+			return
+		end
+
 		if machineType == "ClassicMachine" then
 			print("Firing ShowMachineUI for " .. machineInstance.ID .. " to " .. player.Name)
 			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID)
+
+		elseif machineType == "MemoryMachine" then
+			-- Generate a pattern and send it to the client
+			local pattern = machineInstance:GeneratePattern()
+			print("Firing ShowMachineUI for MemoryMachine " .. machineInstance.ID .. " to " .. player.Name)
+			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID, pattern)
+
 		else
 			print("Default interaction: auto-completing machine.")
 			machineInstance.IsCompleted = true
