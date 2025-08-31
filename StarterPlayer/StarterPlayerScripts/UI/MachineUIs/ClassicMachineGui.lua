@@ -104,6 +104,7 @@ local function createGui(): ScreenGui
 					bar.AnchorPoint = Vector2.new(0.5, 0.5)
 					bar.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
 					bar.BorderSizePixel = 0
+					bar.Interactable = false
 					bar.Parent = tileInstance
 				elseif tileData == "L" then
 					local vertBar = Instance.new("TextLabel")
@@ -114,6 +115,7 @@ local function createGui(): ScreenGui
 					vertBar.AnchorPoint = Vector2.new(0.5, 0.5)
 					vertBar.BackgroundColor3 = Color3.fromRGB(255, 150, 0)
 					vertBar.BorderSizePixel = 0
+					vertBar.Interactable = false
 					vertBar.Parent = tileInstance
 
 					local horizBar = Instance.new("TextLabel")
@@ -124,12 +126,14 @@ local function createGui(): ScreenGui
 					horizBar.AnchorPoint = Vector2.new(0.5, 0.5)
 					horizBar.BackgroundColor3 = Color3.fromRGB(255, 150, 0)
 					horizBar.BorderSizePixel = 0
+					horizBar.Interactable = false
 					horizBar.Parent = tileInstance
 				elseif tileData == "S" or tileData == "E" then
 					local indicator = Instance.new("TextLabel")
 					indicator.Text = ""
 					indicator.Size = UDim2.new(1, 0, 1, 0)
 					indicator.BackgroundColor3 = if tileData == "S" then Color3.fromRGB(0, 255, 0) else Color3.fromRGB(255, 0, 0)
+					indicator.Interactable = false
 					indicator.Parent = tileInstance
 				end
 			else
