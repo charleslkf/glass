@@ -37,7 +37,7 @@ local function createGui(): ScreenGui
 	local gridContainer = Instance.new("Frame")
 	gridContainer.Name = "GridContainer"
 	gridContainer.Size = UDim2.new(0.9, 0, 1, -110)
-	gridContainer.Position = UDim2.new(0.5, 0, 0.5, 10)
+	gridContainer.Position = UDim2.new(0.5, 0, 0.5, 25)
 	gridContainer.AnchorPoint = Vector2.new(0.5, 0.5)
 	gridContainer.BackgroundTransparency = 1
 	gridContainer.Parent = mainFrame
