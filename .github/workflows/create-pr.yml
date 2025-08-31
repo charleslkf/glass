@@ -4,6 +4,7 @@ on:
   push:
     branches-ignore:
       - 'main'
+      - 'feature/core-gameplay-and-minigames' # Also ignore the destination branch
 
 jobs:
   pull-request:
@@ -16,7 +17,7 @@ jobs:
         uses: repo-sync/pull-request@v2
         with:
           source_branch: ${{ github.ref_name }}
-          destination_branch: "main"
+          destination_branch: "feature/core-gameplay-and-minigames"
           pr_title: "Pull request for ${{ github.ref_name }}"
           pr_body: "This PR was automatically created for branch `${{ github.ref_name }}`."
           github_token: "${{ secrets.GITHUB_TOKEN }}"
