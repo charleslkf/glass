@@ -14,7 +14,7 @@ print("ClassicMachineController.client.lua loaded.")
 -- Get remote events folder
 local EventsFolder = ReplicatedStorage:WaitForChild("GameEvents")
 local ShowMachineUIEvent = EventsFolder:WaitForChild("ShowMachineUI")
-local SubmitClassicMachineSolution = EventsFolder:WaitForChild("SubmitClassicMachineSolution") -- Will be created in next step
+local SubmitClassicMachineSolution = EventsFolder:WaitForChild("SubmitClassicMachineSolution")
 
 -- Get UI module
 local ClassicMachineGuiModule = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("MachineUIs"):WaitForChild("ClassicMachineGui"))
@@ -26,6 +26,9 @@ print("ClassicMachineController: GUI instance created.")
 
 local gridContainer = guiInstance.MainFrame.GridContainer
 local submitButton = guiInstance.MainFrame.SubmitButton
+
+-- FIX: Use a local variable to track the active machine instead of an attribute
+local activeMachineInstance: Instance?
 
 -- --- Functions to control the GUI ---
 
@@ -39,13 +42,14 @@ local function showGui(machineInstance: Instance)
     end
     guiInstance.Enabled = true
     -- Store the machine instance we are interacting with
-    guiInstance:SetAttribute("ActiveMachineInstance", machineInstance)
+    activeMachineInstance = machineInstance
     print("ClassicMachineController: GUI shown for machine: " .. tostring(machineInstance))
 end
 
 local function hideGui()
     guiInstance.Enabled = false
-    guiInstance:SetAttribute("ActiveMachineInstance", nil)
+    -- Clear the active machine instance
+    activeMachineInstance = nil
     print("ClassicMachineController: GUI hidden.")
 end
 
@@ -95,9 +99,8 @@ submitButton.MouseButton1Click:Connect(function()
     end
 
     -- Fire the remote event to the server
-    local activeMachine = guiInstance:GetAttribute("ActiveMachineInstance")
-    if activeMachine then
-        SubmitClassicMachineSolution:FireServer(activeMachine, solution)
+    if activeMachineInstance then
+        SubmitClassicMachineSolution:FireServer(activeMachineInstance, solution)
     else
         warn("No active machine instance found when submitting solution!")
     end
