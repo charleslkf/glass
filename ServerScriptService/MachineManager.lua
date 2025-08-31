@@ -24,6 +24,8 @@ MachineManager.MachineCompleted = Instance.new("BindableEvent")
 	Loads all minigame modules and sets up event listeners.
 ]=]
 function MachineManager:Init()
+	local self = self -- Capture the MachineManager table for the event handler below
+
 	for _, moduleScript in ipairs(MinigamesFolder:GetChildren()) do
 		if moduleScript:IsA("ModuleScript") then
 			local moduleName = moduleScript.Name
@@ -45,7 +47,7 @@ function MachineManager:Init()
 
 		if isCorrect then
 			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is correct!")
-			MachineManager:CompleteMachine(machineInstance)
+			self:CompleteMachine(machineInstance)
 		else
 			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is incorrect.")
 		end
