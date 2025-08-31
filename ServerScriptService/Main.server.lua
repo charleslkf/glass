@@ -16,6 +16,7 @@ DataManager:Init()
 PlayerManager:Init()
 AbilityManager:Init()
 EventManager:Init()
+MachineManager:Init()
 RoundManager:Init() -- RoundManager should generally be last
 
 print("Main.server.lua executed: All managers have been initialized.")
