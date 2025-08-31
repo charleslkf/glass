@@ -1,0 +1,23 @@
+name: Create Pull Request
+
+on:
+  push:
+    branches-ignore:
+      - 'main'
+      - 'feature/core-gameplay-and-minigames' # Also ignore the destination branch
+
+jobs:
+  pull-request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create Pull Request
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: ${{ github.ref_name }}
+          destination_branch: "feature/core-gameplay-and-minigames"
+          pr_title: "Pull request for ${{ github.ref_name }}"
+          pr_body: "This PR was automatically created for branch `${{ github.ref_name }}`."
+          github_token: "${{ secrets.GITHUB_TOKEN }}"
