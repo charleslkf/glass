@@ -45,7 +45,7 @@ function MachineManager:Init()
 
 		if isCorrect then
 			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is correct!")
-			self:CompleteMachine(machineInstance)
+			MachineManager:CompleteMachine(machineInstance)
 		else
 			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is incorrect.")
 		end
