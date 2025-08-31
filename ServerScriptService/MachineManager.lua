@@ -20,7 +20,7 @@ local machineIdCounter = 0
 -- A BindableEvent that fires when any machine is completed
 MachineManager.MachineCompleted = Instance.new("BindableEvent")
 
--- FIX: Load all minigame modules immediately when this script is required
+-- Load all minigame modules immediately when this script is required
 for _, moduleScript in ipairs(MinigamesFolder:GetChildren()) do
 	if moduleScript:IsA("ModuleScript") then
 		local moduleName = moduleScript.Name
@@ -36,15 +36,9 @@ function MachineManager:Init()
 	-- Listener for the Classic Machine
 	EventManager.SubmitClassicMachineSolution.OnServerEvent:Connect(function(player, machineID: string, solution: table)
 		local machineInstance = activeMachines[machineID]
+		if not machineInstance or machineInstance.IsCompleted then return end
 
-		if not machineInstance or machineInstance.IsCompleted then
-			warn(player.Name .. " submitted a solution for an invalid or already completed machine: " .. machineID)
-			return
-		end
-
-		local isCorrect = machineInstance:ValidateSolution(solution)
-
-		if isCorrect then
+		if machineInstance:ValidateSolution(solution) then
 			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is correct!")
 			machineInstance.IsCompleted = true
 			MachineManager.MachineCompleted:Fire(machineInstance)
@@ -53,18 +47,12 @@ function MachineManager:Init()
 		end
 	end)
 
-	-- Listener for the new Memory Machine
+	-- Listener for the Memory Machine
 	EventManager.SubmitMemoryMachineSolution.OnServerEvent:Connect(function(player, machineID: string, solution: table)
 		local machineInstance = activeMachines[machineID]
+		if not machineInstance or machineInstance.IsCompleted then return end
 
-		if not machineInstance or machineInstance.IsCompleted then
-			warn(player.Name .. " submitted a solution for an invalid or already completed machine: " .. machineID)
-			return
-		end
-
-		local isCorrect = machineInstance:ValidateSolution(solution)
-
-		if isCorrect then
+		if machineInstance:ValidateSolution(solution) then
 			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is correct!")
 			machineInstance.IsCompleted = true
 			MachineManager.MachineCompleted:Fire(machineInstance)
@@ -80,7 +68,6 @@ end
 function MachineManager:CreateMachine(machineType: string, puzzleData: table)
 	local module = MinigameModules[machineType]
 	if not module then
-		-- This error is now more meaningful because we know modules should be loaded.
 		warn("Attempted to create an invalid or not-loaded machine type: " .. machineType)
 		return nil
 	end
@@ -122,21 +109,9 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 	prompt.Triggered:Connect(function(player)
 		print(player.Name .. " interacted with a " .. machineType)
 
-		if machineInstance.IsCompleted then
-			print("Machine is already completed.")
-			return
-		end
-
-		if machineType == "ClassicMachine" then
+		if machineType == "ClassicMachine" or machineType == "MemoryMachine" then
 			print("Firing ShowMachineUI for " .. machineInstance.ID .. " to " .. player.Name)
 			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID)
-
-		elseif machineType == "MemoryMachine" then
-			-- Generate a pattern and send it to the client
-			local pattern = machineInstance:GeneratePattern()
-			print("Firing ShowMachineUI for MemoryMachine " .. machineInstance.ID .. " to " .. player.Name)
-			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID, pattern)
-
 		else
 			print("Default interaction: auto-completing machine.")
 			machineInstance.IsCompleted = true
