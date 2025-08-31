@@ -48,13 +48,6 @@ local function createGui(): ScreenGui
 	aspectRatio.DominantAxis = Enum.DominantAxis.Width
 	aspectRatio.Parent = gridContainer
 
-	-- GridLayout
-	local gridLayout = Instance.new("UIGridLayout")
-	gridLayout.CellSize = UDim2.new(0.2, -5, 0.2, -5)
-	gridLayout.CellPadding = UDim2.new(0, 5, 0, 5)
-	gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	gridLayout.Parent = gridContainer
-
 	-- Define the puzzle layout
 	local puzzleLayout = {
 		{"S", "I", "_", "_", "_"},
@@ -64,9 +57,16 @@ local function createGui(): ScreenGui
 		{"_", "_", "_", "_", "_"},
 	}
 
+	-- FIX: Manually calculate grid positions instead of using UIGridLayout
+	local NUM_CELLS = 5
+	local PADDING_SCALE = 0.02 -- 2% of the container's width
+	local totalPadding = PADDING_SCALE * (NUM_CELLS - 1)
+	local totalCellScale = 1.0 - totalPadding
+	local cellScale = totalCellScale / NUM_CELLS
+
 	-- Create the grid tiles
-	for y = 1, 5 do
-		for x = 1, 5 do
+	for y = 1, NUM_CELLS do
+		for x = 1, NUM_CELLS do
 			local tileData = puzzleLayout[y][x]
 			local isInteractive = (tileData == "I" or tileData == "L")
 
@@ -82,7 +82,12 @@ local function createGui(): ScreenGui
 			end
 
 			tileInstance.Name = `Tile_{y}_{x}`
-			tileInstance.LayoutOrder = (y - 1) * 5 + x
+			-- Set manual Size and Position
+			tileInstance.Size = UDim2.fromScale(cellScale, cellScale)
+			local xPos = (x - 1) * (cellScale + PADDING_SCALE)
+			local yPos = (y - 1) * (cellScale + PADDING_SCALE)
+			tileInstance.Position = UDim2.fromScale(xPos, yPos)
+
 			tileInstance.Parent = gridContainer
 			tileInstance:SetAttribute("GridX", x)
 			tileInstance:SetAttribute("GridY", y)
@@ -94,7 +99,6 @@ local function createGui(): ScreenGui
 					tileInstance.BorderSizePixel = 1
 				end
 
-				-- FIX: Using TextLabels which support InputTransparent
 				if tileData == "I" then
 					local bar = Instance.new("TextLabel")
 					bar.Text = ""
