@@ -66,11 +66,8 @@ end)
 for _, tile in ipairs(gridContainer:GetChildren()) do
     if tile:IsA("TextButton") then
         tile.MouseButton1Click:Connect(function()
-            print("DEBUG: Click detected on tile:", tile.Name)
-            local oldRotation = tile.Rotation
             -- Rotate the tile by 90 degrees
             tile.Rotation += 90
-            print("DEBUG: Rotation for", tile.Name, "changed from", oldRotation, "to", tile.Rotation)
         end)
     end
 end

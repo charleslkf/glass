@@ -7,7 +7,7 @@ This document outlines the next phase of development, focusing on implementing c
 **Objective:** To transform the placeholder machine interactions into fully playable minigames.
 
 ### Task 1.1: Implement the Classic Machine Minigame
-- **Status:** To Do
+- **Status:** Done
 - **Logic:**
     - When a player interacts with a "ClassicMachine" part, a new UI will appear on their screen.
     - The UI will present the "pipe-connecting" puzzle grid.
@@ -31,6 +31,13 @@ This document outlines the next phase of development, focusing on implementing c
     - Create a UI for the skill check (e.g., a moving bar and a target zone).
     - When interacted with, the client will begin the skill check sequence.
     - The client will report successes or failures to the server, which will track the overall progress.
+
+### Task 1.4: Create a Puzzle Library for the Classic Machine
+- **Status:** To Do
+- **Logic:**
+    - Refactor the minigame to pull puzzle layouts from a central library module instead of being hardcoded in the UI script.
+    - Create several more solvable 5x5 puzzle layouts to add to the library.
+    - When a Classic Machine minigame starts, the server will randomly select a puzzle from the library to present to the player.
 
 ## Milestone 2: Interactive Abilities
 
