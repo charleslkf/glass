@@ -2,18 +2,20 @@ name: Create Pull Request
 
 on:
   push:
-    branches:
-      - feat/initial-game-structure
+    branches-ignore:
+      - 'main' # Don't run on pushes to main
 
 jobs:
   pull-request:
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
     steps:
-      - name: pull-request
-        uses: "repo-sync/pull-request@v2"
+      - name: Create Pull Request
+        uses: repo-sync/pull-request@v2
         with:
-          source_branch: "feat/initial-game-structure"
-          destination_branch: "feature/core-gameplay-and-minigames"
+          # The branch that the pull request should be created from
+          source_branch: ${{ github.ref_name }}
+          # The branch that the pull request should be created for
+          destination_branch: "main"
+          pr_title: "Pull request for ${{ github.ref_name }}"
+          pr_body: "This PR was automatically created for branch `${{ github.ref_name }}`."
           github_token: "${{ secrets.GITHUB_TOKEN }}"
