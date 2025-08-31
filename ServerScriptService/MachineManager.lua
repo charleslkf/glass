@@ -24,8 +24,6 @@ MachineManager.MachineCompleted = Instance.new("BindableEvent")
 	Loads all minigame modules and sets up event listeners.
 ]=]
 function MachineManager:Init()
-	local self = self -- Capture the MachineManager table for the event handler below
-
 	for _, moduleScript in ipairs(MinigamesFolder:GetChildren()) do
 		if moduleScript:IsA("ModuleScript") then
 			local moduleName = moduleScript.Name
@@ -34,7 +32,6 @@ function MachineManager:Init()
 		end
 	end
 
-	-- FIX: Listen for solution submissions using a machineID
 	EventManager.SubmitClassicMachineSolution.OnServerEvent:Connect(function(player, machineID: string, solution: table)
 		local machineInstance = activeMachines[machineID]
 
@@ -47,7 +44,19 @@ function MachineManager:Init()
 
 		if isCorrect then
 			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is correct!")
-			self:CompleteMachine(machineInstance)
+
+			-- FIX: Inlined the CompleteMachine logic directly to bypass the scope issue.
+			if machineInstance and not machineInstance.IsCompleted then
+				machineInstance.IsCompleted = true
+				print("A machine has been completed!")
+				MachineManager.MachineCompleted:Fire(machineInstance)
+
+				EventManager.PlaySoundEvent:FireAllClients("MachineComplete")
+
+				if machineInstance.Part then
+					EventManager.PlayVFXEvent:FireAllClients("MachineComplete", machineInstance.Part.Position)
+				end
+			end
 		else
 			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is incorrect.")
 		end
@@ -58,7 +67,7 @@ end
 	Creates a new instance of a specific machine minigame.
 ]=]
 function MachineManager:CreateMachine(machineType: string, puzzleData: table)
-	local module = MinigameModules[machineType]
+	local module = MinigamesModules[machineType]
 	if not module then
 		warn("Attempted to create an invalid machine type: " .. machineType)
 		return nil
@@ -66,14 +75,12 @@ function MachineManager:CreateMachine(machineType: string, puzzleData: table)
 
 	local newMachine = module.new(puzzleData)
 
-	-- FIX: Generate and assign a unique ID
 	machineIdCounter += 1
 	local machineID = "Machine" .. tostring(machineIdCounter)
 	newMachine.ID = machineID
 
 	activeMachines[machineID] = newMachine
 
-	-- Create a physical representation of the machine in the workspace
 	self:_CreateMachinePart(newMachine, machineType)
 
 	return newMachine
@@ -104,32 +111,22 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 		print(player.Name .. " interacted with a " .. machineType)
 
 		if machineType == "ClassicMachine" then
-			-- FIX: Send the simple machineID to the client, not the whole instance
 			print("Firing ShowMachineUI for " .. machineInstance.ID .. " to " .. player.Name)
 			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID)
 		else
+			-- This remains for other machine types, but logic is inlined.
 			print("Default interaction: auto-completing machine.")
-			self:CompleteMachine(machineInstance)
+			if machineInstance and not machineInstance.IsCompleted then
+				machineInstance.IsCompleted = true
+				print("A machine has been completed!")
+				MachineManager.MachineCompleted:Fire(machineInstance)
+				EventManager.PlaySoundEvent:FireAllClients("MachineComplete")
+				if machineInstance.Part then
+					EventManager.PlayVFXEvent:FireAllClients("MachineComplete", machineInstance.Part.Position)
+				end
+			end
 		end
 	end)
-end
-
---[=[
-	Handles the completion of a machine.
-]=]
-function MachineManager:CompleteMachine(machineInstance: table)
-	if machineInstance and not machineInstance.IsCompleted then
-		machineInstance.IsCompleted = true
-		print("A machine has been completed!")
-		self.MachineCompleted:Fire(machineInstance)
-
-		-- Fire the remote event to all clients to play the sound
-		EventManager.PlaySoundEvent:FireAllClients("MachineComplete")
-
-		if machineInstance.Part then
-			EventManager.PlayVFXEvent:FireAllClients("MachineComplete", machineInstance.Part.Position)
-		end
-	end
 end
 
 --[=[
@@ -143,7 +140,6 @@ end
 	Resets all active machines to their initial state.
 ]=]
 function MachineManager:ResetAllMachines()
-	-- FIX: Iterate over a dictionary with pairs
 	for id, machineInstance in pairs(activeMachines) do
 		if machineInstance.Reset then
 			machineInstance:Reset()
@@ -153,7 +149,6 @@ function MachineManager:ResetAllMachines()
 			machineInstance.Part = nil
 		end
 	end
-	-- Clear the table for the new round
 	activeMachines = {}
 	print("All active machines have been reset and their parts destroyed.")
 end
