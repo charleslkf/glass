@@ -46,17 +46,9 @@ function MachineManager:Init()
 		if isCorrect then
 			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is correct!")
 
-			if machineInstance and not machineInstance.IsCompleted then
-				machineInstance.IsCompleted = true
-				print("A machine has been completed!")
-				MachineManager.MachineCompleted:Fire(machineInstance)
-
-				EventManager.PlaySoundEvent:FireAllClients("MachineComplete")
-
-				if machineInstance.Part then
-					EventManager.PlayVFXEvent:FireAllClients("MachineComplete", machineInstance.Part.Position)
-				end
-			end
+			-- The RoundManager is listening for this event. This is a much cleaner way to decouple the managers.
+			machineInstance.IsCompleted = true -- Mark as completed to prevent re-submission
+			MachineManager.MachineCompleted:Fire(machineInstance)
 		else
 			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is incorrect.")
 		end
@@ -116,15 +108,8 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID)
 		else
 			print("Default interaction: auto-completing machine.")
-			if machineInstance and not machineInstance.IsCompleted then
-				machineInstance.IsCompleted = true
-				print("A machine has been completed!")
-				MachineManager.MachineCompleted:Fire(machineInstance)
-				EventManager.PlaySoundEvent:FireAllClients("MachineComplete")
-				if machineInstance.Part then
-					EventManager.PlayVFXEvent:FireAllClients("MachineComplete", machineInstance.Part.Position)
-				end
-			end
+			machineInstance.IsCompleted = true
+			MachineManager.MachineCompleted:Fire(machineInstance)
 		end
 	end)
 end
