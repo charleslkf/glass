@@ -27,12 +27,12 @@ print("ClassicMachineController: GUI instance created.")
 local gridContainer = guiInstance.MainFrame.GridContainer
 local submitButton = guiInstance.MainFrame.SubmitButton
 
--- FIX: Use a local variable to track the active machine instead of an attribute
-local activeMachineInstance: Instance?
+-- FIX: Use a local variable to track the active machine's ID
+local activeMachineID: string?
 
 -- --- Functions to control the GUI ---
 
-local function showGui(machineInstance: Instance)
+local function showGui(machineID: string)
     -- Randomize tile rotations when showing the GUI
     for _, tile in ipairs(gridContainer:GetChildren()) do
         if tile:IsA("TextButton") then -- Only rotate interactive tiles
@@ -41,24 +41,24 @@ local function showGui(machineInstance: Instance)
         end
     end
     guiInstance.Enabled = true
-    -- Store the machine instance we are interacting with
-    activeMachineInstance = machineInstance
-    print("ClassicMachineController: GUI shown for machine: " .. tostring(machineInstance))
+    -- Store the ID of the machine we are interacting with
+    activeMachineID = machineID
+    print("ClassicMachineController: GUI shown for machine: " .. machineID)
 end
 
 local function hideGui()
     guiInstance.Enabled = false
-    -- Clear the active machine instance
-    activeMachineInstance = nil
+    -- Clear the active machine ID
+    activeMachineID = nil
     print("ClassicMachineController: GUI hidden.")
 end
 
 -- --- Event Connections ---
 
 -- Listen for server to show the UI
-ShowMachineUIEvent.OnClientEvent:Connect(function(machineType: string, machineInstance: Instance)
+ShowMachineUIEvent.OnClientEvent:Connect(function(machineType: string, machineID: string)
     if machineType == "ClassicMachine" then
-        showGui(machineInstance)
+        showGui(machineID)
     end
 end)
 
@@ -99,10 +99,10 @@ submitButton.MouseButton1Click:Connect(function()
     end
 
     -- Fire the remote event to the server
-    if activeMachineInstance then
-        SubmitClassicMachineSolution:FireServer(activeMachineInstance, solution)
+    if activeMachineID then
+        SubmitClassicMachineSolution:FireServer(activeMachineID, solution)
     else
-        warn("No active machine instance found when submitting solution!")
+        warn("No active machine ID found when submitting solution!")
     end
 
     -- Hide the UI after submitting

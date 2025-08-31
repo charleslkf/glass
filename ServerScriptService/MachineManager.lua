@@ -10,18 +10,18 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local EventManager = require(ServerScriptService.EventManager)
 local MinigamesFolder = ServerScriptService:WaitForChild("MachineMinigames")
 
--- A dictionary to hold the loaded minigame modules, e.g., { ClassicMachine = require(...) }
+-- A dictionary to hold the loaded minigame modules
 local MinigameModules = {}
 
--- A table to keep track of all active machine instances in the game
-local activeMachines = {}
+-- FIX: Use a dictionary to store active machines by a unique ID
+local activeMachines: {[string]: table} = {}
+local machineIdCounter = 0
 
 -- A BindableEvent that fires when any machine is completed
 MachineManager.MachineCompleted = Instance.new("BindableEvent")
 
 --[=[
-	Loads all minigame modules from the MachineMinigames folder.
-	This should be called once when the server starts.
+	Loads all minigame modules and sets up event listeners.
 ]=]
 function MachineManager:Init()
 	for _, moduleScript in ipairs(MinigamesFolder:GetChildren()) do
@@ -32,15 +32,15 @@ function MachineManager:Init()
 		end
 	end
 
-	-- Listen for solution submissions from clients
-	EventManager.SubmitClassicMachineSolution.OnServerEvent:Connect(function(player, machineInstance, solution)
-		-- Basic validation: does this machine actually exist and is it not completed?
-		if not table.find(activeMachines, machineInstance) or machineInstance.IsCompleted then
-			warn(player.Name .. " submitted a solution for an invalid or already completed machine.")
+	-- FIX: Listen for solution submissions using a machineID
+	EventManager.SubmitClassicMachineSolution.OnServerEvent:Connect(function(player, machineID: string, solution: table)
+		local machineInstance = activeMachines[machineID]
+
+		if not machineInstance or machineInstance.IsCompleted then
+			warn(player.Name .. " submitted a solution for an invalid or already completed machine: " .. machineID)
 			return
 		end
 
-		-- Call the validation method on the machine's module
 		local isCorrect = machineInstance:ValidateSolution(solution)
 
 		if isCorrect then
@@ -54,9 +54,6 @@ end
 
 --[=[
 	Creates a new instance of a specific machine minigame.
-	@param machineType string The name of the machine module (e.g., "ClassicMachine").
-	@param puzzleData table The data needed to initialize the minigame.
-	@return table | nil The new machine instance, or nil if the type is invalid.
 ]=]
 function MachineManager:CreateMachine(machineType: string, puzzleData: table)
 	local module = MinigameModules[machineType]
@@ -66,7 +63,13 @@ function MachineManager:CreateMachine(machineType: string, puzzleData: table)
 	end
 
 	local newMachine = module.new(puzzleData)
-	table.insert(activeMachines, newMachine)
+
+	-- FIX: Generate and assign a unique ID
+	machineIdCounter += 1
+	local machineID = "Machine" .. tostring(machineIdCounter)
+	newMachine.ID = machineID
+
+	activeMachines[machineID] = newMachine
 
 	-- Create a physical representation of the machine in the workspace
 	self:_CreateMachinePart(newMachine, machineType)
@@ -76,8 +79,6 @@ end
 
 --[=[
 	Creates and configures the physical part for a machine.
-	@param machineInstance table The logical machine object.
-	@param machineType string The type of the machine.
 ]=]
 function MachineManager:_CreateMachinePart(machineInstance: table, machineType: string)
 	print("Creating physical machine part of type: " .. machineType)
@@ -86,30 +87,25 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 	part.Anchored = true
 	part.Position = Vector3.new(math.random(-50, 50), 2.5, math.random(-50, 50))
 	part.BrickColor = BrickColor.random()
-	part.Name = machineType .. " (Machine)"
+	part.Name = machineType .. " (" .. machineInstance.ID .. ")"
 	part.Parent = workspace
 
-	-- Link the physical part to the logical object
 	machineInstance.Part = part
 
-	-- Add a ProximityPrompt for player interaction
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.ActionText = "Repair Machine"
 	prompt.ObjectText = machineType
-	prompt.HoldDuration = 2 -- Player must hold the key for 2 seconds
+	prompt.HoldDuration = 2
 	prompt.Parent = part
 
-	-- When the prompt is triggered, handle the interaction based on machine type
 	prompt.Triggered:Connect(function(player)
 		print(player.Name .. " interacted with a " .. machineType)
 
-		-- Delegate to the specific minigame logic
 		if machineType == "ClassicMachine" then
-			-- Fire the remote event to the client who triggered the prompt
-			print("Firing ShowMachineUI for ClassicMachine to " .. player.Name)
-			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance)
+			-- FIX: Send the simple machineID to the client, not the whole instance
+			print("Firing ShowMachineUI for " .. machineInstance.ID .. " to " .. player.Name)
+			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID)
 		else
-			-- For other machine types, keep the old behavior for now.
 			print("Default interaction: auto-completing machine.")
 			self:CompleteMachine(machineInstance)
 		end
@@ -118,19 +114,16 @@ end
 
 --[=[
 	Handles the completion of a machine.
-	@param machineInstance table The machine that was completed.
 ]=]
 function MachineManager:CompleteMachine(machineInstance: table)
 	if machineInstance and not machineInstance.IsCompleted then
-		-- In a real implementation, we'd call machineInstance:ValidateSolution()
 		machineInstance.IsCompleted = true
-		print("A machine has been completed (via debug)!")
+		print("A machine has been completed!")
 		self.MachineCompleted:Fire(machineInstance)
 
 		-- Fire the remote event to all clients to play the sound
 		EventManager.PlaySoundEvent:FireAllClients("MachineComplete")
 
-		-- Fire the remote event to all clients to play the VFX
 		if machineInstance.Part then
 			EventManager.PlayVFXEvent:FireAllClients("MachineComplete", machineInstance.Part.Position)
 		end
@@ -139,7 +132,6 @@ end
 
 --[=[
 	Gets all the active machine instances.
-	@return {table} A list of all active machines.
 ]=]
 function MachineManager:GetActiveMachines()
 	return activeMachines
@@ -147,22 +139,20 @@ end
 
 --[=[
 	Resets all active machines to their initial state.
-	This is called by the RoundManager during intermission.
 ]=]
 function MachineManager:ResetAllMachines()
-	for _, machineInstance in ipairs(activeMachines) do
-		-- Reset the logical state
+	-- FIX: Iterate over a dictionary with pairs
+	for id, machineInstance in pairs(activeMachines) do
 		if machineInstance.Reset then
 			machineInstance:Reset()
 		end
-		-- Destroy the physical part
 		if machineInstance.Part then
 			machineInstance.Part:Destroy()
 			machineInstance.Part = nil
 		end
 	end
-	-- Clear the table of active machines for the new round
-	table.clear(activeMachines)
+	-- Clear the table for the new round
+	activeMachines = {}
 	print("All active machines have been reset and their parts destroyed.")
 end
 
