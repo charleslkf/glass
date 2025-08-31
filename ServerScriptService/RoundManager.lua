@@ -25,6 +25,13 @@ local completedMachines = 0
 local machinesToComplete = 0
 local roundTimerThread = nil
 
+-- Helper to get the size of a dictionary
+local function table_size(t)
+	local count = 0
+	for _ in pairs(t) do count += 1 end
+	return count
+end
+
 --[=[
 	Handles the completion of a single machine.
 ]=]
@@ -117,11 +124,12 @@ function RoundManager:StartRound()
 	-- Set up the round goal
 	completedMachines = 0
 	local activeMachines = MachineManager:GetActiveMachines()
-	if #activeMachines == 0 then
+	-- FIX: Use a helper function to correctly get the number of machines
+	if table_size(activeMachines) == 0 then
 		print("No machines found, creating one for the round.")
-		MachineManager:CreateMachine("ClassicMachine", {GridSize=3, Dots={{1,1,3,3}}})
+		MachineManager:CreateMachine("ClassicMachine", {})
 	end
-	machinesToComplete = #MachineManager:GetActiveMachines()
+	machinesToComplete = table_size(MachineManager:GetActiveMachines())
 	print("Round goal: Complete " .. machinesToComplete .. " machine(s).")
 
 	-- Start a timer that can be cancelled
