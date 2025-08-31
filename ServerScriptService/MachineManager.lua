@@ -13,25 +13,26 @@ local MinigamesFolder = ServerScriptService:WaitForChild("MachineMinigames")
 -- A dictionary to hold the loaded minigame modules
 local MinigameModules = {}
 
--- FIX: Use a dictionary to store active machines by a unique ID
+-- A dictionary to store active machines by a unique ID
 local activeMachines: {[string]: table} = {}
 local machineIdCounter = 0
 
 -- A BindableEvent that fires when any machine is completed
 MachineManager.MachineCompleted = Instance.new("BindableEvent")
 
+-- FIX: Load all minigame modules immediately when this script is required
+for _, moduleScript in ipairs(MinigamesFolder:GetChildren()) do
+	if moduleScript:IsA("ModuleScript") then
+		local moduleName = moduleScript.Name
+		MinigameModules[moduleName] = require(moduleScript)
+		print("Loaded minigame module: " .. moduleName)
+	end
+end
+
 --[=[
-	Loads all minigame modules and sets up event listeners.
+	Sets up event listeners. This should be called once from Main.server.lua.
 ]=]
 function MachineManager:Init()
-	for _, moduleScript in ipairs(MinigamesFolder:GetChildren()) do
-		if moduleScript:IsA("ModuleScript") then
-			local moduleName = moduleScript.Name
-			MinigameModules[moduleName] = require(moduleScript)
-			print("Loaded minigame module: " .. moduleName)
-		end
-	end
-
 	EventManager.SubmitClassicMachineSolution.OnServerEvent:Connect(function(player, machineID: string, solution: table)
 		local machineInstance = activeMachines[machineID]
 
@@ -45,7 +46,6 @@ function MachineManager:Init()
 		if isCorrect then
 			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is correct!")
 
-			-- FIX: Inlined the CompleteMachine logic directly to bypass the scope issue.
 			if machineInstance and not machineInstance.IsCompleted then
 				machineInstance.IsCompleted = true
 				print("A machine has been completed!")
@@ -67,9 +67,10 @@ end
 	Creates a new instance of a specific machine minigame.
 ]=]
 function MachineManager:CreateMachine(machineType: string, puzzleData: table)
-	local module = MinigamesModules[machineType]
+	local module = MinigameModules[machineType]
 	if not module then
-		warn("Attempted to create an invalid machine type: " .. machineType)
+		-- This error is now more meaningful because we know modules should be loaded.
+		warn("Attempted to create an invalid or not-loaded machine type: " .. machineType)
 		return nil
 	end
 
@@ -114,7 +115,6 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 			print("Firing ShowMachineUI for " .. machineInstance.ID .. " to " .. player.Name)
 			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID)
 		else
-			-- This remains for other machine types, but logic is inlined.
 			print("Default interaction: auto-completing machine.")
 			if machineInstance and not machineInstance.IsCompleted then
 				machineInstance.IsCompleted = true
