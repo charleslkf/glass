@@ -13,6 +13,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local GameStateManager = require(ServerScriptService.GameStateManager)
 local PlayerManager = require(ServerScriptService.PlayerManager)
 local MachineManager = require(ServerScriptService.MachineManager)
+local EventManager = require(ServerScriptService.EventManager)
 
 -- Constants
 local MIN_PLAYERS_TO_START = 2
@@ -30,6 +31,12 @@ local roundTimerThread = nil
 function RoundManager:OnMachineCompleted(machineInstance: table)
 	completedMachines += 1
 	print("RoundManager: A machine was completed! Progress: " .. completedMachines .. "/" .. machinesToComplete)
+
+	-- Fire the remote events for feedback
+	EventManager.PlaySoundEvent:FireAllClients("MachineComplete")
+	if machineInstance.Part then
+		EventManager.PlayVFXEvent:FireAllClients("MachineComplete", machineInstance.Part.Position)
+	end
 
 	if completedMachines >= machinesToComplete then
 		print("All machines completed! Survivors win the round.")
