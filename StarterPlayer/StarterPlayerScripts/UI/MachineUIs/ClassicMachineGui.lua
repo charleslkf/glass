@@ -37,7 +37,6 @@ local function createGui(): ScreenGui
 	local gridContainer = Instance.new("Frame")
 	gridContainer.Name = "GridContainer"
 	gridContainer.Size = UDim2.new(0.9, 0, 1, -110)
-	-- FIX: Adjusted Y position offset to move the grid down slightly
 	gridContainer.Position = UDim2.new(0.5, 0, 0.5, 10)
 	gridContainer.AnchorPoint = Vector2.new(0.5, 0.5)
 	gridContainer.BackgroundTransparency = 1
@@ -75,7 +74,7 @@ local function createGui(): ScreenGui
 			if isInteractive then
 				tileInstance = Instance.new("TextButton")
 				tileInstance.Text = ""
-				tileInstance.AutoButtonColor = false -- Disable default button coloring
+				tileInstance.AutoButtonColor = false
 				tileInstance.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 				tileInstance.BorderSizePixel = 1
 			else
@@ -95,9 +94,10 @@ local function createGui(): ScreenGui
 					tileInstance.BorderSizePixel = 1
 				end
 
-				-- FIX: Reworked placeholder graphics and made them InputTransparent
+				-- FIX: Using TextLabels which support InputTransparent
 				if tileData == "I" then
-					local bar = Instance.new("Frame")
+					local bar = Instance.new("TextLabel")
+					bar.Text = ""
 					bar.Name = "Bar"
 					bar.Size = UDim2.new(0.3, 0, 1, 0)
 					bar.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -107,7 +107,8 @@ local function createGui(): ScreenGui
 					bar.InputTransparent = true
 					bar.Parent = tileInstance
 				elseif tileData == "L" then
-					local vertBar = Instance.new("Frame")
+					local vertBar = Instance.new("TextLabel")
+					vertBar.Text = ""
 					vertBar.Name = "VertBar"
 					vertBar.Size = UDim2.new(0.3, 0, 0.65, 0)
 					vertBar.Position = UDim2.new(0.5, 0, 0.325, 0)
@@ -117,7 +118,8 @@ local function createGui(): ScreenGui
 					vertBar.InputTransparent = true
 					vertBar.Parent = tileInstance
 
-					local horizBar = Instance.new("Frame")
+					local horizBar = Instance.new("TextLabel")
+					horizBar.Text = ""
 					horizBar.Name = "HorizBar"
 					horizBar.Size = UDim2.new(0.65, 0, 0.3, 0)
 					horizBar.Position = UDim2.new(0.675, 0, 0.5, 0)
@@ -127,7 +129,8 @@ local function createGui(): ScreenGui
 					horizBar.InputTransparent = true
 					horizBar.Parent = tileInstance
 				elseif tileData == "S" or tileData == "E" then
-					local indicator = Instance.new("Frame")
+					local indicator = Instance.new("TextLabel")
+					indicator.Text = ""
 					indicator.Size = UDim2.new(1, 0, 1, 0)
 					indicator.BackgroundColor3 = if tileData == "S" then Color3.fromRGB(0, 255, 0) else Color3.fromRGB(255, 0, 0)
 					indicator.InputTransparent = true
