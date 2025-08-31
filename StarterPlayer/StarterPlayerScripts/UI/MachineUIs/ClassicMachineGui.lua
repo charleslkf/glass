@@ -37,7 +37,8 @@ local function createGui(): ScreenGui
 	local gridContainer = Instance.new("Frame")
 	gridContainer.Name = "GridContainer"
 	gridContainer.Size = UDim2.new(0.9, 0, 1, -110)
-	gridContainer.Position = UDim2.new(0.5, 0, 0.5, -25)
+	-- FIX: Adjusted Y position offset to move the grid down slightly
+	gridContainer.Position = UDim2.new(0.5, 0, 0.5, 10)
 	gridContainer.AnchorPoint = Vector2.new(0.5, 0.5)
 	gridContainer.BackgroundTransparency = 1
 	gridContainer.Parent = mainFrame
@@ -74,7 +75,9 @@ local function createGui(): ScreenGui
 			if isInteractive then
 				tileInstance = Instance.new("TextButton")
 				tileInstance.Text = ""
-				tileInstance.AutoButtonColor = true -- Gives visual feedback
+				tileInstance.AutoButtonColor = false -- Disable default button coloring
+				tileInstance.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+				tileInstance.BorderSizePixel = 1
 			else
 				tileInstance = Instance.new("Frame")
 			end
@@ -87,28 +90,48 @@ local function createGui(): ScreenGui
 			tileInstance:SetAttribute("PipeType", tileData)
 
 			if tileData ~= "_" then
-				tileInstance.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-				tileInstance.BorderSizePixel = 1
+				if not isInteractive then
+					tileInstance.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+					tileInstance.BorderSizePixel = 1
+				end
 
-				local pipeIndicator = Instance.new("Frame")
-				pipeIndicator.Name = "PipeIndicator"
-				pipeIndicator.BorderSizePixel = 0
-				pipeIndicator.Position = UDim2.new(0.5, 0, 0.5, 0)
-				pipeIndicator.AnchorPoint = Vector2.new(0.5, 0.5)
-				pipeIndicator.Parent = tileInstance
-
+				-- FIX: Reworked placeholder graphics and made them InputTransparent
 				if tileData == "I" then
-					pipeIndicator.Size = UDim2.new(0.3, 0, 1, 0)
-					pipeIndicator.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+					local bar = Instance.new("Frame")
+					bar.Name = "Bar"
+					bar.Size = UDim2.new(0.3, 0, 1, 0)
+					bar.Position = UDim2.new(0.5, 0, 0.5, 0)
+					bar.AnchorPoint = Vector2.new(0.5, 0.5)
+					bar.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+					bar.BorderSizePixel = 0
+					bar.InputTransparent = true
+					bar.Parent = tileInstance
 				elseif tileData == "L" then
-					pipeIndicator.Size = UDim2.new(0.8, 0, 0.8, 0)
-					pipeIndicator.BackgroundColor3 = Color3.fromRGB(255, 150, 0)
-				elseif tileData == "S" then
-					pipeIndicator.Size = UDim2.new(1, 0, 1, 0)
-					pipeIndicator.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-				elseif tileData == "E" then
-					pipeIndicator.Size = UDim2.new(1, 0, 1, 0)
-					pipeIndicator.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+					local vertBar = Instance.new("Frame")
+					vertBar.Name = "VertBar"
+					vertBar.Size = UDim2.new(0.3, 0, 0.65, 0)
+					vertBar.Position = UDim2.new(0.5, 0, 0.325, 0)
+					vertBar.AnchorPoint = Vector2.new(0.5, 0.5)
+					vertBar.BackgroundColor3 = Color3.fromRGB(255, 150, 0)
+					vertBar.BorderSizePixel = 0
+					vertBar.InputTransparent = true
+					vertBar.Parent = tileInstance
+
+					local horizBar = Instance.new("Frame")
+					horizBar.Name = "HorizBar"
+					horizBar.Size = UDim2.new(0.65, 0, 0.3, 0)
+					horizBar.Position = UDim2.new(0.675, 0, 0.5, 0)
+					horizBar.AnchorPoint = Vector2.new(0.5, 0.5)
+					horizBar.BackgroundColor3 = Color3.fromRGB(255, 150, 0)
+					horizBar.BorderSizePixel = 0
+					horizBar.InputTransparent = true
+					horizBar.Parent = tileInstance
+				elseif tileData == "S" or tileData == "E" then
+					local indicator = Instance.new("Frame")
+					indicator.Size = UDim2.new(1, 0, 1, 0)
+					indicator.BackgroundColor3 = if tileData == "S" then Color3.fromRGB(0, 255, 0) else Color3.fromRGB(255, 0, 0)
+					indicator.InputTransparent = true
+					indicator.Parent = tileInstance
 				end
 			else
 				tileInstance.BackgroundTransparency = 1
