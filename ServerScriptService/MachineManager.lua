@@ -24,8 +24,14 @@ MachineManager.MachineCompleted = Instance.new("BindableEvent")
 for _, moduleScript in ipairs(MinigamesFolder:GetChildren()) do
 	if moduleScript:IsA("ModuleScript") then
 		local moduleName = moduleScript.Name
-		MinigameModules[moduleName] = require(moduleScript)
-		print("Loaded minigame module: " .. moduleName)
+		-- FIX: Use a pcall to safely require modules, preventing a single bad module from crashing the server.
+		local success, module = pcall(require, moduleScript)
+		if success and module then
+			MinigameModules[moduleName] = module
+			print("Loaded minigame module: " .. moduleName)
+		else
+			warn("Failed to load minigame module: " .. moduleName, module) -- 'module' will contain the error message on failure
+		end
 	end
 end
 
