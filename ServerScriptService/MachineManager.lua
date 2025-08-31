@@ -80,12 +80,20 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 	prompt.HoldDuration = 2 -- Player must hold the key for 2 seconds
 	prompt.Parent = part
 
-	-- When the prompt is triggered, complete the machine
+	-- When the prompt is triggered, handle the interaction based on machine type
 	prompt.Triggered:Connect(function(player)
 		print(player.Name .. " interacted with a " .. machineType)
-		-- For now, interacting instantly completes the machine.
-		-- Later, this will open the minigame UI.
-		self:Debug_CompleteMachine(machineInstance)
+
+		-- Delegate to the specific minigame logic
+		if machineType == "ClassicMachine" then
+			-- Fire the remote event to the client who triggered the prompt
+			print("Firing ShowMachineUI for ClassicMachine to " .. player.Name)
+			EventManager.ShowMachineUI:FireClient(player, machineType)
+		else
+			-- For other machine types, keep the old behavior for now.
+			print("Default interaction: auto-completing machine.")
+			self:Debug_CompleteMachine(machineInstance)
+		end
 	end)
 end
 
