@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.55] - 2025-08-31
+
+### Added
+- **Playable Classic Machine Minigame**: Implemented the first fully playable minigame, "Classic Machine". This is a major feature that includes:
+  - A new UI for the pipe-connecting puzzle, generated programmatically.
+  - Client-side logic for rotating the pipe tiles.
+  - Server-side validation logic using a Breadth-First Search (BFS) algorithm to verify a correct solution.
+  - Sound and visual effects upon successful completion.
+
+### Fixed
+- **Minigame Unresponsiveness**: Fixed a series of complex bugs that prevented the minigame from working, including:
+  - An input bug where UI elements were blocking clicks.
+  - A visual bug where placeholder graphics did not rotate.
+  - A server crash caused by an initialization race condition.
+  - A networking bug where the server would incorrectly reject correct solutions.
+- **Unsolvable Puzzle**: Replaced the initial, unsolvable puzzle layout with a new, verified solvable layout.
+- **Round Goal Counter**: Fixed a bug where the `RoundManager` was not correctly counting the number of machines to complete.
+
+### Changed
+- **Minigame Networking**: Refactored the `MachineManager` to use unique string IDs for identifying machines instead of passing full objects over the network, making the system more robust.
+- **Roadmap**: Updated `ROADMAP_SPRINT_1.md` to mark the Classic Machine task as "Done" and added a new task to create a library of puzzles for future replayability.
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
