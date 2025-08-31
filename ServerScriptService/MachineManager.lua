@@ -31,6 +31,25 @@ function MachineManager:Init()
 			print("Loaded minigame module: " .. moduleName)
 		end
 	end
+
+	-- Listen for solution submissions from clients
+	EventManager.SubmitClassicMachineSolution.OnServerEvent:Connect(function(player, machineInstance, solution)
+		-- Basic validation: does this machine actually exist and is it not completed?
+		if not table.find(activeMachines, machineInstance) or machineInstance.IsCompleted then
+			warn(player.Name .. " submitted a solution for an invalid or already completed machine.")
+			return
+		end
+
+		-- Call the validation method on the machine's module
+		local isCorrect = machineInstance:ValidateSolution(solution)
+
+		if isCorrect then
+			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is correct!")
+			self:CompleteMachine(machineInstance)
+		else
+			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is incorrect.")
+		end
+	end)
 end
 
 --[=[
@@ -88,21 +107,20 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 		if machineType == "ClassicMachine" then
 			-- Fire the remote event to the client who triggered the prompt
 			print("Firing ShowMachineUI for ClassicMachine to " .. player.Name)
-			EventManager.ShowMachineUI:FireClient(player, machineType)
+			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance)
 		else
 			-- For other machine types, keep the old behavior for now.
 			print("Default interaction: auto-completing machine.")
-			self:Debug_CompleteMachine(machineInstance)
+			self:CompleteMachine(machineInstance)
 		end
 	end)
 end
 
 --[=[
-	A debug function to simulate a player completing a machine.
-	This will be replaced by actual player interaction logic later.
+	Handles the completion of a machine.
 	@param machineInstance table The machine that was completed.
 ]=]
-function MachineManager:Debug_CompleteMachine(machineInstance: table)
+function MachineManager:CompleteMachine(machineInstance: table)
 	if machineInstance and not machineInstance.IsCompleted then
 		-- In a real implementation, we'd call machineInstance:ValidateSolution()
 		machineInstance.IsCompleted = true

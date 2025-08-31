@@ -29,6 +29,10 @@ EventManager.ShowMachineUI = Instance.new("RemoteEvent")
 EventManager.ShowMachineUI.Name = "ShowMachineUI"
 EventManager.ShowMachineUI.Parent = eventsFolder
 
+EventManager.SubmitClassicMachineSolution = Instance.new("RemoteEvent")
+EventManager.SubmitClassicMachineSolution.Name = "SubmitClassicMachineSolution"
+EventManager.SubmitClassicMachineSolution.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")
