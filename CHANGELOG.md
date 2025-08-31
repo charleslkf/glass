@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.37] - 2025-08-30
+
+### Fixed
+- **VFX Not Rendering**: Restored the custom properties (color, size, transparency, etc.) to the machine completion `ParticleEmitter`, but omitted the invalid `Texture` ID that was causing the effect to fail silently. The VFX is now visible and has a custom appearance.
+
 ## [1.0.36] - 2025-08-30
 
 ### Changed

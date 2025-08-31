@@ -38,9 +38,27 @@ function VFXManager:Init()
 
 	-- In the future, we can populate this from a folder in ReplicatedStorage
 	-- For now, we'll define a placeholder effect here.
-	-- DIAGNOSTIC: Using a bare-bones ParticleEmitter to test if custom properties are the issue.
 	local machineCompleteVFX = Instance.new("ParticleEmitter")
 	machineCompleteVFX.Name = "MachineCompleteVFX"
+	-- Properties for a simple explosion/poof effect
+	-- Leaving out the Texture property as it was causing the effect to not render.
+	machineCompleteVFX.Color = ColorSequence.new(Color3.fromRGB(200, 200, 200))
+	machineCompleteVFX.LightEmission = 0.5
+	machineCompleteVFX.Size = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.5),
+		NumberSequenceKeypoint.new(0.5, 3),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	machineCompleteVFX.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(0.8, 0.5),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	machineCompleteVFX.Lifetime = NumberRange.new(0.5, 1)
+	machineCompleteVFX.Rate = 0 -- We will emit manually
+	machineCompleteVFX.Speed = NumberRange.new(5, 10)
+	machineCompleteVFX.EmissionDirection = Enum.NormalId.Top
+	machineCompleteVFX.Shape = Enum.ParticleEmitterShape.Sphere
 
 	vfxTemplates["MachineComplete"] = machineCompleteVFX
 
