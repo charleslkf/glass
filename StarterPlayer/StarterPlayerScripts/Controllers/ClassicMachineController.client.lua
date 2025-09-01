@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
+local RunService = game:GetService("RunService")
 
 print("ClassicMachineController.client.lua loaded.")
 
@@ -27,38 +28,63 @@ print("ClassicMachineController: GUI instance created.")
 local gridContainer = guiInstance.MainFrame.GridContainer
 local submitButton = guiInstance.MainFrame.SubmitButton
 
--- FIX: Use a local variable to track the active machine's ID
 local activeMachineID: string?
+local activeMachinePart: Part?
+local distanceCheckConnection: RBXScriptConnection?
+local MAX_DISTANCE = 20 -- Max distance in studs before UI closes
 
 -- --- Functions to control the GUI ---
 
-local function showGui(machineID: string)
+local function hideGui()
+    if not guiInstance.Enabled then return end
+	guiInstance.Enabled = false
+	activeMachineID = nil
+	activeMachinePart = nil
+	if distanceCheckConnection then
+		distanceCheckConnection:Disconnect()
+		distanceCheckConnection = nil
+	end
+	print("ClassicMachineController: GUI hidden.")
+end
+
+local function monitorDistance()
+	local character = Player.Character
+	if not character or not activeMachinePart then
+		hideGui()
+		return
+	end
+
+	local distance = (character:GetPrimaryPartCFrame().Position - activeMachinePart.Position).Magnitude
+	if distance > MAX_DISTANCE then
+		hideGui()
+	end
+end
+
+local function showGui(machineID: string, machinePart: Part)
+	activeMachineID = machineID
+	activeMachinePart = machinePart
+
     -- Randomize tile rotations when showing the GUI
     for _, tile in ipairs(gridContainer:GetChildren()) do
-        if tile:IsA("TextButton") then -- Only rotate interactive tiles
+        if tile:IsA("TextButton") then
             local randomRotations = {0, 90, 180, 270}
             tile.Rotation = randomRotations[math.random(1, #randomRotations)]
         end
     end
     guiInstance.Enabled = true
-    -- Store the ID of the machine we are interacting with
-    activeMachineID = machineID
-    print("ClassicMachineController: GUI shown for machine: " .. machineID)
-end
 
-local function hideGui()
-    guiInstance.Enabled = false
-    -- Clear the active machine ID
-    activeMachineID = nil
-    print("ClassicMachineController: GUI hidden.")
+	-- Start monitoring distance
+	if distanceCheckConnection then distanceCheckConnection:Disconnect() end
+	distanceCheckConnection = RunService.Heartbeat:Connect(monitorDistance)
+
+    print("ClassicMachineController: GUI shown for machine: " .. machineID)
 end
 
 -- --- Event Connections ---
 
--- Listen for server to show the UI
-ShowMachineUIEvent.OnClientEvent:Connect(function(machineType: string, machineID: string)
+ShowMachineUIEvent.OnClientEvent:Connect(function(machineType: string, machineID: string, machinePart: Part)
     if machineType == "ClassicMachine" then
-        showGui(machineID)
+        showGui(machineID, machinePart)
     end
 end)
 
@@ -66,7 +92,6 @@ end)
 for _, tile in ipairs(gridContainer:GetChildren()) do
     if tile:IsA("TextButton") then
         tile.MouseButton1Click:Connect(function()
-            -- Rotate the tile by 90 degrees
             tile.Rotation += 90
         end)
     end
@@ -79,12 +104,8 @@ submitButton.MouseButton1Click:Connect(function()
     local solution = {}
     local children = gridContainer:GetChildren()
 
-    -- Create a 5x5 table
-    for y = 1, 5 do
-        solution[y] = {}
-    end
+    for y = 1, 5 do solution[y] = {} end
 
-    -- Populate the table with the grid state
     for _, tile in ipairs(children) do
         local pipeType = tile:GetAttribute("PipeType")
         local gridX = tile:GetAttribute("GridX")
@@ -98,14 +119,12 @@ submitButton.MouseButton1Click:Connect(function()
         end
     end
 
-    -- Fire the remote event to the server
     if activeMachineID then
         SubmitClassicMachineSolution:FireServer(activeMachineID, solution)
     else
         warn("No active machine ID found when submitting solution!")
     end
 
-    -- Hide the UI after submitting
     hideGui()
 end)
 

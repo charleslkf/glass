@@ -13,7 +13,7 @@ local PlayerGui = Player:WaitForChild("PlayerGui")
 
 print("SkillCheckMachineController.client.lua loaded.")
 
--- Get remote events (placeholders for now)
+-- Get remote events
 local EventsFolder = ReplicatedStorage:WaitForChild("GameEvents")
 local StartSkillCheckEvent = EventsFolder:WaitForChild("StartSkillCheck")
 local ReportSkillCheckResult = EventsFolder:WaitForChild("ReportSkillCheckResult")
@@ -32,6 +32,7 @@ local cursor = backgroundBar.Cursor
 
 local activeMachineID: string?
 local currentTween: Tween?
+local isStopped = false -- FIX: Flag to prevent race condition
 
 -- --- Functions ---
 
@@ -40,7 +41,7 @@ local function onInputBegan(input, gameProcessedEvent)
 
 	if input.KeyCode == Enum.KeyCode.Space then
 		if guiInstance.Enabled and currentTween then
-			-- Stop the animation
+			isStopped = true -- Mark that the player has acted
 			currentTween:Cancel()
 			currentTween = nil
 
@@ -64,18 +65,20 @@ local function onInputBegan(input, gameProcessedEvent)
 end
 
 local function startSkillCheck(machineID: string)
-	if guiInstance.Enabled then return end -- Don't start a new one if one is active
+	if guiInstance.Enabled then return end
 
 	activeMachineID = machineID
+	isStopped = false -- Reset the flag for the new skill check
 	guiInstance.Enabled = true
-	cursor.Position = UDim2.fromScale(0, 0.5) -- Reset cursor position
+	cursor.Position = UDim2.fromScale(0, 0.5)
 
 	-- Create and play the tween
-	local tweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Linear) -- 1.5 seconds to cross the bar
+	local tweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Linear)
 	currentTween = TweenService:Create(cursor, tweenInfo, {Position = UDim2.fromScale(1, 0.5)})
+
 	currentTween.Completed:Connect(function()
-		-- If it completes without being stopped, it's a failure
-		if guiInstance.Enabled then
+		-- If it completes and was NOT stopped by the player, it's a failure
+		if not isStopped then
 			print("Skill check failed (timed out)")
 			if activeMachineID then
 				ReportSkillCheckResult:FireServer(activeMachineID, false)
@@ -83,6 +86,7 @@ local function startSkillCheck(machineID: string)
 			guiInstance.Enabled = false
 		end
 	end)
+
 	currentTween:Play()
 end
 
