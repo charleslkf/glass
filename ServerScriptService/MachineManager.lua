@@ -133,8 +133,8 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 				EventManager.ShowMemoryMachinePattern:FireClient(player, machineInstance.ID, pattern, machineInstance.PatternLength)
 			end
 		elseif machineType == "SkillCheckMachine" then
-			-- Don't show a UI, just start the skill check event
-			EventManager.StartSkillCheck:FireClient(player, machineInstance.ID)
+			-- Don't show a UI, just start the skill check event, but send the Part for distance checks
+			EventManager.StartSkillCheck:FireClient(player, machineInstance.ID, machineInstance.Part)
 		else
 			print("Default interaction: auto-completing machine.")
 			machineInstance.IsCompleted = true

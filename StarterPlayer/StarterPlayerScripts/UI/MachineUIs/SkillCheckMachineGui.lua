@@ -11,34 +11,56 @@ local function createSkillCheckGui(): ScreenGui
 	screenGui.ResetOnSpawn = false
 	screenGui.Enabled = false
 
+	-- Main Frame for the puzzle window
+	local mainFrame = Instance.new("Frame")
+	mainFrame.Name = "MainFrame"
+	mainFrame.Size = UDim2.new(0.4, 0, 0.25, 0) -- Small, wide window
+	mainFrame.Position = UDim2.new(0.5, 0, 0.75, 0) -- Positioned towards the bottom
+	mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	mainFrame.BorderSizePixel = 2
+	mainFrame.BorderColor3 = Color3.fromRGB(160, 160, 160)
+	mainFrame.Parent = screenGui
+
+	-- Title Label
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Name = "TitleLabel"
+	titleLabel.Size = UDim2.new(1, 0, 0, 40)
+	titleLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	titleLabel.Text = "Skill Check"
+	titleLabel.Font = Enum.Font.SourceSansBold
+	titleLabel.TextSize = 20
+	titleLabel.Parent = mainFrame
+
 	-- Background bar for the skill check
 	local backgroundBar = Instance.new("Frame")
 	backgroundBar.Name = "BackgroundBar"
-	backgroundBar.Size = UDim2.new(0.3, 0, 0, 20) -- 30% of screen width, 20 pixels high
-	backgroundBar.Position = UDim2.new(0.5, 0, 0.8, 0) -- Positioned towards the bottom of the screen
+	backgroundBar.Size = UDim2.new(0.8, 0, 0, 20) -- 80% of window width
+	backgroundBar.Position = UDim2.new(0.5, 0, 0.6, 0) -- Positioned in the bottom half
 	backgroundBar.AnchorPoint = Vector2.new(0.5, 0.5)
 	backgroundBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 	backgroundBar.BorderSizePixel = 2
 	backgroundBar.BorderColor3 = Color3.new(0, 0, 0)
-	backgroundBar.Parent = screenGui
+	backgroundBar.Parent = mainFrame
 
 	-- Success Zone frame inside the background bar
 	local successZone = Instance.new("Frame")
 	successZone.Name = "SuccessZone"
-	successZone.Size = UDim2.new(0.2, 0, 1, 0) -- 20% of the background bar's width
-	successZone.Position = UDim2.fromScale(0.7, 0.5) -- Positioned somewhere on the bar (example: 70% mark)
+	successZone.Size = UDim2.new(0.2, 0, 1, 0)
+	successZone.Position = UDim2.fromScale(0.7, 0.5)
 	successZone.AnchorPoint = Vector2.new(0.5, 0.5)
-	successZone.BackgroundColor3 = Color3.fromRGB(100, 200, 100) -- A light green color
+	successZone.BackgroundColor3 = Color3.fromRGB(100, 200, 100)
 	successZone.BorderSizePixel = 0
 	successZone.Parent = backgroundBar
 
 	-- Moving cursor that travels across the bar
 	local cursor = Instance.new("Frame")
 	cursor.Name = "Cursor"
-	cursor.Size = UDim2.new(0, 4, 1.2, 0) -- A thin vertical line, slightly taller than the bar
-	cursor.Position = UDim2.fromScale(0, 0.5) -- Starts at the beginning
+	cursor.Size = UDim2.new(0, 4, 1.2, 0)
+	cursor.Position = UDim2.fromScale(0, 0.5)
 	cursor.AnchorPoint = Vector2.new(0.5, 0.5)
-	cursor.BackgroundColor3 = Color3.new(1, 1, 1) -- White
+	cursor.BackgroundColor3 = Color3.new(1, 1, 1)
 	cursor.BorderSizePixel = 0
 	cursor.Parent = backgroundBar
 
