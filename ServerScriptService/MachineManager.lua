@@ -113,11 +113,15 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 	prompt.Parent = part
 
 	prompt.Triggered:Connect(function(player)
-		print(player.Name .. " interacted with a " .. machineType)
+		print(player.Name .. " interacted with a " .. machineType .. " (" .. machineInstance.ID .. ")")
 
-		if machineType == "ClassicMachine" or machineType == "MemoryMachine" then
-			print("Firing ShowMachineUI for " .. machineInstance.ID .. " to " .. player.Name)
+		if machineType == "ClassicMachine" then
 			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID)
+		elseif machineType == "MemoryMachine" then
+			local pattern = machineInstance:GeneratePattern()
+			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID)
+			task.wait(0.1) -- Small delay to ensure UI is ready before pattern is shown
+			EventManager.ShowMemoryMachinePattern:FireClient(player, machineInstance.ID, pattern)
 		else
 			print("Default interaction: auto-completing machine.")
 			machineInstance.IsCompleted = true
