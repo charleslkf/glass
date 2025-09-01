@@ -1,45 +1,57 @@
 --!strict
 --[=[
 	@class SkillCheckMachine
-	Implements the skill-check puzzle minigame.
-	The player must hit skill checks in sequence.
+	Implements the skill check minigame.
+	The player must press a key at the right time.
 ]=]
 local SkillCheckMachine = {}
 SkillCheckMachine.__index = SkillCheckMachine
 
 --[=[
 	Creates a new SkillCheckMachine instance.
-	@param puzzleData table The data defining the puzzle.
-	@return SkillCheckMachine The new machine instance.
 ]=]
-function SkillCheckMachine.new(puzzleData: {CheckCount: number})
+function SkillCheckMachine.new(puzzleData: {ChecksRequired: number})
 	local self = setmetatable({}, SkillCheckMachine)
 
-	self.CheckCount = puzzleData.CheckCount or 5 -- Default to 5 checks
+	self.ChecksRequired = puzzleData.ChecksRequired or 3 -- Default to 3 successful checks
+	self.Successes = 0
 	self.IsCompleted = false
 
 	return self
 end
 
 --[=[
-	Validates a player's performance.
-	Unlike other machines, this might be validated on the client with server trust
-	or have progress reported incrementally.
-	@param progress number The player's current progress.
-	@return boolean Whether the machine is fully completed.
+	Processes the result of a single skill check from the client.
+	@param success boolean Whether the player succeeded the skill check.
+	@return boolean Whether the entire machine is now complete.
 ]=]
-function SkillCheckMachine:UpdateProgress(progress: number)
-	print("Updating progress for Skill Check Machine...")
-	if progress >= self.CheckCount then
-		self.IsCompleted = true
+function SkillCheckMachine:ProcessCheck(success: boolean)
+	if self.IsCompleted then return false end
+
+	if success then
+		self.Successes += 1
+		print("Skill check success! Progress: " .. self.Successes .. "/" .. self.ChecksRequired)
+	else
+		-- Reset progress on failure to make it more challenging
+		self.Successes = 0
+		print("Skill check failed! Progress reset.")
 	end
-	return self.IsCompleted
+
+	if self.Successes >= self.ChecksRequired then
+		print("Skill Check Machine completed!")
+		self.IsCompleted = true
+		return true
+	end
+
+	return false
 end
+
 
 --[=[
 	Resets the machine to its initial state.
 ]=]
 function SkillCheckMachine:Reset()
+	self.Successes = 0
 	self.IsCompleted = false
 	print("Skill Check Machine has been reset.")
 end

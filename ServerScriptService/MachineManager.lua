@@ -24,13 +24,12 @@ MachineManager.MachineCompleted = Instance.new("BindableEvent")
 for _, moduleScript in ipairs(MinigamesFolder:GetChildren()) do
 	if moduleScript:IsA("ModuleScript") then
 		local moduleName = moduleScript.Name
-		-- FIX: Use a pcall to safely require modules, preventing a single bad module from crashing the server.
 		local success, module = pcall(require, moduleScript)
 		if success and module then
 			MinigameModules[moduleName] = module
 			print("Loaded minigame module: " .. moduleName)
 		else
-			warn("Failed to load minigame module: " .. moduleName, module) -- 'module' will contain the error message on failure
+			warn("Failed to load minigame module: " .. moduleName, module)
 		end
 	end
 end
@@ -45,11 +44,8 @@ function MachineManager:Init()
 		if not machineInstance or machineInstance.IsCompleted then return end
 
 		if machineInstance:ValidateSolution(solution) then
-			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is correct!")
 			machineInstance.IsCompleted = true
 			MachineManager.MachineCompleted:Fire(machineInstance)
-		else
-			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is incorrect.")
 		end
 	end)
 
@@ -59,11 +55,25 @@ function MachineManager:Init()
 		if not machineInstance or machineInstance.IsCompleted then return end
 
 		if machineInstance:ValidateSolution(solution) then
-			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is correct!")
 			machineInstance.IsCompleted = true
 			MachineManager.MachineCompleted:Fire(machineInstance)
+		end
+	end)
+
+	-- Listener for the Skill Check Machine
+	EventManager.ReportSkillCheckResult.OnServerEvent:Connect(function(player, machineID: string, success: boolean)
+		local machineInstance = activeMachines[machineID]
+		if not machineInstance or machineInstance.IsCompleted then return end
+
+		local isNowComplete = machineInstance:ProcessCheck(success)
+		if isNowComplete then
+			MachineManager.MachineCompleted:Fire(machineInstance)
 		else
-			print("Solution for " .. machineInstance.Part.Name .. " by " .. player.Name .. " is incorrect.")
+			-- If not complete, trigger another skill check for the player
+			task.wait(0.5) -- Small delay before the next check
+			if not machineInstance.IsCompleted then
+				EventManager.StartSkillCheck:FireClient(player, machineID)
+			end
 		end
 	end)
 end
@@ -109,19 +119,22 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.ActionText = "Repair Machine"
 	prompt.ObjectText = machineType
-	prompt.HoldDuration = 2
+	prompt.HoldDuration = 0 -- Skill checks should be instant
 	prompt.Parent = part
 
 	prompt.Triggered:Connect(function(player)
 		print(player.Name .. " interacted with a " .. machineType .. " (" .. machineInstance.ID .. ")")
 
-		if machineType == "ClassicMachine" then
+		if machineType == "ClassicMachine" or machineType == "MemoryMachine" then
 			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID)
-		elseif machineType == "MemoryMachine" then
-			local pattern = machineInstance:GeneratePattern()
-			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID)
-			task.wait(0.1) -- Small delay to ensure UI is ready before pattern is shown
-			EventManager.ShowMemoryMachinePattern:FireClient(player, machineInstance.ID, pattern, machineInstance.PatternLength)
+			if machineType == "MemoryMachine" then
+				local pattern = machineInstance:GeneratePattern()
+				task.wait(0.1)
+				EventManager.ShowMemoryMachinePattern:FireClient(player, machineInstance.ID, pattern, machineInstance.PatternLength)
+			end
+		elseif machineType == "SkillCheckMachine" then
+			-- Don't show a UI, just start the skill check event
+			EventManager.StartSkillCheck:FireClient(player, machineInstance.ID)
 		else
 			print("Default interaction: auto-completing machine.")
 			machineInstance.IsCompleted = true
