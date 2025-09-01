@@ -15,6 +15,7 @@ print("MemoryMachineController.client.lua loaded.")
 local EventsFolder = ReplicatedStorage:WaitForChild("GameEvents")
 local ShowMachineUIEvent = EventsFolder:WaitForChild("ShowMachineUI")
 local SubmitMemoryMachineSolution = EventsFolder:WaitForChild("SubmitMemoryMachineSolution")
+local ShowMemoryMachinePattern = EventsFolder:WaitForChild("ShowMemoryMachinePattern")
 
 -- Get UI module
 local MemoryMachineGuiModule = require(script.Parent.Parent:WaitForChild("UI"):WaitForChild("MachineUIs"):WaitForChild("MemoryMachineGui"))
@@ -30,16 +31,44 @@ local statusLabel = mainFrame.StatusLabel
 
 local activeMachineID: string?
 local playerSequence = {}
+local isPlayerTurn = false
+local requiredPatternLength = 0
 
--- --- Functions to control the GUI ---
+-- --- Functions ---
+
+local function flashButton(button: TextButton)
+	local originalColor = button.BackgroundColor3
+	button.BackgroundColor3 = Color3.new(1, 1, 1) -- Flash white
+	task.wait(0.4)
+	button.BackgroundColor3 = originalColor
+	task.wait(0.2)
+end
+
+local function playPattern(pattern: {{X: number, Y: number}})
+	isPlayerTurn = false
+	statusLabel.Text = "Watch the pattern..."
+	task.wait(1)
+
+	for _, step in ipairs(pattern) do
+		local buttonName = `Tile_{step.Y}_{step.X}`
+		local button = gridContainer:FindFirstChild(buttonName)
+		if button and button:IsA("TextButton") then
+			flashButton(button)
+		end
+	end
+
+	statusLabel.Text = `Your turn... (0/${requiredPatternLength})`
+	isPlayerTurn = true
+end
 
 local function showGui(machineID: string)
-	playerSequence = {} -- Reset sequence
+	playerSequence = {}
+	isPlayerTurn = false
+	requiredPatternLength = 0
 	statusLabel.Text = "Watch the pattern..."
 	guiInstance.Enabled = true
 	activeMachineID = machineID
 	print("MemoryMachineController: GUI shown for machine: " .. machineID)
-	-- In the future, this is where we would receive and display the pattern.
 end
 
 local function hideGui()
@@ -50,33 +79,40 @@ end
 
 -- --- Event Connections ---
 
--- Listen for server to show the UI
 ShowMachineUIEvent.OnClientEvent:Connect(function(machineType: string, machineID: string)
 	if machineType == "MemoryMachine" then
 		showGui(machineID)
 	end
 end)
 
--- Connect click handlers for each grid button
+ShowMemoryMachinePattern.OnClientEvent:Connect(function(machineID: string, pattern: table, patternLength: number)
+	if guiInstance.Enabled and activeMachineID == machineID then
+		requiredPatternLength = patternLength
+		playPattern(pattern)
+	end
+end)
+
 for _, tileButton in ipairs(gridContainer:GetChildren()) do
 	if tileButton:IsA("TextButton") then
 		tileButton.MouseButton1Click:Connect(function()
-			if #playerSequence < 9 then -- Limit sequence length for now
-				local gridX = tileButton:GetAttribute("GridX")
-				local gridY = tileButton:GetAttribute("GridY")
-				table.insert(playerSequence, {X = gridX, Y = gridY})
-				statusLabel.Text = "Input recorded (" .. #playerSequence .. "/?)"
+			if not isPlayerTurn then return end
 
-				-- Simple visual feedback
-				local originalColor = tileButton.BackgroundColor3
-				tileButton.BackgroundColor3 = Color3.new(1,1,1)
-				task.wait(0.2)
-				tileButton.BackgroundColor3 = originalColor
-			end
+			-- Prevent adding more steps than required
+			if #playerSequence >= requiredPatternLength then return end
 
-			-- Placeholder submission logic
-			if #playerSequence == 5 then
-				print("Submitting placeholder sequence...")
+			local gridX = tileButton:GetAttribute("GridX")
+			local gridY = tileButton:GetAttribute("GridY")
+			table.insert(playerSequence, {X = gridX, Y = gridY})
+			statusLabel.Text = `Input recorded (${#playerSequence}/${requiredPatternLength})`
+
+			flashButton(tileButton)
+
+			-- FIX: Automatically submit when the sequence is complete
+			if #playerSequence == requiredPatternLength then
+				isPlayerTurn = false -- Prevent more clicks
+				task.wait(0.5) -- Small delay for player to see the last feedback
+
+				print("Submitting final sequence...")
 				if activeMachineID then
 					SubmitMemoryMachineSolution:FireServer(activeMachineID, playerSequence)
 				end
