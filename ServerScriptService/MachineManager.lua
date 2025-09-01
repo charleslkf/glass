@@ -121,7 +121,7 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 			local pattern = machineInstance:GeneratePattern()
 			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID)
 			task.wait(0.1) -- Small delay to ensure UI is ready before pattern is shown
-			EventManager.ShowMemoryMachinePattern:FireClient(player, machineInstance.ID, pattern)
+			EventManager.ShowMemoryMachinePattern:FireClient(player, machineInstance.ID, pattern, machineInstance.PatternLength)
 		else
 			print("Default interaction: auto-completing machine.")
 			machineInstance.IsCompleted = true
