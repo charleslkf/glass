@@ -127,7 +127,7 @@ function RoundManager:StartRound()
 	-- FIX: Use a helper function to correctly get the number of machines
 	if table_size(activeMachines) == 0 then
 		print("No machines found, creating one for the round.")
-		MachineManager:CreateMachine("ClassicMachine", {})
+		MachineManager:CreateMachine("MemoryMachine", {})
 	end
 	machinesToComplete = table_size(MachineManager:GetActiveMachines())
 	print("Round goal: Complete " .. machinesToComplete .. " machine(s).")
