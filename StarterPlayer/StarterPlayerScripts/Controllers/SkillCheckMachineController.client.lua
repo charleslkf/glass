@@ -10,6 +10,7 @@ local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
+local RunService = game:GetService("RunService")
 
 print("SkillCheckMachineController.client.lua loaded.")
 
@@ -26,30 +27,59 @@ local guiInstance = SkillCheckGuiModule()
 guiInstance.Parent = PlayerGui
 print("SkillCheckMachineController: GUI instance created.")
 
-local backgroundBar = guiInstance.BackgroundBar
+local backgroundBar = guiInstance.MainFrame.BackgroundBar
 local successZone = backgroundBar.SuccessZone
 local cursor = backgroundBar.Cursor
 
 local activeMachineID: string?
+local activeMachinePart: Part?
+local distanceCheckConnection: RBXScriptConnection?
 local currentTween: Tween?
-local isStopped = false -- FIX: Flag to prevent race condition
+local isStopped = false
+local MAX_DISTANCE = 20
 
 -- --- Functions ---
+
+local function hideGui()
+	if not guiInstance.Enabled then return end
+	guiInstance.Enabled = false
+	activeMachineID = nil
+	activeMachinePart = nil
+	if distanceCheckConnection then
+		distanceCheckConnection:Disconnect()
+		distanceCheckConnection = nil
+	end
+	if currentTween then
+		currentTween:Cancel()
+		currentTween = nil
+	end
+end
+
+local function monitorDistance()
+	local character = Player.Character
+	if not character or not activeMachinePart then
+		hideGui()
+		return
+	end
+
+	local distance = (character:GetPrimaryPartCFrame().Position - activeMachinePart.Position).Magnitude
+	if distance > MAX_DISTANCE then
+		hideGui()
+	end
+end
 
 local function onInputBegan(input, gameProcessedEvent)
 	if gameProcessedEvent then return end
 
 	if input.KeyCode == Enum.KeyCode.Space then
 		if guiInstance.Enabled and currentTween then
-			isStopped = true -- Mark that the player has acted
+			isStopped = true
 			currentTween:Cancel()
 			currentTween = nil
 
-			-- Check for success
 			local cursorPos = cursor.Position.X.Scale
 			local zoneStart = successZone.Position.X.Scale - (successZone.Size.X.Scale / 2)
 			local zoneEnd = successZone.Position.X.Scale + (successZone.Size.X.Scale / 2)
-
 			local success = (cursorPos >= zoneStart and cursorPos <= zoneEnd)
 
 			print("Skill check result: " .. tostring(success))
@@ -57,33 +87,34 @@ local function onInputBegan(input, gameProcessedEvent)
 				ReportSkillCheckResult:FireServer(activeMachineID, success)
 			end
 
-			-- Hide UI after a short delay to show result
 			task.wait(0.5)
-			guiInstance.Enabled = false
+			hideGui()
 		end
 	end
 end
 
-local function startSkillCheck(machineID: string)
+local function startSkillCheck(machineID: string, machinePart: Part)
 	if guiInstance.Enabled then return end
 
 	activeMachineID = machineID
-	isStopped = false -- Reset the flag for the new skill check
+	activeMachinePart = machinePart
+	isStopped = false
 	guiInstance.Enabled = true
 	cursor.Position = UDim2.fromScale(0, 0.5)
 
-	-- Create and play the tween
+	if distanceCheckConnection then distanceCheckConnection:Disconnect() end
+	distanceCheckConnection = RunService.Heartbeat:Connect(monitorDistance)
+
 	local tweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Linear)
 	currentTween = TweenService:Create(cursor, tweenInfo, {Position = UDim2.fromScale(1, 0.5)})
 
 	currentTween.Completed:Connect(function()
-		-- If it completes and was NOT stopped by the player, it's a failure
 		if not isStopped then
 			print("Skill check failed (timed out)")
 			if activeMachineID then
 				ReportSkillCheckResult:FireServer(activeMachineID, false)
 			end
-			guiInstance.Enabled = false
+			hideGui()
 		end
 	end)
 
@@ -93,8 +124,8 @@ end
 
 -- --- Event Connections ---
 
-StartSkillCheckEvent.OnClientEvent:Connect(function(machineID: string)
-	startSkillCheck(machineID)
+StartSkillCheckEvent.OnClientEvent:Connect(function(machineID: string, machinePart: Part)
+	startSkillCheck(machineID, machinePart)
 end)
 
 UserInputService.InputBegan:Connect(onInputBegan)
