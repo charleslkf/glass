@@ -37,6 +37,10 @@ EventManager.SubmitMemoryMachineSolution = Instance.new("RemoteEvent")
 EventManager.SubmitMemoryMachineSolution.Name = "SubmitMemoryMachineSolution"
 EventManager.SubmitMemoryMachineSolution.Parent = eventsFolder
 
+EventManager.ShowMemoryMachinePattern = Instance.new("RemoteEvent")
+EventManager.ShowMemoryMachinePattern.Name = "ShowMemoryMachinePattern"
+EventManager.ShowMemoryMachinePattern.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")
