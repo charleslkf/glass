@@ -19,7 +19,7 @@ local EventManager = require(ServerScriptService.EventManager)
 local MIN_PLAYERS_TO_START = 2
 local LOBBY_COUNTDOWN_TIME = 10 -- 10 seconds
 local INTERMISSION_TIME = 5 -- 5 seconds
-local ROUND_TIME = 120 -- 2 minutes
+local ROUND_TIME = 300 -- 5 minutes (For testing)
 
 local completedMachines = 0
 local machinesToComplete = 0
