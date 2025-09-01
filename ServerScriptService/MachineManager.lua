@@ -126,7 +126,7 @@ function MachineManager:_CreateMachinePart(machineInstance: table, machineType: 
 		print(player.Name .. " interacted with a " .. machineType .. " (" .. machineInstance.ID .. ")")
 
 		if machineType == "ClassicMachine" or machineType == "MemoryMachine" then
-			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID)
+			EventManager.ShowMachineUI:FireClient(player, machineType, machineInstance.ID, machineInstance.Part)
 			if machineType == "MemoryMachine" then
 				local pattern = machineInstance:GeneratePattern()
 				task.wait(0.1)

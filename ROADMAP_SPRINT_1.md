@@ -26,7 +26,7 @@ This document outlines the next phase of development, focusing on implementing c
     - The client will send the player's attempt to the server for validation.
 
 ### Task 1.3: Implement the Skill Check Machine Minigame
-- **Status:** To Do
+- **Status:** Done
 - **Logic:**
     - Create a UI for the skill check (e.g., a moving bar and a target zone).
     - When interacted with, the client will begin the skill check sequence.

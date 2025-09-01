@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
+local RunService = game:GetService("RunService")
 
 print("MemoryMachineController.client.lua loaded.")
 
@@ -30,15 +31,43 @@ local gridContainer = mainFrame.GridContainer
 local statusLabel = mainFrame.StatusLabel
 
 local activeMachineID: string?
+local activeMachinePart: Part?
+local distanceCheckConnection: RBXScriptConnection?
 local playerSequence = {}
 local isPlayerTurn = false
 local requiredPatternLength = 0
+local MAX_DISTANCE = 20
 
 -- --- Functions ---
 
+local function hideGui()
+    if not guiInstance.Enabled then return end
+	guiInstance.Enabled = false
+	activeMachineID = nil
+	activeMachinePart = nil
+	if distanceCheckConnection then
+		distanceCheckConnection:Disconnect()
+		distanceCheckConnection = nil
+	end
+	print("MemoryMachineController: GUI hidden.")
+end
+
+local function monitorDistance()
+	local character = Player.Character
+	if not character or not activeMachinePart then
+		hideGui()
+		return
+	end
+
+	local distance = (character:GetPrimaryPartCFrame().Position - activeMachinePart.Position).Magnitude
+	if distance > MAX_DISTANCE then
+		hideGui()
+	end
+end
+
 local function flashButton(button: TextButton)
 	local originalColor = button.BackgroundColor3
-	button.BackgroundColor3 = Color3.new(1, 1, 1) -- Flash white
+	button.BackgroundColor3 = Color3.new(1, 1, 1)
 	task.wait(0.4)
 	button.BackgroundColor3 = originalColor
 	task.wait(0.2)
@@ -50,6 +79,7 @@ local function playPattern(pattern: {{X: number, Y: number}})
 	task.wait(1)
 
 	for _, step in ipairs(pattern) do
+		if not guiInstance.Enabled then return end -- Stop if player walked away
 		local buttonName = `Tile_{step.Y}_{step.X}`
 		local button = gridContainer:FindFirstChild(buttonName)
 		if button and button:IsA("TextButton") then
@@ -61,27 +91,26 @@ local function playPattern(pattern: {{X: number, Y: number}})
 	isPlayerTurn = true
 end
 
-local function showGui(machineID: string)
+local function showGui(machineID: string, machinePart: Part)
 	playerSequence = {}
 	isPlayerTurn = false
 	requiredPatternLength = 0
 	statusLabel.Text = "Watch the pattern..."
 	guiInstance.Enabled = true
 	activeMachineID = machineID
-	print("MemoryMachineController: GUI shown for machine: " .. machineID)
-end
+	activeMachinePart = machinePart
 
-local function hideGui()
-	guiInstance.Enabled = false
-	activeMachineID = nil
-	print("MemoryMachineController: GUI hidden.")
+	if distanceCheckConnection then distanceCheckConnection:Disconnect() end
+	distanceCheckConnection = RunService.Heartbeat:Connect(monitorDistance)
+
+	print("MemoryMachineController: GUI shown for machine: " .. machineID)
 end
 
 -- --- Event Connections ---
 
-ShowMachineUIEvent.OnClientEvent:Connect(function(machineType: string, machineID: string)
+ShowMachineUIEvent.OnClientEvent:Connect(function(machineType: string, machineID: string, machinePart: Part)
 	if machineType == "MemoryMachine" then
-		showGui(machineID)
+		showGui(machineID, machinePart)
 	end
 end)
 
@@ -96,8 +125,6 @@ for _, tileButton in ipairs(gridContainer:GetChildren()) do
 	if tileButton:IsA("TextButton") then
 		tileButton.MouseButton1Click:Connect(function()
 			if not isPlayerTurn then return end
-
-			-- Prevent adding more steps than required
 			if #playerSequence >= requiredPatternLength then return end
 
 			local gridX = tileButton:GetAttribute("GridX")
@@ -107,10 +134,9 @@ for _, tileButton in ipairs(gridContainer:GetChildren()) do
 
 			flashButton(tileButton)
 
-			-- FIX: Automatically submit when the sequence is complete
 			if #playerSequence == requiredPatternLength then
-				isPlayerTurn = false -- Prevent more clicks
-				task.wait(0.5) -- Small delay for player to see the last feedback
+				isPlayerTurn = false
+				task.wait(0.5)
 
 				print("Submitting final sequence...")
 				if activeMachineID then
