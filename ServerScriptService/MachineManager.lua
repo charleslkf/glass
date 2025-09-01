@@ -72,7 +72,7 @@ function MachineManager:Init()
 			-- If not complete, trigger another skill check for the player
 			task.wait(0.5) -- Small delay before the next check
 			if not machineInstance.IsCompleted then
-				EventManager.StartSkillCheck:FireClient(player, machineID)
+				EventManager.StartSkillCheck:FireClient(player, machineID, machineInstance.Part)
 			end
 		end
 	end)
