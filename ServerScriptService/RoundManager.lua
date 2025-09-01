@@ -123,13 +123,18 @@ function RoundManager:StartRound()
 
 	-- Set up the round goal
 	completedMachines = 0
-	local activeMachines = MachineManager:GetActiveMachines()
-	-- FIX: Use a helper function to correctly get the number of machines
-	if table_size(activeMachines) == 0 then
-		print("No machines found, creating one for the round.")
-		MachineManager:CreateMachine("ClassicMachine", {})
+	local availableMachineTypes = {"ClassicMachine", "MemoryMachine"}
+
+	-- Create one of each machine type if no machines exist
+	if table_size(MachineManager:GetActiveMachines()) == 0 then
+		print("No machines found, creating one of each type for the round.")
+		for _, machineType in ipairs(availableMachineTypes) do
+			MachineManager:CreateMachine(machineType, {})
+		end
 	end
-	machinesToComplete = table_size(MachineManager:GetActiveMachines())
+
+	-- The goal is to complete just one machine
+	machinesToComplete = 1
 	print("Round goal: Complete " .. machinesToComplete .. " machine(s).")
 
 	-- Start a timer that can be cancelled

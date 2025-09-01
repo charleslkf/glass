@@ -17,7 +17,7 @@ This document outlines the next phase of development, focusing on implementing c
     - If correct, the machine will be marked as complete.
 
 ### Task 1.2: Implement the Memory Machine Minigame
-- **Status:** In Progress (Server-side foundation complete, UI needed)
+- **Status:** Done
 - **Logic:**
     - Create a UI for the memory game (a grid of buttons).
     - When interacted with, the server will generate a pattern and send it to the client.
