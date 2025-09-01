@@ -44,7 +44,7 @@ This document outlines the next phase of development, focusing on implementing c
 **Objective:** To implement the first set of real character abilities.
 
 ### Task 2.1: Implement Stunner Ability
-- **Status:** To Do
+- **Status:** Done
 - **Logic:**
     - Replace the `DefaultSurvivorAbility` for the "Stunner" role.
     - The ability could be: When used, fire a short-range projectile. If it hits the Killer, the Killer is frozen for a few seconds.

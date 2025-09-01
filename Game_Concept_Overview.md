@@ -21,44 +21,53 @@ Players are divided into three roles:
 - **Character Abilities:** Every character has a unique ability, which may come with a price tag.
 - **Skins:** Skins will be available for all characters, with each costing the same amount.
 
-## 4. Health and Combat
-- **Player Health:** **200 or 240 HP**.
-- **Killer Health:** **2,500 or 3,000 HP**.
-- **Combat:** Attackers have a slight, but very difficult, chance of defeating the killer. If the killer is eliminated, the round ends, and survivors win.
+---
+# Game Manual
 
-## 5. Objectives and Timing
-- **Killer's Objective:** Eliminate all players before they reach level 10.
-- **Round Timer:** Each round lasts **one minute**. The timer resets to 1-2 minutes after advancing to the next level.
-- **Time Modifiers:**
-    - Killing a survivor reduces the timer by **5 seconds**.
-    - Completing a machine adds **10 seconds**.
-- **Advancing:** When the gate opens, players have **20 seconds** to pass through or be eliminated.
+This section details the specific rules and mechanics of the game.
 
-## 6. Player and Killer Limits
-- **10 Players:** 1 Killer, 9 Survivors.
-- **>12 Players:** Can have up to 4 killers (normally 2).
-- **Max Server Capacity:** 13 players (leaving one slot open to prevent join issues).
+## Minigame Mechanics
 
-## 7. Rewards and Customization
-### In-Game Currency
-- **Winning (Survivor or Killer):** 50 currency.
-- **Winning (but died during the round):** 15 currency.
-- **AFK Players:** Receive no rewards.
+There are three types of machines that survivors can repair to win the round.
 
-### Skins
-- **Event Skins:** Limited-time skins for events like Easter, Christmas, Halloween, New Year, and Thai celebrations.
-- **Seasonal Skins:** Summer, winter, rainy season, fall.
-- **Returning Skins:** Missed event skins may return the following year with new options.
+### 1. Classic Machine (Pipe Puzzle)
+- **Objective:** Connect the green Start tile to the red End tile by rotating the pipe pieces.
+- **How to Play:**
+    - Interact with the machine to open the puzzle window.
+    - The puzzle is a 5x5 grid of pipes.
+    - Click on a blue (straight) or orange (L-shaped) pipe to rotate it 90 degrees clockwise.
+    - Form a continuous, unbroken path from the green tile to the red tile.
+    - Once you believe the path is complete, press the "Submit" button.
+- **Note:** The UI will automatically close if you walk too far away from the machine.
 
-## 8. Additional Features
-- **Guest Characters:** May feature guest characters from other games with unique abilities, while avoiding copyright issues.
+### 2. Memory Machine
+- **Objective:** Correctly repeat a pattern shown on a grid of buttons.
+- **How to Play:**
+    - Interact with the machine to open the puzzle window.
+    - The game will flash a sequence of buttons on the 3x3 grid. Watch carefully.
+    - After the pattern is shown, click the buttons in the exact same order.
+    - The game will automatically submit your solution after you've clicked the correct number of buttons.
+- **Note:** The UI will automatically close if you walk too far away from the machine.
 
-## 9. Machines and Mini-Games
-There are three types of machines:
-- **Classic Machine:** Inspired by *Forsaken*, operates with familiar mechanics from that game.
-    - **Classic Machine Rules (Matching Pairs):** The minigame is a "pipe" or "flow" puzzle with the following rules:
-        - **Match the Pairs:** Players must draw a continuous line to connect two dots of the same color.
-        - **Follow the Grid:** Lines must be drawn horizontally or vertically on the grid squares, not diagonally.
-        - **No Crossing Paths:** The path for one color cannot intersect with the path for another color. Each path must occupy its own unique set of squares on the grid.
-- **Memory Machine:** Players replicate a pattern on a grid that increases in size with each level (from 3x3 to 6x6).
-- **Skill Check Machine:** Inspired by *Dandy World* and *99 Nights*, players must hit a sequence of skill checks. Missing a check reduces progress.
+### 3. Skill Check Machine
+- **Objective:** Successfully complete a series of 3 timed skill checks.
+- **How to Play:**
+    - Interact with the machine to trigger a skill check. A bar will appear on your screen.
+    - A white cursor will move from left to right across the bar.
+    - Press the **Spacebar** when the cursor is inside the green "success zone".
+    - If you succeed, another skill check will be triggered after a short delay.
+    - If you fail (miss the zone or don't press the spacebar in time), your progress on the machine resets to zero.
+    - After 3 consecutive successes, the machine is repaired.
+- **Note:** The UI will automatically close if you walk too far away from the machine.
+
+## Character Abilities
+
+### Stunner Ability: Flashbang
+- **Role:** Stunner
+- **Key:** Q
+- **Effect:** Fires a fast-moving yellow projectile forward.
+- **How to Use:**
+    - Aim at the Killer and press 'Q'.
+    - If the projectile hits the Killer, they will be "stunned" (unable to move) for 3 seconds.
+    - The server will perform a distance check to ensure the hit was legitimate.
+- **Cooldown:** 30 seconds.

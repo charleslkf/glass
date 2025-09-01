@@ -7,6 +7,7 @@ local PlayerManager = {}
 PlayerManager.__index = PlayerManager
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Constants
 local DEFAULT_HEALTH = 100
@@ -16,6 +17,10 @@ local playerRoles = {}
 -- A table to store the health of players
 local playerHealths = {}
 
+-- Create a container in ReplicatedStorage for roles
+local playerRolesContainer = Instance.new("Configuration")
+playerRolesContainer.Name = "PlayerRoles"
+playerRolesContainer.Parent = ReplicatedStorage
 
 --[=[
 	Handles a player joining the game.
@@ -41,8 +46,7 @@ end
 	Handles a player's character spawning into the game.
 ]=]
 function PlayerManager:OnCharacterAdded(player: Player, character: Model)
-	local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 6) -- Wait up to 6 seconds
-
+	local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 6)
 	if not humanoidRootPart then
 		warn("Could not find HumanoidRootPart for " .. player.Name .. " after waiting.")
 		return
@@ -50,11 +54,10 @@ function PlayerManager:OnCharacterAdded(player: Player, character: Model)
 
 	-- Add a ClickDetector to allow other players to interact with this character
 	local clickDetector = Instance.new("ClickDetector")
-	clickDetector.MaxActivationDistance = 10 -- How close the attacker must be
+	clickDetector.MaxActivationDistance = 10
 	clickDetector.Parent = humanoidRootPart
 
 	clickDetector.MouseClick:Connect(function(attackerPlayer)
-		-- When a player clicks on this character, treat it as an attack
 		self:KillerAttack(attackerPlayer, player)
 	end)
 
@@ -69,6 +72,11 @@ function PlayerManager:OnPlayerRemoving(player: Player)
 	-- Clean up player data
 	playerRoles[player] = nil
 	playerHealths[player] = nil
+	-- Clean up replicated role
+	local roleValue = playerRolesContainer:FindFirstChild(tostring(player.UserId))
+	if roleValue then
+		roleValue:Destroy()
+	end
 end
 
 --[=[
@@ -83,7 +91,6 @@ function PlayerManager:Init()
 		self:OnPlayerRemoving(player)
 	end)
 
-	-- Handle any players who are already in the game when this initializes
 	for _, player in ipairs(Players:GetPlayers()) do
 		self:OnPlayerAdded(player)
 	end
@@ -91,68 +98,62 @@ end
 
 --[=[
 	Assigns roles to all players currently in the game.
-	It selects one Killer, then assigns Stunner and Helper roles from the remaining players if possible.
-	It also equips the corresponding default ability for each role.
 ]=]
 function PlayerManager:AssignRoles()
 	local allPlayers = Players:GetPlayers()
 	local playerCount = #allPlayers
 	if playerCount == 0 then return end
 
-	-- Require AbilityManager here to avoid circular dependencies at startup
 	local AbilityManager = require(game:GetService("ServerScriptService").AbilityManager)
 
 	-- Reset all current roles
-	for player, _ in pairs(playerRoles) do
-		playerRoles[player] = nil
-	end
+	for player, _ in pairs(playerRoles) do playerRoles[player] = nil end
+	playerRolesContainer:ClearAllChildren()
 
-	-- Create a temporary list of players to pick from
 	local availablePlayers = {}
-	for _, p in ipairs(allPlayers) do
-		table.insert(availablePlayers, p)
+	for _, p in ipairs(allPlayers) do table.insert(availablePlayers, p) end
+
+	-- Helper to set and replicate role
+	local function setRole(player, role)
+		playerRoles[player] = role
+		playerRolesContainer:SetAttribute(tostring(player.UserId), role)
+		print(player.Name .. " is the " .. role)
 	end
 
 	-- 1. Select the Killer
 	local killerIndex = math.random(1, playerCount)
 	local killer = availablePlayers[killerIndex]
-	playerRoles[killer] = "Killer"
+	setRole(killer, "Killer")
 	AbilityManager:EquipAbility(killer, "DefaultKillerAbility")
 	table.remove(availablePlayers, killerIndex)
-	print(killer.Name .. " has been chosen as the Killer.")
 
-	-- 2. Select a Stunner if there are enough players left
+	-- 2. Select a Stunner
 	if #availablePlayers > 0 then
 		local stunnerIndex = math.random(1, #availablePlayers)
 		local stunner = availablePlayers[stunnerIndex]
-		playerRoles[stunner] = "Stunner"
-		AbilityManager:EquipAbility(stunner, "DefaultSurvivorAbility")
+		setRole(stunner, "Stunner")
+		AbilityManager:EquipAbility(stunner, "StunnerAbility")
 		table.remove(availablePlayers, stunnerIndex)
-		print(stunner.Name .. " is the Stunner.")
 	end
 
-	-- 3. Select a Helper if there are enough players left
+	-- 3. Select a Helper
 	if #availablePlayers > 0 then
 		local helperIndex = math.random(1, #availablePlayers)
 		local helper = availablePlayers[helperIndex]
-		playerRoles[helper] = "Helper"
+		setRole(helper, "Helper")
 		AbilityManager:EquipAbility(helper, "DefaultSurvivorAbility")
 		table.remove(availablePlayers, helperIndex)
-		print(helper.Name .. " is the Helper.")
 	end
 
 	-- 4. Assign the rest as Survivors
 	for _, player in ipairs(availablePlayers) do
-		playerRoles[player] = "Survivor"
+		setRole(player, "Survivor")
 		AbilityManager:EquipAbility(player, "DefaultSurvivorAbility")
-		print(player.Name .. " is a Survivor.")
 	end
 end
 
 --[=[
 	Returns the role of a specific player.
-	@param player Player The player whose role is being requested.
-	@return string The role of the player ("Killer", "Survivor", or "Unknown").
 ]=]
 function PlayerManager:GetRole(player: Player)
 	return playerRoles[player] or "Unknown"
@@ -160,8 +161,6 @@ end
 
 --[=[
 	Returns a list of all players with a specific role.
-	@param role string The role to search for.
-	@return {Player} A list of players with that role.
 ]=]
 function PlayerManager:GetPlayersByRole(role: string)
 	local playersWithRole = {}
@@ -175,35 +174,21 @@ end
 
 --[=[
 	Deals damage to a player and handles their death.
-	@param player Player The player to damage.
-	@param amount number The amount of damage to deal.
 ]=]
 function PlayerManager:TakeDamage(player: Player, amount: number)
-	if not playerHealths[player] then
-		warn("Attempted to deal damage to a player with no health tracked: " .. player.Name)
-		return
-	end
-
-	-- Don't damage players who are already eliminated
-	if playerHealths[player] <= 0 then
-		return
-	end
+	if not playerHealths[player] or playerHealths[player] <= 0 then return end
 
 	playerHealths[player] -= amount
 	print(player.Name .. " took " .. amount .. " damage, health is now " .. playerHealths[player])
 
 	if playerHealths[player] <= 0 then
 		print(player.Name .. " has been eliminated!")
-		-- In the future, this will handle respawning, spectating, etc.
-		-- For now, we can just set their health to 0 to prevent multiple "deaths"
 		playerHealths[player] = 0
 	end
 end
 
 --[=[
 	An action for a killer to attack a target.
-	@param killer Player The player performing the attack.
-	@param target Player The player receiving the attack.
 ]=]
 function PlayerManager:KillerAttack(killer: Player, target: Player)
 	if self:GetRole(killer) ~= "Killer" then
@@ -212,7 +197,6 @@ function PlayerManager:KillerAttack(killer: Player, target: Player)
 	end
 
 	print(killer.Name .. " (Killer) is attacking " .. target.Name)
-	-- The damage amount can be a constant or based on killer stats later.
 	self:TakeDamage(target, 50)
 end
 
