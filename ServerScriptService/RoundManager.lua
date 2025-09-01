@@ -39,6 +39,11 @@ function RoundManager:OnMachineCompleted(machineInstance: table)
 	completedMachines += 1
 	print("RoundManager: A machine was completed! Progress: " .. completedMachines .. "/" .. machinesToComplete)
 
+	-- DEBUG: Check if the machineInstance has a Part property
+	if not machineInstance.Part then
+		warn("RoundManager DEBUG: The completed machineInstance is missing its .Part property!")
+	end
+
 	-- Fire the remote events for feedback
 	EventManager.PlaySoundEvent:FireAllClients("MachineComplete")
 	if machineInstance.Part then
@@ -123,7 +128,8 @@ function RoundManager:StartRound()
 
 	-- Set up the round goal
 	completedMachines = 0
-	local availableMachineTypes = {"ClassicMachine", "MemoryMachine"}
+	-- TEST: Spawn all three machine types
+	local availableMachineTypes = {"ClassicMachine", "MemoryMachine", "SkillCheckMachine"}
 
 	-- Create one of each machine type if no machines exist
 	if table_size(MachineManager:GetActiveMachines()) == 0 then
