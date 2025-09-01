@@ -141,7 +141,7 @@ function PlayerManager:AssignRoles()
 		local helperIndex = math.random(1, #availablePlayers)
 		local helper = availablePlayers[helperIndex]
 		setRole(helper, "Helper")
-		AbilityManager:EquipAbility(helper, "DefaultSurvivorAbility")
+		AbilityManager:EquipAbility(helper, "HelperAbility")
 		table.remove(availablePlayers, helperIndex)
 	end
 
@@ -198,6 +198,21 @@ function PlayerManager:KillerAttack(killer: Player, target: Player)
 
 	print(killer.Name .. " (Killer) is attacking " .. target.Name)
 	self:TakeDamage(target, 50)
+end
+
+--[=[
+	Heals a player for a given amount, capping at their max health.
+	@param player Player The player to heal.
+	@param amount number The amount of health to restore.
+]=]
+function PlayerManager:HealPlayer(player: Player, amount: number)
+	if not playerHealths[player] or playerHealths[player] <= 0 then return end
+
+	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+
+	playerHealths[player] = math.min(playerHealths[player] + amount, humanoid.MaxHealth)
+	print(player.Name .. " was healed for " .. amount .. ", health is now " .. playerHealths[player])
 end
 
 return PlayerManager

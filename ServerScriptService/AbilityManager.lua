@@ -15,6 +15,10 @@ local PlayerManager = require(ServerScriptService.PlayerManager)
 -- Constants
 local STUN_DURATION = 3 -- seconds
 local MAX_STUN_DISTANCE = 30 -- studs
+local HELPER_ABILITY_RANGE = 25 -- studs
+local HEAL_AMOUNT = 25 -- health points
+local SPEED_BOOST_MULTIPLIER = 1.5 -- 50% speed increase
+local SPEED_BOOST_DURATION = 5 -- seconds
 
 -- A dictionary to hold the loaded ability modules
 local AbilityModules = {}
@@ -34,12 +38,10 @@ function AbilityManager:Init()
 		end
 	end
 
-	-- Listen for the generic "use ability" event from the client
 	EventManager.UseAbilityEvent.OnServerEvent:Connect(function(player)
 		self:UseAbility(player)
 	end)
 
-	-- Listen for the specific "stunner hit" event from the client
 	EventManager.ReportStunnerHit.OnServerEvent:Connect(function(player, hitPlayer: Player)
 		self:OnStunnerHit(player, hitPlayer)
 	end)
@@ -69,15 +71,70 @@ function AbilityManager:UseAbility(player: Player)
 		return
 	end
 
-	-- The client will do the visual part. The server just needs to know it was used.
 	ability:Execute(player)
+
+	if ability.Name == "HelperAbility" then
+		self:ExecuteHelperAbility(player)
+	end
+end
+
+--[=[
+	Applies a temporary speed boost to a character.
+]=]
+local function applySpeedBoost(character: Model)
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+
+	local originalSpeed = humanoid.WalkSpeed
+	humanoid.WalkSpeed = originalSpeed * SPEED_BOOST_MULTIPLIER
+	print(character.Name .. "'s speed boosted to " .. humanoid.WalkSpeed)
+
+	task.delay(SPEED_BOOST_DURATION, function()
+		if humanoid.Parent then
+			humanoid.WalkSpeed = originalSpeed
+			print(character.Name .. "'s speed returned to normal.")
+		end
+	end)
+end
+
+--[=[
+	Executes the server-side logic for the Helper's AoE ability.
+]=]
+function AbilityManager:ExecuteHelperAbility(helperPlayer: Player)
+	local helperChar = helperPlayer.Character
+	if not helperChar then return end
+
+	local rootPart = helperChar:FindFirstChild("HumanoidRootPart")
+	if not rootPart then return end
+
+	print(helperPlayer.Name .. " used Helper ability.")
+
+	-- Play VFX and SFX for all clients
+	EventManager.PlaySoundEvent:FireAllClients("HelperAbility", rootPart.Position)
+	EventManager.PlayVFXEvent:FireAllClients("HelperAbility", rootPart.Position)
+
+	applySpeedBoost(helperChar)
+
+	local helperPos = rootPart.Position
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player ~= helperPlayer and PlayerManager:GetRole(player) ~= "Killer" then
+			local targetChar = player.Character
+			if targetChar then
+				local distance = (helperPos - targetChar:GetPrimaryPartCFrame().Position).Magnitude
+				if distance <= HELPER_ABILITY_RANGE then
+					print("Helper ability affecting " .. player.Name)
+					PlayerManager:HealPlayer(player, HEAL_AMOUNT)
+					applySpeedBoost(targetChar)
+				end
+			end
+		end
+	end
 end
 
 --[=[
 	Handles the server-side logic when a stunner reports a hit on another player.
 ]=]
 function AbilityManager:OnStunnerHit(stunnerPlayer: Player, hitPlayer: Player)
-	-- Security / Validation
 	if not stunnerPlayer or not hitPlayer or stunnerPlayer == hitPlayer then return end
 	if PlayerManager:GetRole(stunnerPlayer) ~= "Stunner" then return end
 	if PlayerManager:GetRole(hitPlayer) ~= "Killer" then return end
@@ -86,14 +143,12 @@ function AbilityManager:OnStunnerHit(stunnerPlayer: Player, hitPlayer: Player)
 	local killerChar = hitPlayer.Character
 	if not stunnerChar or not killerChar then return end
 
-	-- Distance check to prevent cheating
 	local distance = (stunnerChar:GetPrimaryPartCFrame().Position - killerChar:GetPrimaryPartCFrame().Position).Magnitude
 	if distance > MAX_STUN_DISTANCE then
 		warn(`Stunner {stunnerPlayer.Name} reported a hit on Killer {hitPlayer.Name} from too far away: {distance} studs.`)
 		return
 	end
 
-	-- Apply the stun effect
 	local killerHumanoid = killerChar:FindFirstChildOfClass("Humanoid")
 	if killerHumanoid then
 		print(`Stunner {stunnerPlayer.Name} successfully stunned Killer {hitPlayer.Name}!`)
@@ -102,7 +157,6 @@ function AbilityManager:OnStunnerHit(stunnerPlayer: Player, hitPlayer: Player)
 
 		task.wait(STUN_DURATION)
 
-		-- Check if humanoid still exists before restoring speed
 		if killerHumanoid.Parent then
 			killerHumanoid.WalkSpeed = originalWalkSpeed
 			print(`Killer {hitPlayer.Name} is no longer stunned.`)

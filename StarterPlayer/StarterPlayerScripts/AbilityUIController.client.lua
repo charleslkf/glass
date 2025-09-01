@@ -15,13 +15,16 @@ local GameEvents = ReplicatedStorage:WaitForChild("GameEvents")
 local UseAbilityEvent = GameEvents:WaitForChild("UseAbilityEvent")
 local ReportStunnerHit = GameEvents:WaitForChild("ReportStunnerHit")
 
-local PlayerRoles = ReplicatedStorage:WaitForChild("PlayerRoles") -- Assuming roles are replicated for client checks
+local PlayerRoles = ReplicatedStorage:WaitForChild("PlayerRoles")
 
 print("AbilityUIController loaded for player.")
 
 local STUN_PROJECTILE_SPEED = 100
-local STUN_PROJECTILE_LIFETIME = 2 -- seconds
+local STUN_PROJECTILE_LIFETIME = 2
 
+--[=[
+	Fires the Stunner's client-side projectile.
+]=]
 local function fireStunProjectile()
 	local character = LocalPlayer.Character
 	if not character then return end
@@ -29,52 +32,51 @@ local function fireStunProjectile()
 	local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
 	if not humanoidRootPart then return end
 
-	-- Create the projectile part
 	local projectile = Instance.new("Part")
 	projectile.Size = Vector3.new(1, 1, 2)
-	projectile.Color = Color3.new(1, 1, 0) -- Yellow
+	projectile.Color = Color3.new(1, 1, 0)
 	projectile.Material = Enum.Material.Neon
 	projectile.CanCollide = false
-	projectile.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, -3) -- Spawn in front
+	projectile.CFrame = humanoidRootPart.CFrame * CFrame.new(0, 0, -3)
 	projectile.Velocity = humanoidRootPart.CFrame.LookVector * STUN_PROJECTILE_SPEED
 	projectile.Parent = workspace
 
-	-- Add to Debris service to auto-delete after lifetime
 	Debris:AddItem(projectile, STUN_PROJECTILE_LIFETIME)
 
-	-- Handle hit detection
 	projectile.Touched:Connect(function(hit)
 		local hitModel = hit:FindFirstAncestorOfClass("Model")
 		if hitModel then
 			local hitPlayer = Players:GetPlayerFromCharacter(hitModel)
 			if hitPlayer and hitPlayer ~= LocalPlayer then
-				-- Check if the hit player is the Killer
 				if PlayerRoles:GetAttribute(tostring(hitPlayer.UserId)) == "Killer" then
 					print("Stunner projectile hit the Killer!")
 					ReportStunnerHit:FireServer(hitPlayer)
-					projectile:Destroy() -- Destroy on hit
+					projectile:Destroy()
 				end
 			end
 		end
 	end)
 end
 
-
+--[=[
+	Handles player input for abilities.
+]=]
 local function onInputBegan(input, gameProcessedEvent)
 	if gameProcessedEvent then return end
 
 	if input.KeyCode == Enum.KeyCode.Q then
-		-- Fire the generic event so the server can handle cooldowns, etc.
+		-- Always fire the generic event so the server can handle cooldowns and server-side logic
 		UseAbilityEvent:FireServer()
 
-		-- Also, execute the client-side visual part of the ability
-		-- In the future, we would get the player's equipped ability name here
-		-- For now, we assume if they have a role that's not killer, they might be stunner
+		-- Also, execute the client-side visual part of the ability if one exists
 		local myRole = PlayerRoles:GetAttribute(tostring(LocalPlayer.UserId))
+
 		if myRole == "Stunner" then
 			print("Player is Stunner, firing projectile.")
 			fireStunProjectile()
 		end
+		-- Note: The Helper ability has no unique client-side action,
+		-- so it does not need an `elseif` here. The server will handle all feedback.
 	end
 end
 

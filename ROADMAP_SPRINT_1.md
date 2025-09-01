@@ -51,7 +51,7 @@ This document outlines the next phase of development, focusing on implementing c
     - This will require a new `RemoteEvent` for firing and server-side logic to handle the projectile and the stun effect.
 
 ### Task 2.2: Implement Helper Ability
-- **Status:** To Do
+- **Status:** Done
 - **Logic:**
     - Replace the `DefaultSurvivorAbility` for the "Helper" role.
     - The ability could be: When used, grant a temporary speed boost to all other nearby survivors.
