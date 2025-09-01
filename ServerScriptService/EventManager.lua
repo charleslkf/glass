@@ -41,6 +41,14 @@ EventManager.ShowMemoryMachinePattern = Instance.new("RemoteEvent")
 EventManager.ShowMemoryMachinePattern.Name = "ShowMemoryMachinePattern"
 EventManager.ShowMemoryMachinePattern.Parent = eventsFolder
 
+EventManager.StartSkillCheck = Instance.new("RemoteEvent")
+EventManager.StartSkillCheck.Name = "StartSkillCheck"
+EventManager.StartSkillCheck.Parent = eventsFolder
+
+EventManager.ReportSkillCheckResult = Instance.new("RemoteEvent")
+EventManager.ReportSkillCheckResult.Name = "ReportSkillCheckResult"
+EventManager.ReportSkillCheckResult.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")
