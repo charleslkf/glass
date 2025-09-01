@@ -71,3 +71,13 @@ There are three types of machines that survivors can repair to win the round.
     - If the projectile hits the Killer, they will be "stunned" (unable to move) for 3 seconds.
     - The server will perform a distance check to ensure the hit was legitimate.
 - **Cooldown:** 30 seconds.
+
+### Helper Ability: Healing Aura
+- **Role:** Helper
+- **Key:** Q
+- **Effect:** Emits a pulse of energy that heals nearby survivors and grants a speed boost to them and the Helper.
+- **How to Use:**
+    - Press 'Q' to activate.
+    - Any other survivor within 25 studs will be healed for 25 HP.
+    - Both the Helper and any affected survivors will receive a 50% speed boost for 5 seconds.
+- **Cooldown:** 45 seconds.
