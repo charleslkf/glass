@@ -43,6 +43,33 @@ function PlayerManager:OnPlayerAdded(player: Player)
 end
 
 --[=[
+	Creates the role display tag above a character's head.
+]=]
+local function createRoleTag(character: Model)
+	local head = character:FindFirstChild("Head")
+	if not head then return end
+
+	local billboardGui = Instance.new("BillboardGui")
+	billboardGui.Name = "RoleTag"
+	billboardGui.Size = UDim2.new(0, 200, 0, 50)
+	billboardGui.StudsOffset = Vector3.new(0, 3, 0)
+	billboardGui.Adornee = head
+
+	local textLabel = Instance.new("TextLabel")
+	textLabel.Name = "RoleLabel"
+	textLabel.Size = UDim2.new(1, 0, 1, 0)
+	textLabel.BackgroundTransparency = 1
+	textLabel.TextColor3 = Color3.new(1, 1, 1)
+	textLabel.TextSize = 24
+	textLabel.Font = Enum.Font.SourceSansBold
+	textLabel.TextStrokeTransparency = 0
+	textLabel.Text = "" -- Will be set by AssignRoles
+	textLabel.Parent = billboardGui
+
+	billboardGui.Parent = head
+end
+
+--[=[
 	Handles a player's character spawning into the game.
 ]=]
 function PlayerManager:OnCharacterAdded(player: Player, character: Model)
@@ -52,7 +79,8 @@ function PlayerManager:OnCharacterAdded(player: Player, character: Model)
 		return
 	end
 
-	-- Add a ClickDetector to allow other players to interact with this character
+	createRoleTag(character)
+
 	local clickDetector = Instance.new("ClickDetector")
 	clickDetector.MaxActivationDistance = 10
 	clickDetector.Parent = humanoidRootPart
@@ -69,14 +97,9 @@ end
 ]=]
 function PlayerManager:OnPlayerRemoving(player: Player)
 	print("Player removed: " .. player.Name)
-	-- Clean up player data
 	playerRoles[player] = nil
 	playerHealths[player] = nil
-	-- Clean up replicated role
-	local roleValue = playerRolesContainer:FindFirstChild(tostring(player.UserId))
-	if roleValue then
-		roleValue:Destroy()
-	end
+	playerRolesContainer:SetAttribute(tostring(player.UserId), nil)
 end
 
 --[=[
@@ -97,58 +120,55 @@ function PlayerManager:Init()
 end
 
 --[=[
+	Updates the visual role tag on a player's character.
+]=]
+local function updateRoleTag(player: Player, role: string)
+	if player.Character then
+		local head = player.Character:FindFirstChild("Head")
+		local roleTag = head and head:FindFirstChild("RoleTag")
+		local roleLabel = roleTag and roleTag:FindFirstChild("RoleLabel")
+		if roleLabel and roleLabel:IsA("TextLabel") then
+			roleLabel.Text = role
+		end
+	end
+end
+
+--[=[
 	Assigns roles to all players currently in the game.
 ]=]
 function PlayerManager:AssignRoles()
 	local allPlayers = Players:GetPlayers()
-	local playerCount = #allPlayers
-	if playerCount == 0 then return end
+	table.sort(allPlayers, function(a, b) return a.Name < b.Name end)
+
+	if #allPlayers == 0 then return end
 
 	local AbilityManager = require(game:GetService("ServerScriptService").AbilityManager)
 
-	-- Reset all current roles
 	for player, _ in pairs(playerRoles) do playerRoles[player] = nil end
 	playerRolesContainer:ClearAllChildren()
 
-	local availablePlayers = {}
-	for _, p in ipairs(allPlayers) do table.insert(availablePlayers, p) end
-
-	-- Helper to set and replicate role
 	local function setRole(player, role)
 		playerRoles[player] = role
 		playerRolesContainer:SetAttribute(tostring(player.UserId), role)
+		updateRoleTag(player, role)
 		print(player.Name .. " is the " .. role)
 	end
 
-	-- 1. Select the Killer
-	local killerIndex = math.random(1, playerCount)
-	local killer = availablePlayers[killerIndex]
-	setRole(killer, "Killer")
-	AbilityManager:EquipAbility(killer, "DefaultKillerAbility")
-	table.remove(availablePlayers, killerIndex)
+	local testRoles = {"Killer", "Stunner", "Helper", "Survivor"}
 
-	-- 2. Select a Stunner
-	if #availablePlayers > 0 then
-		local stunnerIndex = math.random(1, #availablePlayers)
-		local stunner = availablePlayers[stunnerIndex]
-		setRole(stunner, "Stunner")
-		AbilityManager:EquipAbility(stunner, "StunnerAbility")
-		table.remove(availablePlayers, stunnerIndex)
-	end
+	for i, player in ipairs(allPlayers) do
+		local role = testRoles[i] or "Survivor"
+		setRole(player, role)
 
-	-- 3. Select a Helper
-	if #availablePlayers > 0 then
-		local helperIndex = math.random(1, #availablePlayers)
-		local helper = availablePlayers[helperIndex]
-		setRole(helper, "Helper")
-		AbilityManager:EquipAbility(helper, "HelperAbility")
-		table.remove(availablePlayers, helperIndex)
-	end
-
-	-- 4. Assign the rest as Survivors
-	for _, player in ipairs(availablePlayers) do
-		setRole(player, "Survivor")
-		AbilityManager:EquipAbility(player, "DefaultSurvivorAbility")
+		if role == "Killer" then
+			AbilityManager:EquipAbility(player, "DefaultKillerAbility")
+		elseif role == "Stunner" then
+			AbilityManager:EquipAbility(player, "StunnerAbility")
+		elseif role == "Helper" then
+			AbilityManager:EquipAbility(player, "HelperAbility")
+		else -- Survivor
+			AbilityManager:EquipAbility(player, "DefaultSurvivorAbility")
+		end
 	end
 end
 
@@ -202,8 +222,6 @@ end
 
 --[=[
 	Heals a player for a given amount, capping at their max health.
-	@param player Player The player to heal.
-	@param amount number The amount of health to restore.
 ]=]
 function PlayerManager:HealPlayer(player: Player, amount: number)
 	if not playerHealths[player] or playerHealths[player] <= 0 then return end
