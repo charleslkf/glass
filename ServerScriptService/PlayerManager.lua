@@ -8,6 +8,8 @@ PlayerManager.__index = PlayerManager
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+local EventManager = require(ServerScriptService.EventManager)
 
 -- Constants
 local DEFAULT_HEALTH = 100
@@ -43,34 +45,6 @@ function PlayerManager:OnPlayerAdded(player: Player)
 end
 
 --[=[
-	Creates the role display tag above a character's head.
-]=]
-local function createRoleTag(character: Model)
-	local head = character:FindFirstChild("Head")
-	if not head then return end
-
-	local billboardGui = Instance.new("BillboardGui")
-	billboardGui.Name = "RoleTag"
-	billboardGui.Size = UDim2.new(0, 200, 0, 50)
-	billboardGui.StudsOffset = Vector3.new(0, 3.5, 0) -- Increased offset
-	billboardGui.Adornee = head
-	billboardGui.AlwaysOnTop = true -- Prevent conflict with other UI
-
-	local textLabel = Instance.new("TextLabel")
-	textLabel.Name = "RoleLabel"
-	textLabel.Size = UDim2.new(1, 0, 1, 0)
-	textLabel.BackgroundTransparency = 1
-	textLabel.TextColor3 = Color3.new(1, 1, 1)
-	textLabel.TextSize = 24
-	textLabel.Font = Enum.Font.SourceSansBold
-	textLabel.TextStrokeTransparency = 0
-	textLabel.Text = "" -- Will be set by AssignRoles
-	textLabel.Parent = billboardGui
-
-	billboardGui.Parent = head
-end
-
---[=[
 	Handles a player's character spawning into the game.
 ]=]
 function PlayerManager:OnCharacterAdded(player: Player, character: Model)
@@ -80,8 +54,7 @@ function PlayerManager:OnCharacterAdded(player: Player, character: Model)
 		return
 	end
 
-	createRoleTag(character)
-
+	-- Add a ClickDetector to allow other players to interact with this character
 	local clickDetector = Instance.new("ClickDetector")
 	clickDetector.MaxActivationDistance = 10
 	clickDetector.Parent = humanoidRootPart
@@ -121,20 +94,6 @@ function PlayerManager:Init()
 end
 
 --[=[
-	Updates the visual role tag on a player's character.
-]=]
-local function updateRoleTag(player: Player, role: string)
-	if player.Character then
-		local head = player.Character:FindFirstChild("Head")
-		local roleTag = head and head:FindFirstChild("RoleTag")
-		local roleLabel = roleTag and roleTag:FindFirstChild("RoleLabel")
-		if roleLabel and roleLabel:IsA("TextLabel") then
-			roleLabel.Text = role
-		end
-	end
-end
-
---[=[
 	Assigns roles to all players currently in the game.
 ]=]
 function PlayerManager:AssignRoles()
@@ -151,7 +110,6 @@ function PlayerManager:AssignRoles()
 	local function setRole(player, role)
 		playerRoles[player] = role
 		playerRolesContainer:SetAttribute(tostring(player.UserId), role)
-		updateRoleTag(player, role)
 		print(player.Name .. " is the " .. role)
 	end
 
@@ -219,6 +177,11 @@ function PlayerManager:KillerAttack(killer: Player, target: Player)
 
 	print(killer.Name .. " (Killer) is attacking " .. target.Name)
 	self:TakeDamage(target, 50)
+
+	-- Play sound effect for the attack
+	if target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+		EventManager.PlaySoundEvent:FireAllClients("KillerAttack", target.Character.HumanoidRootPart.Position)
+	end
 end
 
 --[=[

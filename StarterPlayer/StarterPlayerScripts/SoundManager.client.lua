@@ -22,11 +22,28 @@ function SoundManager:Init()
 	-- In the future, we can populate this from a folder in ReplicatedStorage
 	-- For now, we'll define a placeholder sound here.
 	local machineCompleteSound = Instance.new("Sound")
-	machineCompleteSound.SoundId = "rbxassetid://3997124966" -- User-provided ID
+	machineCompleteSound.SoundId = "rbxassetid://3997124966"
 	machineCompleteSound.Name = "MachineComplete"
-	machineCompleteSound.Parent = game.SoundService -- Store sounds in SoundService
-
+	machineCompleteSound.Parent = game.SoundService
 	sounds["MachineComplete"] = machineCompleteSound
+
+	local helperSound = Instance.new("Sound")
+	helperSound.SoundId = "rbxassetid://1839901345"
+	helperSound.Name = "HelperAbility"
+	helperSound.Parent = game.SoundService
+	sounds["HelperAbility"] = helperSound
+
+	local stunnerSound = Instance.new("Sound")
+	stunnerSound.SoundId = "rbxassetid://376107717"
+	stunnerSound.Name = "StunnerAbility"
+	stunnerSound.Parent = game.SoundService
+	sounds["StunnerAbility"] = stunnerSound
+
+	local killerSound = Instance.new("Sound")
+	killerSound.SoundId = "rbxassetid://130334100741866"
+	killerSound.Name = "KillerAttack"
+	killerSound.Parent = game.SoundService
+	sounds["KillerAttack"] = killerSound
 
 	print("SoundManager initialized.")
 end
