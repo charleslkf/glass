@@ -52,8 +52,9 @@ local function createRoleTag(character: Model)
 	local billboardGui = Instance.new("BillboardGui")
 	billboardGui.Name = "RoleTag"
 	billboardGui.Size = UDim2.new(0, 200, 0, 50)
-	billboardGui.StudsOffset = Vector3.new(0, 3, 0)
+	billboardGui.StudsOffset = Vector3.new(0, 3.5, 0) -- Increased offset
 	billboardGui.Adornee = head
+	billboardGui.AlwaysOnTop = true -- Prevent conflict with other UI
 
 	local textLabel = Instance.new("TextLabel")
 	textLabel.Name = "RoleLabel"
