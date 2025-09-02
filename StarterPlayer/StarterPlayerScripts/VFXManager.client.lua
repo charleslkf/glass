@@ -82,7 +82,6 @@ function VFXManager:Init()
 	helperAbilityVFX.Speed = NumberRange.new(2, 5)
 	helperAbilityVFX.EmissionDirection = Enum.NormalId.Top
 	helperAbilityVFX.Shape = Enum.ParticleEmitterShape.Cylinder
-	helperAbilityVFX.ShapeStyle = Enum.ParticleEmitterShapeStyle.Outwards
 	vfxTemplates["HelperAbility"] = helperAbilityVFX
 
 	print("VFXManager initialized.")
