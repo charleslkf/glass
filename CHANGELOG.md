@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.0] - 2025-09-02
+
+### Added
+- **Complete Minigame Suite**: Implemented the full server and client-side logic for the remaining two minigames:
+  - **Memory Machine**: A memory-based puzzle where players must repeat a sequence.
+  - **Skill Check Machine**: A timing-based challenge requiring multiple successful skill checks.
+- **Interactive Character Abilities**: Implemented the full functionality for the Stunner and Helper roles:
+  - **Stunner Ability ("Flashbang")**: The Stunner can now fire a projectile that stuns the Killer on impact.
+  - **Helper Ability ("Healing Aura")**: The Helper can now emit an AoE pulse that heals nearby survivors and provides a temporary speed boost to all affected players, including the Helper.
+- **Client-Side Attack System**: Replaced the unreliable `ClickDetector` with a modern, robust client-side attack detection system. The client now detects clicks and informs the server, which then validates the attack. This is a major architectural improvement.
+
+### Fixed
+- **Numerous Ability Feedback Bugs**: Resolved a long series of cascading bugs that prevented ability sound and visual effects from working. This multi-step process involved:
+  - Fixing multiple client-side script crashes caused by race conditions and incorrect asset IDs.
+  - Refactoring client-side managers from `LocalScript`s to `ModuleScript`s to align with Roblox best practices and ensure reliable loading.
+  - Fixing flawed event listener logic in the `SoundManager`.
+  - Ensuring the `VFXManager` is correctly initialized.
+- **Killer Attack Registration**: Fixed the critical bug where the Killer's attacks were not being registered by the server.
+
+### Changed
+- **Code Architecture**: Refactored `SoundManager` and `VFXManager` into `ModuleScript`s, improving the overall stability and structure of the client-side codebase.
+- **Sound Placeholders**: Replaced invalid sound asset IDs with working placeholders to ensure functional auditory feedback.
+
 ## [1.0.55] - 2025-08-31
 
 ### Added
