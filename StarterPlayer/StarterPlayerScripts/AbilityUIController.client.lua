@@ -9,12 +9,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Debris = game:GetService("Debris")
 
+local SoundManager = require(script.Parent:WaitForChild("SoundManager"))
+
 local LocalPlayer = Players.LocalPlayer
 
 local GameEvents = ReplicatedStorage:WaitForChild("GameEvents")
 local UseAbilityEvent = GameEvents:WaitForChild("UseAbilityEvent")
 local ReportStunnerHit = GameEvents:WaitForChild("ReportStunnerHit")
-local PlaySoundEvent = GameEvents:WaitForChild("PlaySoundEvent")
 
 local PlayerRoles = ReplicatedStorage:WaitForChild("PlayerRoles")
 
@@ -34,7 +35,7 @@ local function fireStunProjectile()
 	if not humanoidRootPart then return end
 
 	-- Play the firing sound locally immediately
-	PlaySoundEvent:FireServer("StunnerAbility")
+	SoundManager:PlaySound("StunnerAbility")
 
 	-- Create the projectile part
 	local projectile = Instance.new("Part")
