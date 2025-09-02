@@ -48,16 +48,17 @@ end
 	Handles a player's character spawning into the game.
 ]=]
 function PlayerManager:OnCharacterAdded(player: Player, character: Model)
-	local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 6)
-	if not humanoidRootPart then
-		warn("Could not find HumanoidRootPart for " .. player.Name .. " after waiting.")
+	local humanoid = character:WaitForChild("Humanoid", 6)
+	if not humanoid then
+		warn("Could not find Humanoid for " .. player.Name .. " after waiting.")
 		return
 	end
 
-	-- Add a ClickDetector to allow other players to interact with this character
+	-- Add a ClickDetector to the Humanoid to allow other players to attack them.
+	-- Parenting to the Humanoid is more reliable than parenting to a specific part.
 	local clickDetector = Instance.new("ClickDetector")
 	clickDetector.MaxActivationDistance = 10
-	clickDetector.Parent = humanoidRootPart
+	clickDetector.Parent = humanoid
 
 	clickDetector.MouseClick:Connect(function(attackerPlayer)
 		self:KillerAttack(attackerPlayer, player)
