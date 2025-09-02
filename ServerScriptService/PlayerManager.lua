@@ -61,6 +61,7 @@ function PlayerManager:OnCharacterAdded(player: Player, character: Model)
 	clickDetector.Parent = humanoid
 
 	clickDetector.MouseClick:Connect(function(attackerPlayer)
+		print("DEBUG: Click detected on " .. player.Name .. " by " .. attackerPlayer.Name)
 		self:KillerAttack(attackerPlayer, player)
 	end)
 
