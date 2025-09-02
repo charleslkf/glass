@@ -40,7 +40,7 @@ function SoundManager:Init()
 	sounds["StunnerAbility"] = stunnerSound
 
 	local killerSound = Instance.new("Sound")
-	killerSound.SoundId = "rbxassetid://130334100741866"
+	killerSound.SoundId = "rbxassetid://376107717" -- Placeholder, same as Stunner
 	killerSound.Name = "KillerAttack"
 	killerSound.Parent = game.SoundService
 	sounds["KillerAttack"] = killerSound
@@ -66,13 +66,15 @@ end
 SoundManager:Init()
 
 -- Listen for the event from the server
-PlaySoundEvent.OnClientEvent:Connect(function(soundName: string, targetPlayer: Player)
-	if targetPlayer then
-		if targetPlayer == game.Players.LocalPlayer then
+PlaySoundEvent.OnClientEvent:Connect(function(soundName, target)
+	if typeof(target) == "Instance" and target:IsA("Player") then
+		-- If a specific player is targeted, only play for them.
+		if target == game.Players.LocalPlayer then
 			SoundManager:PlaySound(soundName)
 		end
 	else
-		-- If no target player, play for everyone (the default)
+		-- If no player is targeted, play the sound for everyone.
+		-- This handles cases where the second argument is a position, or nil.
 		SoundManager:PlaySound(soundName)
 	end
 end)
