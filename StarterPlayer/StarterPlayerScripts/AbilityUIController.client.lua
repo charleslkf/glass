@@ -10,6 +10,7 @@ local Players = game:GetService("Players")
 local Debris = game:GetService("Debris")
 
 local SoundManager = require(script.Parent:WaitForChild("SoundManager"))
+local VFXManager = require(script.Parent:WaitForChild("VFXManager"))
 
 local LocalPlayer = Players.LocalPlayer
 
