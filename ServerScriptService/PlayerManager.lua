@@ -48,24 +48,8 @@ end
 	Handles a player's character spawning into the game.
 ]=]
 function PlayerManager:OnCharacterAdded(player: Player, character: Model)
-	local humanoid = character:WaitForChild("Humanoid", 6)
-	if not humanoid then
-		warn("Could not find Humanoid for " .. player.Name .. " after waiting.")
-		return
-	end
-
-	-- Add a ClickDetector to the Humanoid to allow other players to attack them.
-	-- Parenting to the Humanoid is more reliable than parenting to a specific part.
-	local clickDetector = Instance.new("ClickDetector")
-	clickDetector.MaxActivationDistance = 10
-	clickDetector.Parent = humanoid
-
-	clickDetector.MouseClick:Connect(function(attackerPlayer)
-		print("DEBUG: Click detected on " .. player.Name .. " by " .. attackerPlayer.Name)
-		self:KillerAttack(attackerPlayer, player)
-	end)
-
-	print("Added ClickDetector to " .. player.Name)
+	-- This function is now empty. The ClickDetector logic has been removed
+	-- and replaced with a client-side detection system.
 end
 
 --[=[
@@ -88,6 +72,10 @@ function PlayerManager:Init()
 
 	Players.PlayerRemoving:Connect(function(player)
 		self:OnPlayerRemoving(player)
+	end)
+
+	EventManager.PlayerAttackEvent.OnServerEvent:Connect(function(attackerPlayer, targetPlayer)
+		self:KillerAttack(attackerPlayer, targetPlayer)
 	end)
 
 	for _, player in ipairs(Players:GetPlayers()) do

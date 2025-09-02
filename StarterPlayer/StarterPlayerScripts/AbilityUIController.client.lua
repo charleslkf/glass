@@ -17,6 +17,7 @@ local LocalPlayer = Players.LocalPlayer
 local GameEvents = ReplicatedStorage:WaitForChild("GameEvents")
 local UseAbilityEvent = GameEvents:WaitForChild("UseAbilityEvent")
 local ReportStunnerHit = GameEvents:WaitForChild("ReportStunnerHit")
+local PlayerAttackEvent = GameEvents:WaitForChild("PlayerAttackEvent")
 
 local PlayerRoles = ReplicatedStorage:WaitForChild("PlayerRoles")
 
@@ -66,11 +67,12 @@ local function fireStunProjectile()
 end
 
 --[=[
-	Handles player input for abilities.
+	Handles player input for abilities and attacks.
 ]=]
 local function onInputBegan(input, gameProcessedEvent)
 	if gameProcessedEvent then return end
 
+	-- Handle 'Q' for abilities
 	if input.KeyCode == Enum.KeyCode.Q then
 		UseAbilityEvent:FireServer()
 
@@ -79,6 +81,24 @@ local function onInputBegan(input, gameProcessedEvent)
 		if myRole == "Stunner" then
 			print("Player is Stunner, firing projectile.")
 			fireStunProjectile()
+		end
+	end
+
+	-- Handle left-click for attacks
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		local mouse = LocalPlayer:GetMouse()
+		local target = mouse.Target
+
+		if not target then return end
+
+		local targetModel = target:FindFirstAncestorOfClass("Model")
+		if targetModel then
+			local targetPlayer = Players:GetPlayerFromCharacter(targetModel)
+			if targetPlayer and targetPlayer ~= LocalPlayer then
+				-- We hit a player, notify the server
+				print("Client detected attack on " .. targetPlayer.Name)
+				PlayerAttackEvent:FireServer(targetPlayer)
+			end
 		end
 	end
 end

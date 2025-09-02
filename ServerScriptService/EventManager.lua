@@ -53,6 +53,10 @@ EventManager.ReportStunnerHit = Instance.new("RemoteEvent")
 EventManager.ReportStunnerHit.Name = "ReportStunnerHit"
 EventManager.ReportStunnerHit.Parent = eventsFolder
 
+EventManager.PlayerAttackEvent = Instance.new("RemoteEvent")
+EventManager.PlayerAttackEvent.Name = "PlayerAttackEvent"
+EventManager.PlayerAttackEvent.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")
