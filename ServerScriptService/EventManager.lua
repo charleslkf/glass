@@ -57,6 +57,14 @@ EventManager.PlayerAttackEvent = Instance.new("RemoteEvent")
 EventManager.PlayerAttackEvent.Name = "PlayerAttackEvent"
 EventManager.PlayerAttackEvent.Parent = eventsFolder
 
+EventManager.RequestCurrency = Instance.new("RemoteEvent")
+EventManager.RequestCurrency.Name = "RequestCurrency"
+EventManager.RequestCurrency.Parent = eventsFolder
+
+EventManager.UpdateCurrencyDisplay = Instance.new("RemoteEvent")
+EventManager.UpdateCurrencyDisplay.Name = "UpdateCurrencyDisplay"
+EventManager.UpdateCurrencyDisplay.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")

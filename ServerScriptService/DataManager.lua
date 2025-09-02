@@ -8,6 +8,7 @@ DataManager.__index = DataManager
 
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
+local EventManager = require(game:GetService("ServerScriptService").EventManager)
 
 -- Define the DataStore for player data
 local playerDataStore = DataStoreService:GetDataStore("PlayerData_v1")
@@ -82,7 +83,25 @@ function DataManager:Init()
 
 	-- Note: DataStore requests can only be made from a live server,
 	-- not during Studio's "Play Solo" mode unless API access is enabled.
+
+	EventManager.RequestCurrency.OnServerEvent:Connect(function(player)
+		local currency = self:GetCurrency(player)
+		EventManager.UpdateCurrencyDisplay:FireClient(player, currency)
+	end)
 end
+
+--[=[
+	Returns the current currency for a given player.
+	@param player Player
+	@return number The player's currency amount.
+]=]
+function DataManager:GetCurrency(player: Player)
+	if sessionData[player] then
+		return sessionData[player].Currency
+	end
+	return 0
+end
+
 
 -- Example of how to modify data during gameplay
 -- function DataManager:AddCurrency(player: Player, amount: number)
