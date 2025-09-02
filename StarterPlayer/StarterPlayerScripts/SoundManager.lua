@@ -40,7 +40,7 @@ function SoundManager:Init()
 	sounds["StunnerAbility"] = stunnerSound
 
 	local killerSound = Instance.new("Sound")
-	killerSound.SoundId = "rbxassetid://376107717" -- Placeholder, same as Stunner
+	killerSound.SoundId = "rbxassetid://9103473772"
 	killerSound.Name = "KillerAttack"
 	killerSound.Parent = game.SoundService
 	sounds["KillerAttack"] = killerSound
