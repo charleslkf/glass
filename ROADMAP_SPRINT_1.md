@@ -8,29 +8,12 @@ This document outlines the next phase of development, focusing on implementing c
 
 ### Task 1.1: Implement the Classic Machine Minigame
 - **Status:** Done
-- **Logic:**
-    - When a player interacts with a "ClassicMachine" part, a new UI will appear on their screen.
-    - The UI will present the "pipe-connecting" puzzle grid.
-    - The client will handle the drawing logic and input.
-    - When the player believes they have solved it, the client will send the solution to the server.
-    - The `ClassicMachine.lua` module on the server will validate the solution using its `ValidateSolution` function.
-    - If correct, the machine will be marked as complete.
 
 ### Task 1.2: Implement the Memory Machine Minigame
 - **Status:** Done
-- **Logic:**
-    - Create a UI for the memory game (a grid of buttons).
-    - When interacted with, the server will generate a pattern and send it to the client.
-    - The client will display the pattern, then hide it.
-    - The player must click the buttons in the correct sequence.
-    - The client will send the player's attempt to the server for validation.
 
 ### Task 1.3: Implement the Skill Check Machine Minigame
 - **Status:** Done
-- **Logic:**
-    - Create a UI for the skill check (e.g., a moving bar and a target zone).
-    - When interacted with, the client will begin the skill check sequence.
-    - The client will report successes or failures to the server, which will track the overall progress.
 
 ### Task 1.4: Create a Puzzle Library for the Classic Machine
 - **Status:** To Do
@@ -45,29 +28,37 @@ This document outlines the next phase of development, focusing on implementing c
 
 ### Task 2.1: Implement Stunner Ability
 - **Status:** Done
-- **Logic:**
-    - Replace the `DefaultSurvivorAbility` for the "Stunner" role.
-    - The ability could be: When used, fire a short-range projectile. If it hits the Killer, the Killer is frozen for a few seconds.
-    - This will require a new `RemoteEvent` for firing and server-side logic to handle the projectile and the stun effect.
 
 ### Task 2.2: Implement Helper Ability
 - **Status:** Done
-- **Logic:**
-    - Replace the `DefaultSurvivorAbility` for the "Helper" role.
-    - The ability could be: When used, grant a temporary speed boost to all other nearby survivors.
-    - This will require checking distances on the server and applying a temporary change to the other players' character `WalkSpeed`.
 
-## Milestone 3: Interactive Shop
+## Milestone 3: Bug Smashing & Polish
+
+**Objective:** To fix all outstanding bugs in the core gameplay systems and ensure all features have correct feedback.
+
+### Task 3.1: Stabilize Client-Side Architecture
+- **Status:** Done
+- **Logic:**
+    - Diagnosed and fixed numerous cascading crashes on the client.
+    - Refactored core managers (`SoundManager`, `VFXManager`) into proper `ModuleScript`s to ensure reliable loading and prevent race conditions.
+
+### Task 3.2: Fix Ability & Combat Feedback
+- **Status:** Done
+- **Logic:**
+    - Fixed bugs that prevented sound and visual effects from playing for the Helper and Stunner abilities.
+    - Replaced the entire `ClickDetector`-based attack system with a more robust client-side detection and server-side validation system to fix the Killer's attack.
+
+## Milestone 4: Interactive Shop
 
 **Objective:** To make the shop UI functional.
 
-### Task 3.1: Populate the Shop
+### Task 4.1: Populate the Shop
 - **Status:** To Do
 - **Logic:**
     - Add items to the shop UI (e.g., character skins, different abilities).
     - Display the player's current currency (from the `DataManager`) in the UI.
 
-### Task 3.2: Implement Purchases
+### Task 4.2: Implement Purchases
 - **Status:** To Do
 - **Logic:**
     - When a player clicks a "Buy" button, a `RemoteEvent` will be sent to the server.
