@@ -14,6 +14,7 @@ local LocalPlayer = Players.LocalPlayer
 local GameEvents = ReplicatedStorage:WaitForChild("GameEvents")
 local UseAbilityEvent = GameEvents:WaitForChild("UseAbilityEvent")
 local ReportStunnerHit = GameEvents:WaitForChild("ReportStunnerHit")
+local PlaySoundEvent = GameEvents:WaitForChild("PlaySoundEvent")
 
 local PlayerRoles = ReplicatedStorage:WaitForChild("PlayerRoles")
 
@@ -32,6 +33,10 @@ local function fireStunProjectile()
 	local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
 	if not humanoidRootPart then return end
 
+	-- Play the firing sound locally immediately
+	PlaySoundEvent:FireServer("StunnerAbility")
+
+	-- Create the projectile part
 	local projectile = Instance.new("Part")
 	projectile.Size = Vector3.new(1, 1, 2)
 	projectile.Color = Color3.new(1, 1, 0)
@@ -65,18 +70,14 @@ local function onInputBegan(input, gameProcessedEvent)
 	if gameProcessedEvent then return end
 
 	if input.KeyCode == Enum.KeyCode.Q then
-		-- Always fire the generic event so the server can handle cooldowns and server-side logic
 		UseAbilityEvent:FireServer()
 
-		-- Also, execute the client-side visual part of the ability if one exists
 		local myRole = PlayerRoles:GetAttribute(tostring(LocalPlayer.UserId))
 
 		if myRole == "Stunner" then
 			print("Player is Stunner, firing projectile.")
 			fireStunProjectile()
 		end
-		-- Note: The Helper ability has no unique client-side action,
-		-- so it does not need an `elseif` here. The server will handle all feedback.
 	end
 end
 
