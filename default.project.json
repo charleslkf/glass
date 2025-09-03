@@ -9,6 +9,11 @@
       "StarterPlayerScripts": {
         "$path": "StarterPlayer/StarterPlayerScripts"
       }
+    },
+    "ReplicatedStorage": {
+      "Shared": {
+        "$path": "Shared"
+      }
     }
   }
 }
