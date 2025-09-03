@@ -75,15 +75,6 @@ function AbilityManager:UseAbility(player: Player)
 
 	if ability.Name == "HelperAbility" then
 		self:ExecuteHelperAbility(player)
-	elseif ability.Name == "Default Killer Ability" then
-		-- The killer ability is simple and doesn't need a dedicated function yet.
-		-- We just need to make sure the sound and VFX are triggered for everyone.
-		local character = player.Character
-		if character and character:FindFirstChild("HumanoidRootPart") then
-			local rootPart = character.HumanoidRootPart
-			EventManager.PlaySoundEvent:FireAllClients("DefaultKillerAbility", rootPart.Position)
-			-- EventManager.PlayVFXEvent:FireAllClients("DefaultKillerAbility", rootPart.Position) -- VFX can be added later
-		end
 	end
 end
 
