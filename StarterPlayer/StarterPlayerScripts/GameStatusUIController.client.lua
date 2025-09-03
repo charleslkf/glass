@@ -16,10 +16,12 @@ statusScreenGui.Name = "GameStatusUI"
 statusScreenGui.ResetOnSpawn = false
 
 -- Create a main frame to hold the labels
+-- Create a main frame to hold the labels, centered to avoid default UI
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(1, 0, 0.15, 0) -- Full width, 15% of screen height
-mainFrame.Position = UDim2.new(0, 0, 0, 0)
+mainFrame.Size = UDim2.new(0.6, 0, 0.15, 0) -- 60% of screen width
+mainFrame.AnchorPoint = Vector2.new(0.5, 0)
+mainFrame.Position = UDim2.new(0.5, 0, 0, 0) -- Centered at the top
 mainFrame.BackgroundTransparency = 1
 mainFrame.Parent = statusScreenGui
 
