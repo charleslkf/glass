@@ -65,6 +65,10 @@ EventManager.UpdateCurrencyDisplay = Instance.new("RemoteEvent")
 EventManager.UpdateCurrencyDisplay.Name = "UpdateCurrencyDisplay"
 EventManager.UpdateCurrencyDisplay.Parent = eventsFolder
 
+EventManager.AllGeneratorsRepaired = Instance.new("RemoteEvent")
+EventManager.AllGeneratorsRepaired.Name = "AllGeneratorsRepaired"
+EventManager.AllGeneratorsRepaired.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")
