@@ -1,81 +1,83 @@
-# Game Concept Overview
+# Game Concept Overview: "Project Forsaken"
 
-## 1. Inspiration and Aspirations
-This game draws inspiration from several well-known titles. The goal is to create a game, developed collaboratively between me and my dad, that achieves similar popularity and recognition. The core gameplay will revolve around the theme of **"forsaken"** and will incorporate elements from three distinct games.
-
-## 2. Game Structure and Setting
-- **Setting:** The game is set in the woods, not in a traditional elevator-based environment.
-- **Goal:** Players work towards a specific goal or limit (10 days or 10 levels). A leaderboard will track the fastest completion times.
-- **Round Size:** Each round features a maximum of **10 players**.
-- **The Killer:** At the start of each round, one player is randomly chosen as the killer. This role is kept for the entire round. A visible bar will indicate a player's chance of being selected in future rounds.
-
-## 3. Gameplay Mechanics
-### Player Roles
-Players are divided into three roles:
-- **Stunners (Attackers):** Focused on confronting the killer.
-- **Survivors:** Focused on completing objectives.
-- **Helpers:** Possess the unique ability to regenerate other players' stamina and provide boosts.
-
-### Items and Abilities
-- **Items:** **Med kits** and **energy drinks** will appear on the floor. Each player can only carry two items at a time.
-- **Character Abilities:** Every character has a unique ability, which may come with a price tag.
-- **Skins:** Skins will be available for all characters, with each costing the same amount.
+## 1. High-Level Concept
+This game is an asymmetrical survival horror experience inspired by successful titles like "Dead by Daylight" and the Roblox game "[🔪Slasher] Forsaken." One player takes on the role of a powerful **Killer**, while the remaining players are resourceful **Survivors**. The core gameplay revolves around a tense game of cat and mouse set in atmospheric, horror-themed maps.
 
 ---
-# Game Manual
 
-This section details the specific rules and mechanics of the game.
+## 2. Core Gameplay Loop & Objectives
 
-## Minigame Mechanics
+A round of "Project Forsaken" is structured into three distinct phases:
 
-There are three types of machines that survivors can repair to win the round.
+**Phase 1: The Setup**
+*   Survivors spawn and must immediately begin locating and repairing **5 Generators** scattered across the map.
+*   The Killer spawns and begins their hunt, using their unique abilities and environmental cues to locate Survivors.
 
-### 1. Classic Machine (Pipe Puzzle)
-- **Objective:** Connect the green Start tile to the red End tile by rotating the pipe pieces.
-- **How to Play:**
-    - Interact with the machine to open the puzzle window.
-    - The puzzle is a 5x5 grid of pipes.
-    - Click on a blue (straight) or orange (L-shaped) pipe to rotate it 90 degrees clockwise.
-    - Form a continuous, unbroken path from the green tile to the red tile.
-    - Once you believe the path is complete, press the "Submit" button.
-- **Note:** The UI will automatically close if you walk too far away from the machine.
+**Phase 2: The Hunt**
+*   This is the primary phase of the match, defined by direct conflict and strategic maneuvering.
+*   The Killer's goal is to disrupt repairs, chase, injure, and capture Survivors.
+*   Survivors must balance repairing generators with rescuing captured teammates and evading the Killer.
 
-### 2. Memory Machine
-- **Objective:** Correctly repeat a pattern shown on a grid of buttons.
-- **How to Play:**
-    - Interact with the machine to open the puzzle window.
-    - The game will flash a sequence of buttons on the 3x3 grid. Watch carefully.
-    - After the pattern is shown, click the buttons in the exact same order.
-    - The game will automatically submit your solution after you've clicked the correct number of buttons.
-- **Note:** The UI will automatically close if you walk too far away from the machine.
+**Phase 3: The Endgame**
+*   Once all 5 generators are repaired, two **Exit Gates** are powered.
+*   Survivors must locate an Exit Gate and complete a final interaction to open it and escape.
+*   This creates a high-pressure final confrontation in a concentrated area of the map.
 
-### 3. Skill Check Machine
-- **Objective:** Successfully complete a series of 3 timed skill checks.
-- **How to Play:**
-    - Interact with the machine to trigger a skill check. A bar will appear on your screen.
-    - A white cursor will move from left to right across the bar.
-    - Press the **Spacebar** when the cursor is inside the green "success zone".
-    - If you succeed, another skill check will be triggered after a short delay.
-    - If you fail (miss the zone or don't press the spacebar in time), your progress on the machine resets to zero.
-    - After 3 consecutive successes, the machine is repaired.
-- **Note:** The UI will automatically close if you walk too far away from the machine.
+### Win Conditions
+*   **Survivors Win** if at least one Survivor escapes the map.
+*   **Killer Wins** by preventing all Survivors from escaping. This is typically achieved by sacrificing them on hooks.
 
-## Character Abilities
+---
 
-### Stunner Ability: Flashbang
-- **Role:** Stunner
-- **Key:** Q
-- **Effect:** Fires a fast-moving yellow projectile forward.
-- **How to Use:**
-    - Aim at the Killer and press 'Q'.
-    - If the projectile hits the Killer, they will be "stunned" (unable to move) for 3 seconds.
-    - The server will perform a distance check to ensure the hit was legitimate.
+## 3. Player Roles & Customization
 
-### Helper Ability: Healing Aura
-- **Role:** Helper
-- **Key:** Q
-- **Effect:** Emits a pulse of energy that heals nearby survivors and grants a speed boost to them and the Helper.
-- **How to Use:**
-    - Press 'Q' to activate.
-    - Any other survivor within 25 studs will be healed for 25 HP.
-    - Both the Helper and any affected survivors will receive a 50% speed boost for 5 seconds.
+### The Killer
+Instead of a single Killer, the game will feature a roster of **unique Killers**, each with their own appearance, primary weapon, and special abilities. This is a core part of the game's variety and replayability.
+
+*   **Example Killer Concepts:**
+    *   **The Trapper:** Can place bear traps on the ground to immobilize Survivors.
+    *   **The Wraith:** Can turn invisible to ambush unsuspecting Survivors.
+    *   **The Huntress:** Can throw ranged axes to injure Survivors from a distance.
+
+### Survivors & The Perk System
+We will move away from fixed Survivor roles and adopt a flexible **Perk-Based System**. All Survivors share the same base abilities, but their playstyle is defined by a loadout of **4 Perks** they choose before the match.
+
+*   **How it Works:**
+    *   Players unlock a wide variety of Perks through gameplay progression.
+    *   These Perks provide passive bonuses or active abilities (e.g., faster healing, temporary speed boosts, the ability to sabotage Killer equipment).
+    *   Players can mix and match any 4 unlocked Perks to create their own "build" or "role" for a match (e.g., a "Medic," a "Stealth Operative," or an "Objective Rusher").
+
+---
+
+## 4. Core Mechanics
+
+### Survivor Mechanics
+*   **Generator Repair:** Interacting with a generator triggers a **Skill Check** minigame at random intervals. Players must press a key within a success zone on a UI prompt.
+    *   *Success:* Grants a small repair bonus.
+    *   *Failure:* Creates a loud explosion, notifying the Killer of the location and regressing repair progress.
+*   **Chase Interaction:** To aid in evasion, Survivors can:
+    *   **Vault** through windows.
+    *   **Drop Pallets** to temporarily stun the Killer.
+*   **Health States:** Survivors have three health states: Healthy, Injured (slower movement, leaves blood trails), and Downed (crawling on the ground, must be picked up by a teammate).
+
+### Killer Mechanics
+*   **Tracking:** The Killer tracks Survivors using a variety of cues:
+    *   **Scratch Marks:** Running Survivors leave temporary visual trails that only the Killer can see.
+    *   **Noise Notifications:** Failed skill checks, vaulting windows, and other loud actions create a visual indicator for the Killer.
+    *   **Blood Trails:** Injured Survivors leave pools of blood on the ground.
+*   **Capturing Survivors:** After downing a Survivor, the Killer can pick them up and carry them to a **Sacrificial Hook**. Hooked teammates can be rescued by other Survivors.
+
+---
+
+## 5. Meta-Progression & Long-Term Engagement
+
+To keep players invested beyond individual matches, we will implement a robust meta-progression system.
+
+*   **In-Game Currency:** Players earn currency based on their performance in a match (e.g., repairing generators, helping teammates, sacrificing Survivors).
+*   **Unlock System (The "Bloodweb" Concept):** This currency is spent in a progression tree to unlock:
+    *   New, universal **Perks** for all characters.
+    *   **Items & Add-ons:** Single-use offerings that can be brought into a match (e.g., a Medkit for faster healing, an Add-on that modifies a Killer's ability).
+*   **The Store:** A separate in-game store where players can purchase:
+    *   New **playable characters** (Killers and Survivors).
+    *   **Cosmetic skins** for all characters.
+*   **Seasonal Battle Pass:** A free and premium track that rewards players with exclusive cosmetics and currency for playing and completing challenges during a season.
