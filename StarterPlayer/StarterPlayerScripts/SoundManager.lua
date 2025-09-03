@@ -41,10 +41,9 @@ function SoundManager:Init()
 
 	local killerSound = Instance.new("Sound")
 	killerSound.SoundId = "rbxassetid://9103473772"
-	killerSound.Name = "KillerAttackSound" -- Give a neutral name to the instance
+	killerSound.Name = "KillerAttack"
 	killerSound.Parent = game.SoundService
-	sounds["DefaultKillerAbility"] = killerSound -- For the 'Q' ability
-	sounds["KillerAttack"] = killerSound -- For the basic mouse-click attack
+	sounds["KillerAttack"] = killerSound
 
 	print("SoundManager initialized.")
 end
