@@ -18,7 +18,6 @@ local GameEvents = ReplicatedStorage:WaitForChild("GameEvents")
 local UseAbilityEvent = GameEvents:WaitForChild("UseAbilityEvent")
 local ReportStunnerHit = GameEvents:WaitForChild("ReportStunnerHit")
 local PlayerAttackEvent = GameEvents:WaitForChild("PlayerAttackEvent")
-local RequestOpenGate = GameEvents:WaitForChild("RequestOpenGate")
 
 local PlayerRoles = ReplicatedStorage:WaitForChild("PlayerRoles")
 
@@ -93,17 +92,13 @@ local function onInputBegan(input, gameProcessedEvent)
 		if not target then return end
 
 		local targetModel = target:FindFirstAncestorOfClass("Model")
-		if targetModel and targetModel:FindFirstChild("Humanoid") then
+		if targetModel then
 			local targetPlayer = Players:GetPlayerFromCharacter(targetModel)
 			if targetPlayer and targetPlayer ~= LocalPlayer then
 				-- We hit a player, notify the server
 				print("Client detected attack on " .. targetPlayer.Name)
 				PlayerAttackEvent:FireServer(targetPlayer)
 			end
-		elseif target.Name == "GateA" or target.Name == "GateB" then
-			-- We hit an exit gate, notify the server
-			print("Client requesting to open gate " .. target.Name)
-			RequestOpenGate:FireServer(target.Name)
 		end
 	end
 end
