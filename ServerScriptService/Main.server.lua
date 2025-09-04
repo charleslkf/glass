@@ -12,7 +12,6 @@ local PlayerManager = require(ServerScriptService.PlayerManager)
 local RoundManager = require(ServerScriptService.RoundManager)
 local AbilityManager = require(ServerScriptService.AbilityManager)
 local EventManager = require(ServerScriptService.EventManager)
-local ExitGateManager = require(ServerScriptService.ExitGateManager)
 
 -- Safely require the MachineManager to catch and log any initialization errors
 local success, MachineManager = pcall(require, ServerScriptService.MachineManager)
@@ -28,7 +27,6 @@ PlayerManager:Init()
 AbilityManager:Init()
 EventManager:Init()
 MachineManager:Init()
-ExitGateManager:Init()
 RoundManager:Init() -- RoundManager should generally be last
 
 print("Main.server.lua executed: All managers have been initialized.")

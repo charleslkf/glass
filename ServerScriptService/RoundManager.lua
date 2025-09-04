@@ -20,7 +20,6 @@ local MIN_PLAYERS_TO_START = 2
 local LOBBY_COUNTDOWN_TIME = 10 -- 10 seconds
 local INTERMISSION_TIME = 5 -- 5 seconds
 local ROUND_TIME = 300 -- 5 minutes (For testing)
-local GENERATORS_TO_COMPLETE = 5
 
 local completedMachines = 0
 local machinesToComplete = 0
@@ -38,7 +37,6 @@ end
 ]=]
 function RoundManager:OnMachineCompleted(machineInstance: table)
 	completedMachines += 1
-	EventManager.UpdateMachineProgress:FireAllClients(completedMachines, machinesToComplete)
 	print("RoundManager: A machine was completed! Progress: " .. completedMachines .. "/" .. machinesToComplete)
 
 	-- Fire the remote events for feedback
@@ -48,10 +46,7 @@ function RoundManager:OnMachineCompleted(machineInstance: table)
 	end
 
 	if completedMachines >= machinesToComplete then
-		print("All machines completed! Triggering Endgame.")
-		EventManager.AllGeneratorsRepaired:Fire()
-
-		-- For now, we will still end the round. The Exit Gate logic will be added in the next task.
+		print("All machines completed! Survivors win the round.")
 		if roundTimerThread then
 			task.cancel(roundTimerThread)
 			roundTimerThread = nil
@@ -106,7 +101,6 @@ function RoundManager:Lobby()
 
 	print("Enough players have joined. Starting countdown...")
 	for i = LOBBY_COUNTDOWN_TIME, 1, -1 do
-		EventManager.UpdateCountdown:FireAllClients("Lobby Countdown", i)
 		print("Countdown: " .. i)
 		if #Players:GetPlayers() < MIN_PLAYERS_TO_START then
 			print("A player left. Halting countdown.")
@@ -129,29 +123,24 @@ function RoundManager:StartRound()
 
 	-- Set up the round goal
 	completedMachines = 0
-	-- Create the required number of generators for the round.
-	-- For the MVP, all generators will be the "SkillCheckMachine" type.
+	-- TEST: Spawn all three machine types
+	local availableMachineTypes = {"ClassicMachine", "MemoryMachine", "SkillCheckMachine"}
+
+	-- Create one of each machine type if no machines exist
 	if table_size(MachineManager:GetActiveMachines()) == 0 then
-		print("Spawning " .. GENERATORS_TO_COMPLETE .. " generators for the round.")
-		for i = 1, GENERATORS_TO_COMPLETE do
-			MachineManager:CreateMachine("SkillCheckMachine", {})
+		print("No machines found, creating one of each type for the round.")
+		for _, machineType in ipairs(availableMachineTypes) do
+			MachineManager:CreateMachine(machineType, {})
 		end
 	end
 
-	-- Set the round's objective
-	machinesToComplete = GENERATORS_TO_COMPLETE
-	print("Round goal: Complete " .. machinesToComplete .. " generators.")
-
-	-- Set the initial machine progress display
-	EventManager.UpdateMachineProgress:FireAllClients(completedMachines, machinesToComplete)
+	-- The goal is to complete just one machine
+	machinesToComplete = 1
+	print("Round goal: Complete " .. machinesToComplete .. " machine(s).")
 
 	-- Start a timer that can be cancelled
 	roundTimerThread = task.spawn(function()
-		for i = ROUND_TIME, 0, -1 do
-			EventManager.UpdateRoundTimer:FireAllClients(i)
-			wait(1)
-		end
-
+		wait(ROUND_TIME)
 		print("Round timer finished. Killer wins.")
 		-- Ensure the round hasn't already ended
 		if GameStateManager.State == "InRound" then
