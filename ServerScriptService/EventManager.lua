@@ -65,7 +65,7 @@ EventManager.UpdateCurrencyDisplay = Instance.new("RemoteEvent")
 EventManager.UpdateCurrencyDisplay.Name = "UpdateCurrencyDisplay"
 EventManager.UpdateCurrencyDisplay.Parent = eventsFolder
 
-EventManager.AllGeneratorsRepaired = Instance.new("RemoteEvent")
+EventManager.AllGeneratorsRepaired = Instance.new("BindableEvent")
 EventManager.AllGeneratorsRepaired.Name = "AllGeneratorsRepaired"
 EventManager.AllGeneratorsRepaired.Parent = eventsFolder
 
@@ -81,6 +81,10 @@ EventManager.UpdateRoundTimer.Parent = eventsFolder
 EventManager.UpdateMachineProgress = Instance.new("RemoteEvent")
 EventManager.UpdateMachineProgress.Name = "UpdateMachineProgress"
 EventManager.UpdateMachineProgress.Parent = eventsFolder
+
+EventManager.RequestOpenGate = Instance.new("RemoteEvent")
+EventManager.RequestOpenGate.Name = "RequestOpenGate"
+EventManager.RequestOpenGate.Parent = eventsFolder
 
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
