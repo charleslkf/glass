@@ -65,6 +65,27 @@ EventManager.UpdateCurrencyDisplay = Instance.new("RemoteEvent")
 EventManager.UpdateCurrencyDisplay.Name = "UpdateCurrencyDisplay"
 EventManager.UpdateCurrencyDisplay.Parent = eventsFolder
 
+EventManager.AllGeneratorsRepaired = Instance.new("BindableEvent")
+EventManager.AllGeneratorsRepaired.Name = "AllGeneratorsRepaired"
+EventManager.AllGeneratorsRepaired.Parent = eventsFolder
+
+-- Events for the Game Status UI
+EventManager.UpdateCountdown = Instance.new("RemoteEvent")
+EventManager.UpdateCountdown.Name = "UpdateCountdown"
+EventManager.UpdateCountdown.Parent = eventsFolder
+
+EventManager.UpdateRoundTimer = Instance.new("RemoteEvent")
+EventManager.UpdateRoundTimer.Name = "UpdateRoundTimer"
+EventManager.UpdateRoundTimer.Parent = eventsFolder
+
+EventManager.UpdateMachineProgress = Instance.new("RemoteEvent")
+EventManager.UpdateMachineProgress.Name = "UpdateMachineProgress"
+EventManager.UpdateMachineProgress.Parent = eventsFolder
+
+EventManager.RequestOpenGate = Instance.new("RemoteEvent")
+EventManager.RequestOpenGate.Name = "RequestOpenGate"
+EventManager.RequestOpenGate.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")
