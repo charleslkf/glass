@@ -49,7 +49,7 @@ function RoundManager:OnMachineCompleted(machineInstance: table)
 
 	if completedMachines >= machinesToComplete then
 		print("All machines completed! Triggering Endgame.")
-		EventManager.AllGeneratorsRepaired:FireAllClients()
+		EventManager.AllGeneratorsRepaired:Fire()
 
 		-- For now, we will still end the round. The Exit Gate logic will be added in the next task.
 		if roundTimerThread then
