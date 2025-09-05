@@ -25,3 +25,4 @@ This section documents critical learnings from past mistakes to ensure they are 
 3.  **The `submit` Tool and Branching:** The `submit` tool may not create new branches as expected. All work may be committed to a single branch. Be mindful of this and communicate clearly with the user about which branch you are on.
 4.  **The `message_user` Tool is Unreliable:** The chat tool can fail silently or with errors. If direct communication fails repeatedly, use the established workaround: create a `.md` file with the communication and `submit` it for the user to read.
 5.  **Git Workflow is Essential:** The user needs to `git fetch` and `git checkout <branch-name>` to see new branches. Be prepared to guide them through this process.
+6.  **Clarify Local vs. Remote State:** When asking for a review of a new file or a change, be explicit that the changes are currently local to your environment and that you will submit them *after* getting approval. This avoids confusion.
