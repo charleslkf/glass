@@ -41,9 +41,13 @@ function DataManager:LoadData(player: Player)
 			print("No data found for " .. player.Name .. ". Creating default data.")
 		end
 	else
-		warn("Failed to load data for " .. player.Name .. "! Reason: " .. tostring(data))
-		-- Kick the player or handle the error appropriately
-		player:Kick("There was an error loading your data. Please rejoin.")
+		-- This is not a critical error in Studio, where datastores are often disabled.
+		-- Instead of kicking, we'll create default data and proceed.
+		warn("Failed to load data for " .. player.Name .. "! Reason: " .. tostring(data) .. ". Creating default data instead.")
+		sessionData[player] = {
+			Currency = 0,
+			Unlocks = {}
+		}
 	end
 end
 
