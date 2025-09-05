@@ -1,81 +1,64 @@
-# Game Concept Overview
+# **Game Concept: Project Forsaken**
 
-## 1. Inspiration and Aspirations
-This game draws inspiration from several well-known titles. The goal is to create a game, developed collaboratively between me and my dad, that achieves similar popularity and recognition. The core gameplay will revolve around the theme of **"forsaken"** and will incorporate elements from three distinct games.
+## **1. High-Level Concept**
+"Project Forsaken" is an asymmetrical survival horror game where one player takes on the role of a relentless **Killer** while a team of up to four other players work together as resourceful **Survivors**. The gameplay is a tense match of cat and mouse set in atmospheric, horror-themed environments, inspired by classics of the genre.
 
-## 2. Game Structure and Setting
-- **Setting:** The game is set in the woods, not in a traditional elevator-based environment.
-- **Goal:** Players work towards a specific goal or limit (10 days or 10 levels). A leaderboard will track the fastest completion times.
-- **Round Size:** Each round features a maximum of **10 players**.
-- **The Killer:** At the start of each round, one player is randomly chosen as the killer. This role is kept for the entire round. A visible bar will indicate a player's chance of being selected in future rounds.
+## **2. Core Gameplay Loop & Objectives**
+A round is structured into three distinct phases, creating a natural story arc for each match.
 
-## 3. Gameplay Mechanics
-### Player Roles
-Players are divided into three roles:
-- **Stunners (Attackers):** Focused on confronting the killer.
-- **Survivors:** Focused on completing objectives.
-- **Helpers:** Possess the unique ability to regenerate other players' stamina and provide boosts.
+*   **Phase 1: The Setup**
+    *   Survivors spawn and must immediately begin locating and repairing **5 Generators** scattered across the map.
+    *   The Killer spawns and begins their hunt, using their unique abilities to locate and pressure Survivors.
 
-### Items and Abilities
-- **Items:** **Med kits** and **energy drinks** will appear on the floor. Each player can only carry two items at a time.
-- **Character Abilities:** Every character has a unique ability, which may come with a price tag.
-- **Skins:** Skins will be available for all characters, with each costing the same amount.
+*   **Phase 2: The Hunt**
+    *   This is the primary phase of the match, defined by direct conflict and strategic maneuvering.
+    *   The Killer's goal is to injure, capture, and sacrifice Survivors on sacrificial hooks.
+    *   Survivors must balance repairing generators with rescuing hooked teammates and evading the Killer.
 
----
-# Game Manual
+*   **Phase 3: The Endgame**
+    *   Once all 5 generators are repaired, two **Exit Gates** are powered.
+    *   Survivors must locate an Exit Gate and complete a timed interaction to open it and escape.
+    *   A hidden **Hatch** may also appear as an alternative escape route for the last remaining survivor.
 
-This section details the specific rules and mechanics of the game.
+### **Win Conditions**
+*   **Survivors Win** if at least one Survivor escapes the map. The team's success is measured by how many escape.
+*   **Killer Wins** by preventing all Survivors from escaping by sacrificing them to "The Entity."
 
-## Minigame Mechanics
+## **3. Player Roles & Customization**
 
-There are three types of machines that survivors can repair to win the round.
+### **The Killers**
+The game will feature a roster of **unique Killers**, each with their own appearance, weapon, and a special power that defines their playstyle.
+*   **Example Killer Concepts:**
+    *   **The Trapper:** Can place bear traps to catch unsuspecting Survivors.
+    *   **The Wraith:** Can turn invisible to ambush Survivors.
+    *   **The Stalker:** Can observe Survivors from a distance to build up power for a lethal attack.
 
-### 1. Classic Machine (Pipe Puzzle)
-- **Objective:** Connect the green Start tile to the red End tile by rotating the pipe pieces.
-- **How to Play:**
-    - Interact with the machine to open the puzzle window.
-    - The puzzle is a 5x5 grid of pipes.
-    - Click on a blue (straight) or orange (L-shaped) pipe to rotate it 90 degrees clockwise.
-    - Form a continuous, unbroken path from the green tile to the red tile.
-    - Once you believe the path is complete, press the "Submit" button.
-- **Note:** The UI will automatically close if you walk too far away from the machine.
+### **The Survivors & Perk System**
+We will use a flexible **Perk-Based System**. All Survivors share the same base abilities (running, repairing, healing, etc.), but their playstyle is defined by a loadout of **4 Perks** they choose before the match.
 
-### 2. Memory Machine
-- **Objective:** Correctly repeat a pattern shown on a grid of buttons.
-- **How to Play:**
-    - Interact with the machine to open the puzzle window.
-    - The game will flash a sequence of buttons on the 3x3 grid. Watch carefully.
-    - After the pattern is shown, click the buttons in the exact same order.
-    - The game will automatically submit your solution after you've clicked the correct number of buttons.
-- **Note:** The UI will automatically close if you walk too far away from the machine.
+*   **How it Works:**
+    *   Players unlock a wide variety of Perks through gameplay progression.
+    *   Perks provide passive bonuses or active abilities (e.g., faster healing, temporary speed boosts after vaulting, the ability to see the Killer's aura in certain conditions).
+    *   This allows players to create their own "builds" and specialize in roles like "Medic," "Objective Rusher," or "Chase Expert."
 
-### 3. Skill Check Machine
-- **Objective:** Successfully complete a series of 3 timed skill checks.
-- **How to Play:**
-    - Interact with the machine to trigger a skill check. A bar will appear on your screen.
-    - A white cursor will move from left to right across the bar.
-    - Press the **Spacebar** when the cursor is inside the green "success zone".
-    - If you succeed, another skill check will be triggered after a short delay.
-    - If you fail (miss the zone or don't press the spacebar in time), your progress on the machine resets to zero.
-    - After 3 consecutive successes, the machine is repaired.
-- **Note:** The UI will automatically close if you walk too far away from the machine.
+## **4. Core Mechanics**
 
-## Character Abilities
+### **Survivor Mechanics**
+*   **Generator Repair:** Interacting with a generator triggers a **Skill Check** minigame. Success grants bonus progress; failure creates a loud noise, alerting the Killer and regressing progress.
+*   **Chase Interaction:** To evade the Killer, Survivors can:
+    *   **Vault** through windows and over low obstacles.
+    *   **Drop Pallets** to temporarily stun the Killer, creating a temporary barrier.
+*   **Health States:** Survivors have three health states: Healthy, Injured (slower, leaves blood trails), and Downed (crawling, must be healed by a teammate).
 
-### Stunner Ability: Flashbang
-- **Role:** Stunner
-- **Key:** Q
-- **Effect:** Fires a fast-moving yellow projectile forward.
-- **How to Use:**
-    - Aim at the Killer and press 'Q'.
-    - If the projectile hits the Killer, they will be "stunned" (unable to move) for 3 seconds.
-    - The server will perform a distance check to ensure the hit was legitimate.
+### **Killer Mechanics**
+*   **Tracking:** The Killer tracks Survivors using various cues:
+    *   **Scratch Marks:** Running Survivors leave temporary visual trails.
+    *   **Noise Notifications:** Loud actions (like failed skill checks or fast vaults) create a visual indicator for the Killer.
+    *   **Blood Trails:** Injured Survivors leave pools of blood.
+*   **Sacrificing Survivors:** After downing a Survivor, the Killer can carry them to a **Sacrificial Hook**. A survivor must be hooked three times to be sacrificed.
 
-### Helper Ability: Healing Aura
-- **Role:** Helper
-- **Key:** Q
-- **Effect:** Emits a pulse of energy that heals nearby survivors and grants a speed boost to them and the Helper.
-- **How to Use:**
-    - Press 'Q' to activate.
-    - Any other survivor within 25 studs will be healed for 25 HP.
-    - Both the Helper and any affected survivors will receive a 50% speed boost for 5 seconds.
+## **5. Meta-Progression & Long-Term Engagement**
+A robust progression system will keep players invested.
+*   **In-Game Currency:** Players earn currency based on their performance.
+*   **Unlock System:** Currency is spent to unlock new Perks, Items, and Add-ons for both Survivors and Killers.
+*   **The Store:** A shop for purchasing new playable characters (Killers and Survivors) and cosmetic skins.
