@@ -1,67 +1,85 @@
-# Technical Development Roadmap (v2)
+# Technical Development Roadmap
 
-This roadmap outlines the development plan for "Project Forsaken," based on the updated Game Concept Overview. It prioritizes building the foundational systems first and then layering on features that add depth and variety.
+This document outlines the specific coding tasks required to build the game, starting with the core gameplay loop.
 
----
+## Milestone 1: Core Gameplay Loop Implementation
 
-## Milestone 1: Foundational Gameplay Loop (MVP)
-**Objective:** Implement the core "1 vs Many" survival loop. This is the Minimum Viable Product (MVP).
+**Objective:** To create a functional round-based system on the server that can manage players, states, and timers.
 
-*   **Task 1.1: Implement Generator System**
-    *   **Logic:** Create a system to spawn 5 generators. Survivors can repair them. Implement the skill-check minigame for repairs.
-*   **Task 1.2: Implement Exit Gates**
-    *   **Logic:** When all 5 generators are repaired, power the two exit gates. Survivors must complete an interaction to open them.
-*   **Task 1.3: Basic Killer/Survivor Interaction**
-    *   **Logic:** Implement the Killer's basic attack. Implement the three Survivor health states (Healthy, Injured, Downed).
-*   **Task 1.4: Implement Sacrificial Hooks**
-    *   **Logic:** Allow the Killer to pick up Downed Survivors and place them on hooks. Allow other Survivors to rescue them. Implement the 3-hook sacrifice system.
-*   **Task 1.5: Implement Chase Mechanics**
-    *   **Logic:** Add basic window vaults and droppable pallets for Survivors. Add "Scratch Marks" for the Killer to track running Survivors.
+### Task 1.1: Enhance the `GameStateManager`
 
----
+- **File:** `ServerScriptService/GameStateManager.lua`
+- **Logic:**
+    - Add a `state` variable (e.g., "Lobby", "InRound", "Intermission").
+    - Create functions to change the state (`SetState`).
+    - Fire a `BindableEvent` whenever the state changes so other server scripts can react.
 
-## Milestone 2: The Perk System
-**Objective:** Implement the flexible perk system, which is the core of the Survivor experience.
+### Task 1.2: Enhance the `RoundManager`
 
-*   **Task 2.1: Perk System Backend**
-    *   **Logic:** Create a system to manage all available perks and a data structure to store which perks a player has unlocked and equipped.
-*   **Task 2.2: Implement Initial Perk Set**
-    *   **Logic:** Code the functionality for a starting set of 5-10 perks (e.g., faster healing, faster repairs, temporary speed boosts).
-*   **Task 2.3: Perk Loadout UI**
-    *   **Logic:** Create a pre-game UI where players can select their 4-perk loadout from the perks they have unlocked.
+- **File:** `ServerScriptService/RoundManager.lua`
+- **Logic:**
+    - Listen for state changes from `GameStateManager`.
+    - **On "Lobby" state:**
+        - Check player count. If enough players are present, start a countdown timer.
+    - **On "InRound" state:**
+        - Call `PlayerManager` to assign roles (killer/survivor).
+        - Start the main round timer.
+    - **On "Intermission" state:**
+        - Reset machines and player positions.
+        - Start a short intermission timer before returning to the Lobby state.
 
----
+### Task 1.3: Enhance the `PlayerManager`
 
-## Milestone 3: Killer Variety
-**Objective:** Introduce multiple, unique Killers to create gameplay variety.
+- **File:** `ServerScriptService/PlayerManager.lua`
+- **Logic:**
+    - Add a function `AssignRoles()` that takes the list of players.
+    - Inside `AssignRoles()`, randomly select one player and assign them the "Killer" role.
+    - Assign the "Survivor" role to all other players.
+    - Store the roles in a table, mapping player objects to their role string.
 
-*   **Task 3.1: Refactor Ability System for Variety**
-    *   **Logic:** Update the `AbilityManager` to handle multiple, unique Killer abilities without the hardcoded `if/elseif` structure.
-*   **Task 3.2: Implement Killer 1: "The Trapper"**
-    *   **Logic:** Design and code the ability to place traps that immobilize Survivors.
-*   **Task 3.3: Implement Killer 2: "The Wraith"**
-    *   **Logic:** Design and code the ability to turn invisible and ambush Survivors.
+### Task 1.4: Connect Machines to the Game Loop
+- **Status:** To Do
+- **File:** `ServerScriptService/MachineManager.lua`
+- **Logic:**
+    - Modify the `completeMachine` function. Instead of just adding time, it should also report the completion to the `RoundManager`.
+    - The `RoundManager` will then check if the level goal has been met to advance to the next level.
 
----
+## Milestone 2: Player Systems & Abilities
+**Objective:** Implement health, roles, and unique character abilities.
 
-## Milestone 4: Meta-Progression
-**Objective:** Build the systems that will drive long-term player engagement and retention.
+- **Task 2.1: Health & Damage System**
+    - **File:** `ServerScriptService/PlayerManager.lua`
+    - **Logic:** Create a `TakeDamage(player, amount)` function. When a player's health reaches 0, handle their death. Implement the killer's attack logic.
+- **Task 2.2: Implement Player Roles**
+    - **File:** `ServerScriptService/PlayerManager.lua`
+    - **Logic:** Expand `AssignRoles` to include "Stunner" and "Helper" roles.
+- **Task 2.3: Character Ability System**
+    - **File:** New module `ServerScriptService/AbilityManager.lua`
+    - **Logic:** Create a framework to trigger abilities with a `UseAbility(player)` function.
+    - **File:** New script `StarterPlayer/StarterPlayerScripts/AbilityUIController.client.lua`
+    - **Logic:** Create a new UI to show the player's ability and its cooldown.
 
-*   **Task 4.1: Currency System**
-    *   **Logic:** Award players with in-game currency based on their performance in a match.
-*   **Task 4.2: Unlock System (The "Bloodweb")**
-    *   **Logic:** Design and implement a progression tree where players spend currency to unlock new Perks, Items, and Add-ons.
-*   **Task 4.3: Implement the Store**
-    *   **Logic:** Create a UI and the backend logic for players to purchase new playable characters (Killers/Survivors) and cosmetics.
+## Milestone 3: Economy & Customization
+**Objective:** Build the in-game economy and shop.
 
----
+- **Task 3.1: Currency & Data Persistence**
+    - **File:** New module `ServerScriptService/DataManager.lua`
+    - **Logic:** Use Roblox's `DataStoreService` to save and load player data (currency, unlocks).
+- **Task 3.2: Shop UI**
+    - **File:** New script `StarterPlayer/StarterPlayerScripts/ShopUIController.client.lua`
+    - **Logic:** Create a shop UI for purchasing characters and skins.
 
-## Milestone 5: Polish & Quality of Life
-**Objective:** Improve the overall user experience with audio-visual feedback and UI enhancements.
+## Milestone 4: Polish
+**Objective:** Improve the user experience.
 
-*   **Task 5.1: Advanced Sound Design**
-    *   **Logic:** Implement directional audio, a "heartbeat" sound for Survivors when the Killer is near, and unique sounds for each Killer's ability.
-*   **Task 5.2: Visual Effects (VFX)**
-    *   **Logic:** Add VFX for Killer abilities, generator explosions, successful skill checks, and environmental interactions.
-*   **Task 5.3: UI Overhaul**
-    *   **Logic:** Refine the in-game HUD to clearly display player states, objectives, and perk cooldowns.
+- **Task 4.1: Sound Integration**
+    - **Logic:** Add sound effects for key events like machine interaction, skill checks, and abilities.
+- **Task 4.2: Visual Effects (VFX)**
+    - **Logic:** Add particle effects for events like machine completion and killer attacks.
+
+## Milestone 5: Events & Live-Ops
+**Objective:** Build the framework for seasonal events.
+
+- **Task 5.1: Event System**
+    - **File:** New module `ServerScriptService/EventManager.lua`
+    - **Logic:** Create a system to define and manage events with start/end dates and special content.
