@@ -85,47 +85,39 @@ end
 
 --[=[
 	Assigns roles to all players currently in the game.
-	It randomly selects one player to be the Killer and the rest to be Survivors.
 ]=]
 function PlayerManager:AssignRoles()
 	local allPlayers = Players:GetPlayers()
-	if #allPlayers == 0 then
-		print("No players to assign roles to.")
-		return
-	end
+	table.sort(allPlayers, function(a, b) return a.Name < b.Name end)
 
-	-- Clear out old roles
-	for player, _ in pairs(playerRoles) do
-		playerRoles[player] = nil
-	end
-	playerRolesContainer:ClearAllChildren()
+	if #allPlayers == 0 then return end
 
 	local AbilityManager = require(game:GetService("ServerScriptService").AbilityManager)
 
-	-- Create a temporary copy to avoid modifying the original list from GetPlayers()
-	local playersToAssign = {}
-	for _, p in ipairs(allPlayers) do
-		table.insert(playersToAssign, p)
+	for player, _ in pairs(playerRoles) do playerRoles[player] = nil end
+	playerRolesContainer:ClearAllChildren()
+
+	local function setRole(player, role)
+		playerRoles[player] = role
+		playerRolesContainer:SetAttribute(tostring(player.UserId), role)
+		print(player.Name .. " is the " .. role)
 	end
 
-	-- Select a random Killer
-	if #playersToAssign > 0 then
-		local killerIndex = math.random(1, #playersToAssign)
-		local killerPlayer = table.remove(playersToAssign, killerIndex)
+	local testRoles = {"Killer", "Stunner", "Helper", "Survivor"}
 
-		-- Assign Killer role
-		playerRoles[killerPlayer] = "Killer"
-		playerRolesContainer:SetAttribute(tostring(killerPlayer.UserId), "Killer")
-		AbilityManager:EquipAbility(killerPlayer, "DefaultKillerAbility")
-		print(killerPlayer.Name .. " is the Killer")
-	end
+	for i, player in ipairs(allPlayers) do
+		local role = testRoles[i] or "Survivor"
+		setRole(player, role)
 
-	-- Assign Survivor role to the rest
-	for _, survivorPlayer in ipairs(playersToAssign) do
-		playerRoles[survivorPlayer] = "Survivor"
-		playerRolesContainer:SetAttribute(tostring(survivorPlayer.UserId), "Survivor")
-		AbilityManager:EquipAbility(survivorPlayer, "DefaultSurvivorAbility")
-		print(survivorPlayer.Name .. " is a Survivor")
+		if role == "Killer" then
+			AbilityManager:EquipAbility(player, "DefaultKillerAbility")
+		elseif role == "Stunner" then
+			AbilityManager:EquipAbility(player, "StunnerAbility")
+		elseif role == "Helper" then
+			AbilityManager:EquipAbility(player, "HelperAbility")
+		else -- Survivor
+			AbilityManager:EquipAbility(player, "DefaultSurvivorAbility")
+		end
 	end
 end
 
