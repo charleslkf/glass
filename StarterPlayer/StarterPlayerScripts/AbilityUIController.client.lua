@@ -16,7 +16,7 @@ local LocalPlayer = Players.LocalPlayer
 
 local GameEvents = ReplicatedStorage:WaitForChild("GameEvents")
 local UseAbilityEvent = GameEvents:WaitForChild("UseAbilityEvent")
-local ReportStunnerHit = GameEvents:WaitForChild("ReportStunnerHit")
+-- No longer needed: local ReportStunnerHit = GameEvents:WaitForChild("ReportStunnerHit")
 local PlayerAttackEvent = GameEvents:WaitForChild("PlayerAttackEvent")
 
 local PlayerRoles = ReplicatedStorage:WaitForChild("PlayerRoles")
@@ -27,7 +27,7 @@ local STUN_PROJECTILE_SPEED = 100
 local STUN_PROJECTILE_LIFETIME = 2
 
 --[=[
-	Fires the Stunner's client-side projectile.
+	Fires the Sentinel's client-side projectile.
 ]=]
 local function fireStunProjectile()
 	local character = LocalPlayer.Character
@@ -37,7 +37,7 @@ local function fireStunProjectile()
 	if not humanoidRootPart then return end
 
 	-- Play the firing sound locally immediately
-	SoundManager:PlaySound("StunnerAbility")
+	SoundManager:PlaySound("StunnerAbility") -- This sound name is still valid
 
 	-- Create the projectile part
 	local projectile = Instance.new("Part")
@@ -57,8 +57,9 @@ local function fireStunProjectile()
 			local hitPlayer = Players:GetPlayerFromCharacter(hitModel)
 			if hitPlayer and hitPlayer ~= LocalPlayer then
 				if PlayerRoles:GetAttribute(tostring(hitPlayer.UserId)) == "Killer" then
-					print("Stunner projectile hit the Killer!")
-					ReportStunnerHit:FireServer(hitPlayer)
+					print("Sentinel projectile hit the Killer!")
+					-- Fire the generic ability event with the target
+					UseAbilityEvent:FireServer(hitPlayer)
 					projectile:Destroy()
 				end
 			end
@@ -74,13 +75,15 @@ local function onInputBegan(input, gameProcessedEvent)
 
 	-- Handle 'Q' for abilities
 	if input.KeyCode == Enum.KeyCode.Q then
-		UseAbilityEvent:FireServer()
-
 		local myRole = PlayerRoles:GetAttribute(tostring(LocalPlayer.UserId))
 
-		if myRole == "Stunner" then
-			print("Player is Stunner, firing projectile.")
+		if myRole == "Sentinel" then
+			-- For Sentinel, the ability fires on projectile hit, not key press.
+			print("Player is Sentinel, firing projectile.")
 			fireStunProjectile()
+		else
+			-- For other roles (like Support), fire the event immediately without a target.
+			UseAbilityEvent:FireServer()
 		end
 	end
 
