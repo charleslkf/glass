@@ -11,16 +11,15 @@ function KillerManager:Initialize(playerManager)
     PlayerManager = playerManager
     print("KillerManager Initialized")
 
-    -- For now, we are just setting up the structure.
-    -- EventManager.PickupRequestEvent.OnServerEvent:Connect(function(killerPlayer, targetSurvivorPlayer)
-    --     self:PickupSurvivor(killerPlayer, targetSurvivorPlayer)
-    -- end)
-    -- EventManager.HookRequestEvent.OnServerEvent:Connect(function(killerPlayer)
-    --     self:HookSurvivor(killerPlayer)
-    -- end)
-    -- EventManager.DropRequestEvent.OnServerEvent:Connect(function(killerPlayer)
-    --     self:DropSurvivor(killerPlayer)
-    -- end)
+    EventManager.PickupRequestEvent.OnServerEvent:Connect(function(killerPlayer, targetSurvivorPlayer)
+        self:PickupSurvivor(killerPlayer, targetSurvivorPlayer)
+    end)
+    EventManager.HookRequestEvent.OnServerEvent:Connect(function(killerPlayer)
+        self:HookSurvivor(killerPlayer)
+    end)
+    EventManager.DropRequestEvent.OnServerEvent:Connect(function(killerPlayer)
+        self:DropSurvivor(killerPlayer)
+    end)
 end
 
 function KillerManager:DropSurvivor(killerPlayer)

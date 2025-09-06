@@ -65,6 +65,23 @@ EventManager.UpdateCurrencyDisplay = Instance.new("RemoteEvent")
 EventManager.UpdateCurrencyDisplay.Name = "UpdateCurrencyDisplay"
 EventManager.UpdateCurrencyDisplay.Parent = eventsFolder
 
+-- Killer Gameplay Events
+EventManager.PickupRequestEvent = Instance.new("RemoteEvent")
+EventManager.PickupRequestEvent.Name = "PickupRequestEvent"
+EventManager.PickupRequestEvent.Parent = eventsFolder
+
+EventManager.HookRequestEvent = Instance.new("RemoteEvent")
+EventManager.HookRequestEvent.Name = "HookRequestEvent"
+EventManager.HookRequestEvent.Parent = eventsFolder
+
+EventManager.DropRequestEvent = Instance.new("RemoteEvent")
+EventManager.DropRequestEvent.Name = "DropRequestEvent"
+EventManager.DropRequestEvent.Parent = eventsFolder
+
+EventManager.PlayerStateChangedEvent = Instance.new("RemoteEvent")
+EventManager.PlayerStateChangedEvent.Name = "PlayerStateChangedEvent"
+EventManager.PlayerStateChangedEvent.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")

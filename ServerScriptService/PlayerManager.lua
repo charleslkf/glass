@@ -60,7 +60,7 @@ function PlayerManager:SetPlayerState(player: Player, state: string)
 	end
 
 	-- Fire an event for other systems to listen to
-	-- EventManager.PlayerStateChangedEvent:Fire(player, state)
+	EventManager.PlayerStateChangedEvent:FireAllClients(player, state)
 end
 
 --[=[
