@@ -10,8 +10,11 @@ local Players = game:GetService("Players")
 local Debris = game:GetService("Debris")
 
 local SoundManager = require(script.Parent:WaitForChild("SoundManager"))
+-- NEW: Require the new UI module
+local ActionButtonGuiModule = require(script.Parent:WaitForChild("UI"):WaitForChild("ActionButtonGui"))
 
 local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 local GameEvents = ReplicatedStorage:WaitForChild("GameEvents")
 local UseAbilityEvent = GameEvents:WaitForChild("UseAbilityEvent")
@@ -112,4 +115,13 @@ local function onInputBegan(input, gameProcessedEvent)
 	end
 end
 
+-- Create and connect the on-screen button for touch devices
+if UserInputService.TouchEnabled then
+	local screenGui, actionButton = ActionButtonGuiModule()
+	actionButton.MouseButton1Click:Connect(handlePrimaryAction)
+	screenGui.Parent = PlayerGui
+	print("On-screen action button created for touch device.")
+end
+
+-- Listen for keyboard/mouse input
 UserInputService.InputBegan:Connect(onInputBegan)

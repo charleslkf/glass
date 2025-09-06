@@ -32,15 +32,17 @@ local function loadPerksRecursive(directory)
 	end
 end
 
+-- Load all perks immediately when the module is required
+loadPerksRecursive(PerksFolder)
+
 --[=[
-	Loads all perk modules and sets up event listeners.
+	Sets up event listeners.
 ]=]
 function AbilityManager:Init()
-	loadPerksRecursive(PerksFolder)
-
 	EventManager.UseAbilityEvent.OnServerEvent:Connect(function(player, ...)
 		AbilityManager:UseAbility(player, ...)
 	end)
+	print("AbilityManager initialized.")
 end
 
 --[=[
