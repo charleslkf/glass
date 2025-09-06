@@ -1,167 +1,77 @@
 --!strict
 --[=[
 	@class AbilityManager
-	Acts as a controller to load, equip, and trigger character abilities.
+	Acts as a controller to load, equip, and trigger character perks.
+	This manager is designed to be generic and not contain any perk-specific logic.
 ]=]
 local AbilityManager = {}
 AbilityManager.__index = AbilityManager
 
 local ServerScriptService = game:GetService("ServerScriptService")
-local Players = game:GetService("Players")
 local EventManager = require(ServerScriptService.EventManager)
-local AbilitiesFolder = ServerScriptService:WaitForChild("CharacterAbilities")
-local PlayerManager = require(ServerScriptService.PlayerManager)
+local PerksFolder = ServerScriptService:WaitForChild("Perks")
 
--- Constants
-local STUN_DURATION = 3 -- seconds
-local MAX_STUN_DISTANCE = 30 -- studs
-local HELPER_ABILITY_RANGE = 25 -- studs
-local HEAL_AMOUNT = 25 -- health points
-local SPEED_BOOST_MULTIPLIER = 1.5 -- 50% speed increase
-local SPEED_BOOST_DURATION = 5 -- seconds
+-- A dictionary to hold the loaded perk modules, indexed by perk name
+local PerkModules = {}
 
--- A dictionary to hold the loaded ability modules
-local AbilityModules = {}
-
--- A table to track which ability is equipped by each player
-local equippedAbilities = {}
+-- A table to track which perks are equipped by each player
+-- For now, players can only have one perk equipped.
+local equippedPerks = {}
 
 --[=[
-	Loads all ability modules and sets up event listeners.
+	Recursively loads all perk modules from the Perks folder.
+]=]
+local function loadPerksRecursive(directory)
+	for _, item in ipairs(directory:GetChildren()) do
+		if item:IsA("ModuleScript") then
+			local moduleName = item.Name
+			PerkModules[moduleName] = require(item)
+			print("Loaded perk module: " .. moduleName)
+		elseif item:IsA("Folder") then
+			loadPerksRecursive(item) -- Recurse into subdirectories
+		end
+	end
+end
+
+--[=[
+	Loads all perk modules and sets up event listeners.
 ]=]
 function AbilityManager:Init()
-	for _, moduleScript in ipairs(AbilitiesFolder:GetChildren()) do
-		if moduleScript:IsA("ModuleScript") then
-			local moduleName = moduleScript.Name
-			AbilityModules[moduleName] = require(moduleScript)
-			print("Loaded ability module: " .. moduleName)
-		end
-	end
+	loadPerksRecursive(PerksFolder)
 
-	EventManager.UseAbilityEvent.OnServerEvent:Connect(function(player)
-		self:UseAbility(player)
-	end)
-
-	EventManager.ReportStunnerHit.OnServerEvent:Connect(function(player, hitPlayer: Player)
-		self:OnStunnerHit(player, hitPlayer)
+	EventManager.UseAbilityEvent.OnServerEvent:Connect(function(player, ...)
+		self:UseAbility(player, ...)
 	end)
 end
 
 --[=[
-	Equips a player with a specific ability.
+	Equips a player with a specific perk.
 ]=]
-function AbilityManager:EquipAbility(player: Player, abilityName: string)
-	local module = AbilityModules[abilityName]
+function AbilityManager:EquipPerk(player: Player, perkName: string)
+	local module = PerkModules[perkName]
 	if not module then
-		warn("Attempted to equip an invalid ability: " .. abilityName)
+		warn("Attempted to equip an invalid perk: " .. perkName)
 		return
 	end
 
-	equippedAbilities[player] = module.new()
-	print(player.Name .. " has been equipped with ability: " .. abilityName)
+	equippedPerks[player] = module.new()
+	print(player.Name .. " has been equipped with perk: " .. perkName)
 end
 
 --[=[
-	Uses the ability currently equipped by the player.
+	Uses the perk currently equipped by the player.
+	The first argument is always the player using the ability.
+	Additional arguments can be passed from the client, e.g., the target of a hit.
 ]=]
-function AbilityManager:UseAbility(player: Player)
-	local ability = equippedAbilities[player]
-	if not ability then
-		warn(player.Name .. " tried to use an ability but has none equipped.")
+function AbilityManager:UseAbility(player: Player, ...)
+	local perk = equippedPerks[player]
+	if not perk then
+		warn(player.Name .. " tried to use a perk but has none equipped.")
 		return
 	end
 
-	ability:Execute(player)
-
-	if ability.Name == "HelperAbility" then
-		self:ExecuteHelperAbility(player)
-	end
-end
-
---[=[
-	Applies a temporary speed boost to a character.
-]=]
-local function applySpeedBoost(character: Model)
-	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	if not humanoid then return end
-
-	local originalSpeed = humanoid.WalkSpeed
-	humanoid.WalkSpeed = originalSpeed * SPEED_BOOST_MULTIPLIER
-	print(character.Name .. "'s speed boosted to " .. humanoid.WalkSpeed)
-
-	task.delay(SPEED_BOOST_DURATION, function()
-		if humanoid.Parent then
-			humanoid.WalkSpeed = originalSpeed
-			print(character.Name .. "'s speed returned to normal.")
-		end
-	end)
-end
-
---[=[
-	Executes the server-side logic for the Helper's AoE ability.
-]=]
-function AbilityManager:ExecuteHelperAbility(helperPlayer: Player)
-	local helperChar = helperPlayer.Character
-	if not helperChar then return end
-
-	local rootPart = helperChar:FindFirstChild("HumanoidRootPart")
-	if not rootPart then return end
-
-	print(helperPlayer.Name .. " used Helper ability.")
-
-	-- Play VFX and SFX for all clients
-	EventManager.PlaySoundEvent:FireAllClients("HelperAbility", rootPart.Position)
-	EventManager.PlayVFXEvent:FireAllClients("HelperAbility", rootPart.Position)
-
-	applySpeedBoost(helperChar)
-
-	local helperPos = rootPart.Position
-	for _, player in ipairs(Players:GetPlayers()) do
-		if player ~= helperPlayer and PlayerManager:GetRole(player) ~= "Killer" then
-			local targetChar = player.Character
-			if targetChar then
-				local distance = (helperPos - targetChar:GetPrimaryPartCFrame().Position).Magnitude
-				if distance <= HELPER_ABILITY_RANGE then
-					print("Helper ability affecting " .. player.Name)
-					PlayerManager:HealPlayer(player, HEAL_AMOUNT)
-					applySpeedBoost(targetChar)
-				end
-			end
-		end
-	end
-end
-
---[=[
-	Handles the server-side logic when a stunner reports a hit on another player.
-]=]
-function AbilityManager:OnStunnerHit(stunnerPlayer: Player, hitPlayer: Player)
-	if not stunnerPlayer or not hitPlayer or stunnerPlayer == hitPlayer then return end
-	if PlayerManager:GetRole(stunnerPlayer) ~= "Stunner" then return end
-	if PlayerManager:GetRole(hitPlayer) ~= "Killer" then return end
-
-	local stunnerChar = stunnerPlayer.Character
-	local killerChar = hitPlayer.Character
-	if not stunnerChar or not killerChar then return end
-
-	local distance = (stunnerChar:GetPrimaryPartCFrame().Position - killerChar:GetPrimaryPartCFrame().Position).Magnitude
-	if distance > MAX_STUN_DISTANCE then
-		warn(`Stunner {stunnerPlayer.Name} reported a hit on Killer {hitPlayer.Name} from too far away: {distance} studs.`)
-		return
-	end
-
-	local killerHumanoid = killerChar:FindFirstChildOfClass("Humanoid")
-	if killerHumanoid then
-		print(`Stunner {stunnerPlayer.Name} successfully stunned Killer {hitPlayer.Name}!`)
-		local originalWalkSpeed = killerHumanoid.WalkSpeed
-		killerHumanoid.WalkSpeed = 0
-
-		task.wait(STUN_DURATION)
-
-		if killerHumanoid.Parent then
-			killerHumanoid.WalkSpeed = originalWalkSpeed
-			print(`Killer {hitPlayer.Name} is no longer stunned.`)
-		end
-	end
+	-- The '...' packs any additional arguments into a table
+	perk:Execute(player, ...)
 end
 
 return AbilityManager

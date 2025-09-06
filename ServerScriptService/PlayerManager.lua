@@ -103,20 +103,22 @@ function PlayerManager:AssignRoles()
 		print(player.Name .. " is the " .. role)
 	end
 
-	local testRoles = {"Killer", "Stunner", "Helper", "Survivor"}
+	-- Updated to use the new Survivor classes
+	local testRoles = {"Killer", "Sentinel", "Support", "Survivalist"}
 
 	for i, player in ipairs(allPlayers) do
-		local role = testRoles[i] or "Survivor"
+		local role = testRoles[i] or "Survivalist" -- Default to Survivalist
 		setRole(player, role)
 
 		if role == "Killer" then
-			AbilityManager:EquipAbility(player, "DefaultKillerAbility")
-		elseif role == "Stunner" then
-			AbilityManager:EquipAbility(player, "StunnerAbility")
-		elseif role == "Helper" then
-			AbilityManager:EquipAbility(player, "HelperAbility")
-		else -- Survivor
-			AbilityManager:EquipAbility(player, "DefaultSurvivorAbility")
+			-- Killers still use the old ability system for now
+			AbilityManager:EquipPerk(player, "DefaultKillerAbility")
+		elseif role == "Sentinel" then
+			AbilityManager:EquipPerk(player, "Stun")
+		elseif role == "Support" then
+			AbilityManager:EquipPerk(player, "BotanyKnowledge")
+		else -- Survivalist or any other survivor role
+			AbilityManager:EquipPerk(player, "DefaultSurvivorAbility")
 		end
 	end
 end
