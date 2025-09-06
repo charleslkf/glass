@@ -13,8 +13,6 @@ local EventManager = require(ServerScriptService.EventManager)
 
 -- Constants
 local DEFAULT_HEALTH = 100
-local NORMAL_HIP_HEIGHT = 2
-local CRAWL_HIP_HEIGHT = 0.5
 
 -- A table to store the roles of players
 local playerRoles = {}
@@ -46,18 +44,18 @@ function PlayerManager:SetPlayerState(player: Player, state: string)
 	if character and character:FindFirstChildOfClass("Humanoid") then
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
 		if state == "Downed" then
-			humanoid.WalkSpeed = 5
-			humanoid.HipHeight = CRAWL_HIP_HEIGHT
+			humanoid.WalkSpeed = 0 -- Set to 0 as PlatformStand disables movement anyway
+			humanoid.PlatformStand = true
 		elseif state == "Carried" or state == "Hooked" then
 			humanoid.WalkSpeed = 0
-			humanoid.HipHeight = NORMAL_HIP_HEIGHT
+			humanoid.PlatformStand = false
 			humanoid:ChangeState(Enum.HumanoidStateType.Physics)
 		elseif state == "Carrying" then
 			humanoid.WalkSpeed = 14
-			humanoid.HipHeight = NORMAL_HIP_HEIGHT
+			humanoid.PlatformStand = false
 		elseif state == "Healthy" or state == "Injured" then
 			humanoid.WalkSpeed = 16
-			humanoid.HipHeight = NORMAL_HIP_HEIGHT
+			humanoid.PlatformStand = false
 		end
 	end
 
