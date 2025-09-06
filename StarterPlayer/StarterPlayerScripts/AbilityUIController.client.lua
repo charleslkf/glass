@@ -69,28 +69,15 @@ local function fireStunProjectile()
 end
 
 --[=[
-	Handles player input for abilities and attacks.
+	Determines the primary action based on the player's role and executes it.
 ]=]
-local function onInputBegan(input, gameProcessedEvent)
-	if gameProcessedEvent then return end
+local function handlePrimaryAction()
+	local myRole = PlayerRoles:GetAttribute(tostring(LocalPlayer.UserId))
 
-	if input.KeyCode == Enum.KeyCode.Q then
-		local myRole = PlayerRoles:GetAttribute(tostring(LocalPlayer.UserId))
-
-		if myRole == "Sentinel" then
-			print("Player is Sentinel, firing projectile.")
-			fireStunProjectile()
-		elseif myRole == "Support" then
-			UseAbilityEvent:FireServer()
-		else
-			-- For other roles, maybe do nothing or fire a generic event
-		end
-	end
-
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+	if myRole == "Killer" then
+		-- For Killer, the action is a targeted attack.
 		local mouse = LocalPlayer:GetMouse()
 		local target = mouse.Target
-
 		if not target then return end
 
 		local targetModel = target:FindFirstAncestorOfClass("Model")
@@ -101,6 +88,27 @@ local function onInputBegan(input, gameProcessedEvent)
 				PlayerAttackEvent:FireServer(targetPlayer)
 			end
 		end
+	elseif myRole == "Sentinel" then
+		-- For Sentinel, the action is firing a projectile.
+		print("Player is Sentinel, firing projectile.")
+		fireStunProjectile()
+	elseif myRole == "Support" then
+		-- For Support, the action is an instant AoE heal.
+		UseAbilityEvent:FireServer()
+	else
+		-- For other roles (like Survivalist), do nothing for now.
+	end
+end
+
+--[=[
+	Handles player input for abilities and attacks.
+]=]
+local function onInputBegan(input, gameProcessedEvent)
+	if gameProcessedEvent then return end
+
+	-- If Q or left-click is pressed, handle the primary action.
+	if input.KeyCode == Enum.KeyCode.Q or input.UserInputType == Enum.UserInputType.MouseButton1 then
+		handlePrimaryAction()
 	end
 end
 
