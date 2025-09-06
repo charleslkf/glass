@@ -12,6 +12,7 @@ local PlayerManager = require(ServerScriptService.PlayerManager)
 local RoundManager = require(ServerScriptService.RoundManager)
 local AbilityManager = require(ServerScriptService.AbilityManager)
 local EventManager = require(ServerScriptService.EventManager)
+local KillerManager = require(ServerScriptService.KillerManager)
 
 -- Safely require the MachineManager to catch and log any initialization errors
 local success, MachineManager = pcall(require, ServerScriptService.MachineManager)
@@ -21,9 +22,14 @@ if not success or not MachineManager then
     MachineManager = { Init = function() end }
 end
 
+-- Build the map before initializing managers that might depend on it
+local MapBuilder = require(ServerScriptService.MapBuilder)
+MapBuilder.BuildMap()
+
 -- Initialize all core managers. DataManager should come first.
 DataManager:Init()
 PlayerManager:Init()
+KillerManager:Initialize(PlayerManager)
 AbilityManager:Init()
 EventManager:Init()
 MachineManager:Init()
