@@ -17,7 +17,7 @@ This document outlines the consolidated development plan for the project. It tra
 ## II. Core Gameplay Loop & Mechanics
 
 ### Features to be Improved / Refactored
-- [ ] **Player Roles & Abilities:** Refactor the old `Stunner`/`Helper` system into the new class-based system (Survivalist, Sentinel, Support) with their unique perks.
+- [x] **Player Roles & Abilities:** Refactor the old `Stunner`/`Helper` system into the new class-based system (Survivalist, Sentinel, Support) with their unique perks.
 - [ ] **Killer Gameplay:** Expand the Killer's abilities beyond just attacking. Implement the full sequence: downing, picking up, carrying, and hooking a survivor.
 - [ ] **Survivor Win Condition:** Update the game loop. Repairing the three machines should now power two Exit Gates. The 'Endgame Collapse' sequence needs to be implemented.
 - [ ] **Shop & Purchase Logic:** Implement the logic for purchasing items from the shop UI. The `DataManager` needs to be updated to handle these transactions.
