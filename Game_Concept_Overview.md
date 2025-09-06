@@ -51,6 +51,10 @@ The moment-to-moment gameplay is governed by a set of skill-based mechanics.
 
 *   **Chase Mechanics:** The environment is a key player in any chase. Survivors can use **window vaults** to quickly pass through walls or drop **pallets** to momentarily stun the Killer, but these resources are finite.
 
+*   **Contextual Survivor Interactions:** Beyond their active perks, Survivors can perform crucial, context-sensitive actions. These are fundamental to teamwork and survival.
+    *   **Unhooking:** A healthy or injured survivor can approach a hooked teammate and, after a short interaction, rescue them from the hook. This is a high-risk, high-reward play that is essential for preventing a teammate from being sacrificed.
+    *   **Healing the Downed:** Survivors can perform a lengthy interaction to heal a teammate who is in the "Downed" state, bringing them back to the "Injured" state and allowing them to run again.
+
 ## 5. Meta-Progression: The Bloodweb
 
 "Forsaken" is designed for long-term engagement. Through a "Bloodweb"-style progression system, players can use currency earned in matches to:
