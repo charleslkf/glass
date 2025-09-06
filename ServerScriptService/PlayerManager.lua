@@ -45,7 +45,7 @@ function PlayerManager:SetPlayerState(player: Player, state: string)
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
 		if state == "Downed" then
 			humanoid.WalkSpeed = 5 -- Slowed down
-			humanoid:ChangeState(Enum.HumanoidStateType.PlatformStanding) -- Forces them to the ground
+			humanoid:ChangeState(Enum.HumanoidStateType.Physics) -- Makes character go limp
 		elseif state == "Carried" then
 			humanoid.WalkSpeed = 0
 			humanoid:ChangeState(Enum.HumanoidStateType.Physics)
