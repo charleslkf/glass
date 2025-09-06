@@ -44,18 +44,18 @@ function PlayerManager:SetPlayerState(player: Player, state: string)
 	if character and character:FindFirstChildOfClass("Humanoid") then
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
 		if state == "Downed" then
-			humanoid.WalkSpeed = 5 -- Slowed down
-			humanoid:ChangeState(Enum.HumanoidStateType.Physics) -- Makes character go limp
-		elseif state == "Carried" then
+			humanoid.WalkSpeed = 5
+			humanoid.PlatformStand = true
+		elseif state == "Carried" or state == "Hooked" then
 			humanoid.WalkSpeed = 0
+			humanoid.PlatformStand = false
 			humanoid:ChangeState(Enum.HumanoidStateType.Physics)
 		elseif state == "Carrying" then
-			humanoid.WalkSpeed = 14 -- Slightly slower than default 16
-		elseif state == "Hooked" then
-			humanoid.WalkSpeed = 0
-			humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+			humanoid.WalkSpeed = 14
+			humanoid.PlatformStand = false
 		elseif state == "Healthy" or state == "Injured" then
-			humanoid.WalkSpeed = 16 -- Default speed
+			humanoid.WalkSpeed = 16
+			humanoid.PlatformStand = false
 		end
 	end
 
@@ -226,6 +226,10 @@ function PlayerManager:KillerAttack(killer: Player, target: Player)
 	if self:GetRole(killer) ~= "Killer" then
 		warn(killer.Name .. " tried to use KillerAttack, but they are not a Killer.")
 		return
+	end
+
+	if self:GetPlayerState(target) == "Downed" then
+		return -- Don't attack players who are already downed
 	end
 
 	print(killer.Name .. " (Killer) is attacking " .. target.Name)
