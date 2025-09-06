@@ -10,13 +10,11 @@ local Players = game:GetService("Players")
 local Debris = game:GetService("Debris")
 
 local SoundManager = require(script.Parent:WaitForChild("SoundManager"))
-local VFXManager = require(script.Parent:WaitForChild("VFXManager"))
 
 local LocalPlayer = Players.LocalPlayer
 
 local GameEvents = ReplicatedStorage:WaitForChild("GameEvents")
 local UseAbilityEvent = GameEvents:WaitForChild("UseAbilityEvent")
-local ReportStunnerHit = GameEvents:WaitForChild("ReportStunnerHit")
 local PlayerAttackEvent = GameEvents:WaitForChild("PlayerAttackEvent")
 
 local PlayerRoles = ReplicatedStorage:WaitForChild("PlayerRoles")
@@ -27,7 +25,7 @@ local STUN_PROJECTILE_SPEED = 100
 local STUN_PROJECTILE_LIFETIME = 2
 
 --[=[
-	Fires the Stunner's client-side projectile.
+	Fires the Sentinel's client-side projectile.
 ]=]
 local function fireStunProjectile()
 	local character = LocalPlayer.Character
@@ -36,10 +34,8 @@ local function fireStunProjectile()
 	local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
 	if not humanoidRootPart then return end
 
-	-- Play the firing sound locally immediately
 	SoundManager:PlaySound("StunnerAbility")
 
-	-- Create the projectile part
 	local projectile = Instance.new("Part")
 	projectile.Size = Vector3.new(1, 1, 2)
 	projectile.Color = Color3.new(1, 1, 0)
@@ -51,14 +47,20 @@ local function fireStunProjectile()
 
 	Debris:AddItem(projectile, STUN_PROJECTILE_LIFETIME)
 
-	projectile.Touched:Connect(function(hit)
+	local connection
+	connection = projectile.Touched:Connect(function(hit)
 		local hitModel = hit:FindFirstAncestorOfClass("Model")
 		if hitModel then
 			local hitPlayer = Players:GetPlayerFromCharacter(hitModel)
 			if hitPlayer and hitPlayer ~= LocalPlayer then
 				if PlayerRoles:GetAttribute(tostring(hitPlayer.UserId)) == "Killer" then
-					print("Stunner projectile hit the Killer!")
-					ReportStunnerHit:FireServer(hitPlayer)
+					print("Sentinel projectile hit the Killer!")
+					UseAbilityEvent:FireServer(hitPlayer)
+
+					if connection then
+						connection:Disconnect()
+					end
+
 					projectile:Destroy()
 				end
 			end
@@ -72,19 +74,19 @@ end
 local function onInputBegan(input, gameProcessedEvent)
 	if gameProcessedEvent then return end
 
-	-- Handle 'Q' for abilities
 	if input.KeyCode == Enum.KeyCode.Q then
-		UseAbilityEvent:FireServer()
-
 		local myRole = PlayerRoles:GetAttribute(tostring(LocalPlayer.UserId))
 
-		if myRole == "Stunner" then
-			print("Player is Stunner, firing projectile.")
+		if myRole == "Sentinel" then
+			print("Player is Sentinel, firing projectile.")
 			fireStunProjectile()
+		elseif myRole == "Support" then
+			UseAbilityEvent:FireServer()
+		else
+			-- For other roles, maybe do nothing or fire a generic event
 		end
 	end
 
-	-- Handle left-click for attacks
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		local mouse = LocalPlayer:GetMouse()
 		local target = mouse.Target
@@ -95,7 +97,6 @@ local function onInputBegan(input, gameProcessedEvent)
 		if targetModel then
 			local targetPlayer = Players:GetPlayerFromCharacter(targetModel)
 			if targetPlayer and targetPlayer ~= LocalPlayer then
-				-- We hit a player, notify the server
 				print("Client detected attack on " .. targetPlayer.Name)
 				PlayerAttackEvent:FireServer(targetPlayer)
 			end
@@ -103,5 +104,4 @@ local function onInputBegan(input, gameProcessedEvent)
 	end
 end
 
--- Listen for input
 UserInputService.InputBegan:Connect(onInputBegan)

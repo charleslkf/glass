@@ -2,7 +2,6 @@
 --[=[
 	@class BotanyKnowledge
 	This perk allows a Support to heal and speed up nearby teammates.
-	This is a refactored version of the old HelperAbility.
 ]=]
 local BotanyKnowledge = {}
 BotanyKnowledge.__index = BotanyKnowledge
@@ -12,7 +11,7 @@ local Players = game:GetService("Players")
 local PlayerManager = require(ServerScriptService.PlayerManager)
 local EventManager = require(ServerScriptService.EventManager)
 
--- Constants moved from AbilityManager
+-- Constants
 local HEAL_AMOUNT = 25
 local ABILITY_RANGE = 25
 local SPEED_BOOST_MULTIPLIER = 1.5
@@ -43,13 +42,12 @@ end
 function BotanyKnowledge.new()
 	local self = setmetatable({}, BotanyKnowledge)
 	self.Name = "BotanyKnowledge"
-	self.Cooldown = 45 -- seconds
+	self.Cooldown = 45
 	return self
 end
 
 --[=[
 	Executes the perk's logic.
-	@param player Player The player using the perk.
 ]=]
 function BotanyKnowledge:Execute(player: Player)
 	print(`{self.Name} executed by {player.Name}`)
