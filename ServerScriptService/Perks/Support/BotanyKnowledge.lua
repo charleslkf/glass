@@ -12,11 +12,11 @@ local Players = game:GetService("Players")
 local PlayerManager = require(ServerScriptService.PlayerManager)
 local EventManager = require(ServerScriptService.EventManager)
 
--- Constants
-local HEAL_AMOUNT = 25 -- health points
-local ABILITY_RANGE = 25 -- studs
-local SPEED_BOOST_MULTIPLIER = 1.5 -- 50% speed increase
-local SPEED_BOOST_DURATION = 5 -- seconds
+-- Constants moved from AbilityManager
+local HEAL_AMOUNT = 25
+local ABILITY_RANGE = 25
+local SPEED_BOOST_MULTIPLIER = 1.5
+local SPEED_BOOST_DURATION = 5
 
 --[=[
 	Applies a temporary speed boost to a character.
@@ -60,9 +60,9 @@ function BotanyKnowledge:Execute(player: Player)
 	local rootPart = character:FindFirstChild("HumanoidRootPart")
 	if not rootPart then return end
 
-	-- Play VFX and SFX for all clients
-	EventManager.PlaySoundEvent:FireAllClients("HelperAbility", rootPart.Position) -- Keep old sound for now
-	EventManager.PlayVFXEvent:FireAllClients("HelperAbility", rootPart.Position) -- Keep old VFX for now
+	-- Fire events for client-side feedback
+	EventManager.PlaySoundEvent:FireAllClients("HelperAbility", rootPart.Position)
+	EventManager.PlayVFXEvent:FireAllClients("HelperAbility", rootPart.Position)
 
 	-- Apply boost to self
 	applySpeedBoost(character)
