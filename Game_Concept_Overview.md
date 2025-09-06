@@ -1,81 +1,59 @@
-# Game Concept Overview
+# Forsaken: Game Concept Overview
 
-## 1. Inspiration and Aspirations
-This game draws inspiration from several well-known titles. The goal is to create a game, developed collaboratively between me and my dad, that achieves similar popularity and recognition. The core gameplay will revolve around the theme of **"forsaken"** and will incorporate elements from three distinct games.
+"Forsaken" is an asymmetrical survival horror game that pits a team of four resourceful Survivors against one supernatural Killer in a deadly game of cat and mouse. The game is designed to be a tense, strategic experience that rewards teamwork, smart decision-making, and skillful execution.
 
-## 2. Game Structure and Setting
-- **Setting:** The game is set in the woods, not in a traditional elevator-based environment.
-- **Goal:** Players work towards a specific goal or limit (10 days or 10 levels). A leaderboard will track the fastest completion times.
-- **Round Size:** Each round features a maximum of **10 players**.
-- **The Killer:** At the start of each round, one player is randomly chosen as the killer. This role is kept for the entire round. A visible bar will indicate a player's chance of being selected in future rounds.
+## 1. The Core Gameplay Loop: A Three-Act Structure
 
-## 3. Gameplay Mechanics
-### Player Roles
-Players are divided into three roles:
-- **Stunners (Attackers):** Focused on confronting the killer.
-- **Survivors:** Focused on completing objectives.
-- **Helpers:** Possess the unique ability to regenerate other players' stamina and provide boosts.
+A typical round of "Forsaken" is structured like a three-act horror story, with a clear beginning, a tense middle, and a climactic end.
 
-### Items and Abilities
-- **Items:** **Med kits** and **energy drinks** will appear on the floor. Each player can only carry two items at a time.
-- **Character Abilities:** Every character has a unique ability, which may come with a price tag.
-- **Skins:** Skins will be available for all characters, with each costing the same amount.
+*   **Act I: The Opening Phase:** The round begins with a quiet, oppressive tension. The four Survivors spawn into a sprawling, atmospheric map and must immediately begin their primary objective: locating and repairing three unique, complex machines. Shortly after, the Killer arrives, and the hunt begins. This phase is about stealth, information gathering, and making as much objective progress as possible before the Killer can build momentum and apply pressure.
 
----
-# Game Manual
+*   **Act II: The Mid-Game:** This is the heart of the conflict. The Killer is now actively hunting, using their unique abilities to patrol the map, disrupt repairs, and down Survivors. When a Survivor is downed, the Killer can transport them to a sacrificial hook. Hooked Survivors must be rescued by their teammates, forcing the team to balance the risk of a rescue against the need to complete the machines. This phase is a tense dance of strategic rotation, desperate chases, and crucial saves.
 
-This section details the specific rules and mechanics of the game.
+*   **Act III: The Endgame Collapse:** Once the Survivors manage to repair all three machines, they haven't won yet. Instead, they trigger the Endgame Collapse—a high-pressure, timed final sequence. The exit gates are now powered, and Survivors must work together to open one of them and escape. The Killer's focus narrows, making this final confrontation an intense, desperate struggle for survival in a small, focused area of the map.
 
-## Minigame Mechanics
+## 2. Objectives & Win Conditions
 
-There are three types of machines that survivors can repair to win the round.
+The two sides have clear, diametrically opposed goals.
 
-### 1. Classic Machine (Pipe Puzzle)
-- **Objective:** Connect the green Start tile to the red End tile by rotating the pipe pieces.
-- **How to Play:**
-    - Interact with the machine to open the puzzle window.
-    - The puzzle is a 5x5 grid of pipes.
-    - Click on a blue (straight) or orange (L-shaped) pipe to rotate it 90 degrees clockwise.
-    - Form a continuous, unbroken path from the green tile to the red tile.
-    - Once you believe the path is complete, press the "Submit" button.
-- **Note:** The UI will automatically close if you walk too far away from the machine.
+*   **Survivors' Goal: Escape.** To win, the Survivor team must repair all three machines to power the exit gates. Once powered, they must open a gate and at least one Survivor must escape through it. While a single escape counts as a "win", the team's true goal is to ensure as many of them make it out alive as possible.
 
-### 2. Memory Machine
-- **Objective:** Correctly repeat a pattern shown on a grid of buttons.
-- **How to Play:**
-    - Interact with the machine to open the puzzle window.
-    - The game will flash a sequence of buttons on the 3x3 grid. Watch carefully.
-    - After the pattern is shown, click the buttons in the exact same order.
-    - The game will automatically submit your solution after you've clicked the correct number of buttons.
-- **Note:** The UI will automatically close if you walk too far away from the machine.
+*   **Killer's Goal: Sacrifice.** To win, the Killer must prevent the Survivors' escape by hunting, downing, and sacrificing them on hooks. A perfect game for the Killer results in all four Survivors being sacrificed. Eliminating a majority of the team is considered a decisive victory.
 
-### 3. Skill Check Machine
-- **Objective:** Successfully complete a series of 3 timed skill checks.
-- **How to Play:**
-    - Interact with the machine to trigger a skill check. A bar will appear on your screen.
-    - A white cursor will move from left to right across the bar.
-    - Press the **Spacebar** when the cursor is inside the green "success zone".
-    - If you succeed, another skill check will be triggered after a short delay.
-    - If you fail (miss the zone or don't press the spacebar in time), your progress on the machine resets to zero.
-    - After 3 consecutive successes, the machine is repaired.
-- **Note:** The UI will automatically close if you walk too far away from the machine.
+## 3. Player Roles & Abilities: A Team of Specialists
 
-## Character Abilities
+"Forsaken" features a class-based system for its Survivors, encouraging diverse team compositions and strategic play.
 
-### Stunner Ability: Flashbang
-- **Role:** Stunner
-- **Key:** Q
-- **Effect:** Fires a fast-moving yellow projectile forward.
-- **How to Use:**
-    - Aim at the Killer and press 'Q'.
-    - If the projectile hits the Killer, they will be "stunned" (unable to move) for 3 seconds.
-    - The server will perform a distance check to ensure the hit was legitimate.
+### The Killer
+Each Killer is a unique character with a distinct power and playstyle. Their core gameplay involves patrolling, using environmental cues like scratch marks and failed skill check notifications to track Survivors, and using their abilities to outmaneuver and down them in chases.
 
-### Helper Ability: Healing Aura
-- **Role:** Helper
-- **Key:** Q
-- **Effect:** Emits a pulse of energy that heals nearby survivors and grants a speed boost to them and the Helper.
-- **How to Use:**
-    - Press 'Q' to activate.
-    - Any other survivor within 25 studs will be healed for 25 HP.
-    - Both the Helper and any affected survivors will receive a 50% speed boost for 5 seconds.
+### The Survivors
+*   **The Survivalist:** A master of self-preservation and objective control. The Survivalist excels at staying one step ahead of the Killer and recovering quickly from dangerous situations.
+    *   **Skills:** *Adrenaline* (a burst of speed when near the Killer), *Resilience* (faster action speeds when injured), and *Vigil* (faster recovery from negative status effects for the team).
+
+*   **The Sentinel:** The team's guardian. The Sentinel specializes in defensive plays, distracting the Killer, and executing daring rescues.
+    *   **Skills:** *Breakout* (increased speed when near a carried survivor), *Guardian* (provides a speed boost and endurance to a rescued survivor), and *Mettle of Man* (rewards defensive plays with temporary protection).
+
+*   **The Support:** The backbone of the team, focused on healing and group efficiency. The Support keeps the team healthy and gets them back in the fight.
+    *   **Skills:** *Botany Knowledge* (faster healing), *Empathic Connection* (reveals injured teammates), and *We'll Make It* (grants a significant healing speed boost after a rescue).
+
+## 4. Core Mechanics: The Tools of Survival & The Hunt
+
+The moment-to-moment gameplay is governed by a set of skill-based mechanics.
+
+*   **Survivor Actions & Minigames:** The primary objectives are the three unique machines, each with its own challenging minigame:
+    *   **Classic Machine:** A logic puzzle requiring players to connect pipes on a grid.
+    *   **Memory Machine:** A test of short-term memory, requiring players to repeat a sequence.
+    *   **Skill Check Machine:** A test of timing and reflexes.
+    *   During many actions, Survivors will be faced with **Skill Checks**, a quick-time event requiring a button press in a target zone. Failure results in a loud noise that alerts the Killer and regresses progress.
+
+*   **Killer Actions & Tracking:** The Killer hunts using a variety of cues. **Scratch Marks**, visible only to the Killer, are left behind by running Survivors, creating a trail to follow.
+
+*   **Chase Mechanics:** The environment is a key player in any chase. Survivors can use **window vaults** to quickly pass through walls or drop **pallets** to momentarily stun the Killer, but these resources are finite.
+
+## 5. Meta-Progression: The Bloodweb
+
+"Forsaken" is designed for long-term engagement. Through a "Bloodweb"-style progression system, players can use currency earned in matches to:
+*   **Unlock New Characters:** Expand their roster of playable Survivors and Killers.
+*   **Acquire Perks & Abilities:** Unlock the unique skills of other characters to create custom loadouts on their favorite characters.
+*   **Obtain Add-ons & Offerings:** Purchase single-use items that can augment a character's power for one match or alter the rules of the trial itself. This system ensures that no two players are exactly alike and provides endless goals to strive for.
