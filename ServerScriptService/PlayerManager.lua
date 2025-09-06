@@ -45,17 +45,22 @@ function PlayerManager:SetPlayerState(player: Player, state: string)
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
 		if state == "Downed" then
 			humanoid.WalkSpeed = 5
-			humanoid.PlatformStand = true
+			humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, false)
+			humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, false)
+			humanoid:ChangeState(Enum.HumanoidStateType.Physics)
 		elseif state == "Carried" or state == "Hooked" then
 			humanoid.WalkSpeed = 0
-			humanoid.PlatformStand = false
+			humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, false)
+			humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, true) -- Can still "run" to struggle
 			humanoid:ChangeState(Enum.HumanoidStateType.Physics)
 		elseif state == "Carrying" then
 			humanoid.WalkSpeed = 14
-			humanoid.PlatformStand = false
+			humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
+			humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, true)
 		elseif state == "Healthy" or state == "Injured" then
 			humanoid.WalkSpeed = 16
-			humanoid.PlatformStand = false
+			humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
+			humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, true)
 		end
 	end
 
