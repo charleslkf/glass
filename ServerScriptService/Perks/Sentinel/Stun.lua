@@ -30,9 +30,15 @@ end
 	@param hitPlayer Player The player that was hit by the ability.
 ]=]
 function Stun:Execute(stunnerPlayer: Player, hitPlayer: Player)
+	-- Guard clause to prevent crash if no target is provided from the client.
+	-- This happens when the ability is triggered without a valid target.
+	if not hitPlayer then
+		return
+	end
+
 	print(`{self.Name} executed by {stunnerPlayer.Name} on {hitPlayer.Name}`)
 
-	if not stunnerPlayer or not hitPlayer or stunnerPlayer == hitPlayer then return end
+	if not stunnerPlayer or stunnerPlayer == hitPlayer then return end
 	-- This role check will be updated later to be more generic if needed
 	if PlayerManager:GetRole(hitPlayer) ~= "Killer" then
 		warn(`{self.Name} can only be used on the Killer.`)
