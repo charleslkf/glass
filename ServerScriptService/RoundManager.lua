@@ -61,6 +61,7 @@ function RoundManager:InitiateEndgame()
 			end
 			print(gateName .. " has been powered.")
 			table.insert(poweredGates, gateModel)
+			task.wait(0.1) -- Add a small delay to see if it helps replication
 		else
 			warn("Could not find " .. gateName .. " in the Workspace!")
 		end
