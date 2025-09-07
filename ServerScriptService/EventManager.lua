@@ -91,6 +91,11 @@ EventManager.RequestOpenGateEvent = Instance.new("RemoteEvent")
 EventManager.RequestOpenGateEvent.Name = "RequestOpenGateEvent"
 EventManager.RequestOpenGateEvent.Parent = eventsFolder
 
+-- Endgame Events
+EventManager.GatePoweredEvent = Instance.new("RemoteEvent")
+EventManager.GatePoweredEvent.Name = "GatePoweredEvent"
+EventManager.GatePoweredEvent.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")

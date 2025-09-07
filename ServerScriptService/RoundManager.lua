@@ -65,6 +65,7 @@ function RoundManager:InitiateEndgame()
 	-- This will eventually trigger the Endgame Collapse timer
 	-- For now, it just signifies the next phase of the game
 	GameStateManager:SetState("Endgame")
+	EventManager.GatePoweredEvent:FireAllClients()
 end
 
 
