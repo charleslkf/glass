@@ -51,6 +51,14 @@ function SoundManager:Init()
 	winningSound.Parent = game.SoundService
 	sounds["WinningSound"] = winningSound
 
+	-- Placeholder for endgame collapse sound. User should replace this ID.
+	local endgameSound = Instance.new("Sound")
+	endgameSound.SoundId = "rbxassetid://133689961" -- Example: A tense, ambient sound
+	endgameSound.Name = "EndgameCollapse"
+	endgameSound.Looped = true
+	endgameSound.Parent = game.SoundService
+	sounds["EndgameCollapse"] = endgameSound
+
 	print("SoundManager initialized.")
 end
 
@@ -65,6 +73,14 @@ function SoundManager:PlaySound(soundName: string)
 		print("Playing sound: " .. soundName)
 	else
 		warn("Attempted to play unknown sound: " .. soundName)
+	end
+end
+
+function SoundManager:StopSound(soundName: string)
+	local sound = sounds[soundName]
+	if sound and sound.IsPlaying then
+		sound:Stop()
+		print("Stopping sound: " .. soundName)
 	end
 end
 

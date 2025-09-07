@@ -15,6 +15,7 @@ local PlayerManager = require(ServerScriptService.PlayerManager)
 local MachineManager = require(ServerScriptService.MachineManager)
 local EventManager = require(ServerScriptService.EventManager)
 local InteractionManager = require(ServerScriptService.InteractionManager)
+local GameState = game:GetService("ReplicatedStorage"):WaitForChild("GameState")
 
 -- Constants
 local MIN_PLAYERS_TO_START = 2
@@ -69,6 +70,7 @@ function RoundManager:InitiateEndgame()
 
 	-- This will eventually trigger the Endgame Collapse timer
 	-- For now, it just signifies the next phase of the game
+	GameState:SetAttribute("EndgameEndTime", os.time() + ENDGAME_COLLAPSE_TIME)
 	GameStateManager:SetState("Endgame")
 	EventManager.GatePoweredEvent:FireAllClients(poweredGates)
 end
@@ -79,6 +81,7 @@ end
 ]=]
 function RoundManager:OnMachineCompleted(machineInstance: table)
 	completedMachines += 1
+	GameState:SetAttribute("MachinesCompleted", completedMachines)
 	print("RoundManager: A machine was completed! Progress: " .. completedMachines .. "/" .. machinesToComplete)
 
 	-- Fire the remote events for feedback
@@ -175,16 +178,20 @@ function RoundManager:Lobby()
 	end
 
 	print("Enough players have joined. Starting countdown...")
-	for i = LOBBY_COUNTDOWN_TIME, 1, -1 do
-		print("Countdown: " .. i)
+	local countdownEndTime = os.time() + LOBBY_COUNTDOWN_TIME
+	GameState:SetAttribute("CountdownEndTime", countdownEndTime)
+
+	while os.time() < countdownEndTime do
 		if #Players:GetPlayers() < MIN_PLAYERS_TO_START then
 			print("A player left. Halting countdown.")
+			GameState:SetAttribute("CountdownEndTime", nil) -- Clear the countdown
 			self:Lobby() -- Re-run the lobby logic
 			return
 		end
-		wait(1)
+		task.wait(0.5)
 	end
 
+	GameState:SetAttribute("CountdownEndTime", nil) -- Clear after countdown
 	GameStateManager:SetState("InRound")
 end
 
@@ -211,14 +218,23 @@ function RoundManager:StartRound()
 
 	-- The goal is to complete all three machines
 	machinesToComplete = 3
+	GameState:SetAttribute("MachinesTotal", machinesToComplete)
+	GameState:SetAttribute("MachinesCompleted", 0)
 	print("Round goal: Complete " .. machinesToComplete .. " machine(s).")
 
 	-- Start a timer that can be cancelled
+	local roundEndTime = os.time() + ROUND_TIME
+	GameState:SetAttribute("RoundEndTime", roundEndTime)
 	roundTimerThread = task.spawn(function()
-		wait(ROUND_TIME)
+		local timeLeft = roundEndTime - os.time()
+		if timeLeft > 0 then
+			task.wait(timeLeft)
+		end
+
 		print("Round timer finished. Killer wins.")
 		-- Ensure the round hasn't already ended
 		if GameStateManager.State == "InRound" then
+			GameState:SetAttribute("RoundEndTime", nil)
 			GameStateManager:SetState("Intermission")
 		end
 	end)
