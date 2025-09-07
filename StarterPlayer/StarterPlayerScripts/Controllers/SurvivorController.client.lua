@@ -29,6 +29,7 @@ function SurvivorController.new()
 end
 
 function SurvivorController:Init()
+	local self = self -- Capture self for closures
 	print("SurvivorController Initialized")
 
 	EventManager.GatePoweredEvent.OnClientEvent:Connect(function()
