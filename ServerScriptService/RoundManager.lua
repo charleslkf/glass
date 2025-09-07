@@ -21,10 +21,12 @@ local MIN_PLAYERS_TO_START = 2
 local LOBBY_COUNTDOWN_TIME = 10 -- 10 seconds
 local INTERMISSION_TIME = 5 -- 5 seconds
 local ROUND_TIME = 300 -- 5 minutes (For testing)
+local ENDGAME_COLLAPSE_TIME = 120 -- 2 minutes
 
 local completedMachines = 0
 local machinesToComplete = 0
 local roundTimerThread = nil
+local endgameTimerThread = nil
 
 -- Helper to get the size of a dictionary
 local function table_size(t)
@@ -93,12 +95,23 @@ end
 	Handles a survivor escaping, which ends the round in a win for the survivors.
 ]=]
 function RoundManager:OnSurvivorEscaped(player: Player)
-	print("A survivor has escaped! Survivors win the round.")
-	if roundTimerThread then
-		task.cancel(roundTimerThread)
-		roundTimerThread = nil
+	print(player.Name .. " has escaped!")
+
+	local activeSurvivors = PlayerManager:GetActiveSurvivors()
+	if #activeSurvivors == 0 then
+		print("All survivors have escaped! Survivors win the round.")
+		if roundTimerThread then
+			task.cancel(roundTimerThread)
+			roundTimerThread = nil
+		end
+		if endgameTimerThread then
+			task.cancel(endgameTimerThread)
+			endgameTimerThread = nil
+		end
+		GameStateManager:SetState("Intermission")
+	else
+		print(#activeSurvivors .. " survivor(s) remaining.")
 	end
-	GameStateManager:SetState("Intermission")
 end
 
 --[=[
@@ -135,8 +148,15 @@ function RoundManager:OnStateChanged(newState: string)
 		self:StartRound()
 	elseif newState == "Endgame" then
 		-- The InitiateEndgame function handles the transition logic.
-		-- This state is for anything that needs to happen *during* the endgame.
-		-- For now, this is empty.
+		-- Now, start the collapse timer.
+		print("Endgame Collapse has begun!")
+		endgameTimerThread = task.spawn(function()
+			wait(ENDGAME_COLLAPSE_TIME)
+			print("Endgame Collapse timer finished. The Entity consumes all. Killer wins.")
+			if GameStateManager.State == "Endgame" then
+				GameStateManager:SetState("Intermission")
+			end
+		end)
 	elseif newState == "Intermission" then
 		self:Intermission()
 	end

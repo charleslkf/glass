@@ -21,13 +21,13 @@ This document outlines the consolidated development plan for the project. It tra
 - [x] **Killer Gameplay:** Expand the Killer's abilities beyond just attacking. Implement the full sequence: downing, picking up, carrying, and hooking a survivor.
 - [x] **Refine Survivor Interactions (Unhooking):** Implement contextual interactions for survivors, starting with the ability to unhook teammates.
 - [x] **Survivor Win Condition (Part 1 - Gates):** Update the game loop. Repairing the three machines should now power two Exit Gates, which survivors can then open to escape.
+- [ ] **Survivor Win Condition (Part 2 - Endgame Collapse):** Implement the timer and associated mechanics for the final phase of the game after the gates are powered.
 - [ ] **Shop & Purchase Logic:** Implement the logic for purchasing items from the shop UI. The `DataManager` needs to be updated to handle these transactions.
 
 ### New Features to be Implemented
 - [ ] **Sacrificial Hooks:** Design and implement the hook objects and the sacrifice progression mechanic.
 - [ ] **Chase Mechanics: Pallets & Vaults:** Implement pallet and window vault objects that can be used by survivors to interact with the environment during a chase.
 - [ ] **Tracking System: Scratch Marks:** Implement the visual system that makes running survivors leave temporary scratch marks visible only to the Killer.
-- [ ] **Endgame Collapse:** Implement the timer and associated mechanics for the final phase of the game after the machines are repaired.
 - [ ] **In-Game Items:** Implement the full lifecycle for items: spawning on the map, being picked up by players (with inventory limits), and being used (e.g., Med-Kit for healing).
 
 ---

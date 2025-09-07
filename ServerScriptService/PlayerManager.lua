@@ -203,6 +203,22 @@ function PlayerManager:GetPlayersByRole(role: string)
 end
 
 --[=[
+	Returns a list of all survivors who are still in the round (not escaped).
+]=]
+function PlayerManager:GetActiveSurvivors()
+	local activeSurvivors = {}
+	for player, role in pairs(playerRoles) do
+		if role ~= "Killer" then
+			local state = self:GetPlayerState(player)
+			if state ~= "Escaped" then
+				table.insert(activeSurvivors, player)
+			end
+		end
+	end
+	return activeSurvivors
+end
+
+--[=[
 	Deals damage to a player and handles their death.
 ]=]
 function PlayerManager:TakeDamage(player: Player, amount: number)
