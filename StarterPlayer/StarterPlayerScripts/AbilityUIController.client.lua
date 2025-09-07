@@ -71,9 +71,7 @@ end
 --[=[
 	Determines the primary action based on the player's role and executes it.
 ]=]
-local function handlePrimaryAction()
-	local myRole = PlayerRoles:GetAttribute(tostring(LocalPlayer.UserId))
-
+local function handlePrimaryAction(myRole)
 	if myRole == "Killer" then
 		-- For Killer, the action is a targeted attack.
 		local mouse = LocalPlayer:GetMouse()
@@ -94,7 +92,31 @@ local function handlePrimaryAction()
 		fireStunProjectile()
 	elseif myRole == "Support" then
 		-- For Support, the action is an instant AoE heal.
-		UseAbilityEvent:FireServer()
+		-- Add a client-side check to see if anyone is even in range.
+		local character = LocalPlayer.Character
+		if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+
+		local myPos = character.HumanoidRootPart.Position
+		local HEAL_ABILITY_RANGE = 25 -- Should match BotanyKnowledge server constant
+		local foundTarget = false
+		for _, otherPlayer in ipairs(Players:GetPlayers()) do
+			if otherPlayer ~= LocalPlayer and PlayerRoles:GetAttribute(tostring(otherPlayer.UserId)) ~= "Killer" then
+				if otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
+					local dist = (myPos - otherPlayer.Character.HumanoidRootPart.Position).Magnitude
+					if dist <= HEAL_ABILITY_RANGE then
+						foundTarget = true
+						break
+					end
+				end
+			end
+		end
+
+		if foundTarget then
+			print("Teammate in range, using Botany Knowledge.")
+			UseAbilityEvent:FireServer()
+		else
+			print("No teammates in range for Botany Knowledge.")
+		end
 	else
 		-- For other roles (like Survivalist), do nothing for now.
 	end
@@ -106,9 +128,19 @@ end
 local function onInputBegan(input, gameProcessedEvent)
 	if gameProcessedEvent then return end
 
-	-- If Q or left-click is pressed, handle the primary action.
-	if input.KeyCode == Enum.KeyCode.Q or input.UserInputType == Enum.UserInputType.MouseButton1 then
-		handlePrimaryAction()
+	local myRole = PlayerRoles:GetAttribute(tostring(LocalPlayer.UserId))
+	if not myRole then return end
+
+	if myRole == "Killer" then
+		-- Killer attacks with Left Click
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			handlePrimaryAction(myRole)
+		end
+	else
+		-- Survivors use their ability with Q
+		if input.KeyCode == Enum.KeyCode.Q then
+			handlePrimaryAction(myRole)
+		end
 	end
 end
 
