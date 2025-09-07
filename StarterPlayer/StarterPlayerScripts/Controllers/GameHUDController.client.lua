@@ -181,7 +181,6 @@ function GameHUDController:OnStateChanged(newState: string)
 	-- Control visibility of UI elements based on state
 	self.objectiveFrame.Visible = (newState == "InRound")
 	self.endgameTimerLabel.Visible = (newState == "Endgame")
-	self.announcementLabel.Visible = false -- Hide by default
 
 	if newState == "Lobby" then
 		self.announcementLabel.Visible = true
