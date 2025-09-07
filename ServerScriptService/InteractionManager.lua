@@ -30,6 +30,10 @@ function InteractionManager:Init()
 		self:OnRequestOpenGate(player, gateModel)
 	end)
 
+	EventManager.SurvivorEscapedRequestEvent.OnServerEvent:Connect(function(player)
+		self:OnSurvivorEscaped(player)
+	end)
+
 	print("InteractionManager Initialized")
 end
 
@@ -56,26 +60,6 @@ function InteractionManager:OnRequestOpenGate(player: Player, gateModel: Model)
 	if mainPart then
 		mainPart.Transparency = 0.8
 		mainPart.CanCollide = false
-
-		-- Create the escape trigger zone
-		local escapeZone = Instance.new("Part")
-		escapeZone.Name = "EscapeZone"
-		escapeZone.Size = mainPart.Size
-		escapeZone.CFrame = mainPart.CFrame
-		escapeZone.Anchored = true
-		escapeZone.CanCollide = false
-		escapeZone.Transparency = 1
-		escapeZone.Parent = gateModel
-
-		escapeZone.Touched:Connect(function(otherPart)
-			local model = otherPart:FindFirstAncestorOfClass("Model")
-			if model then
-				local touchedPlayer = game:GetService("Players"):GetPlayerFromCharacter(model)
-				if touchedPlayer and PlayerManager:GetRole(touchedPlayer) ~= "Killer" then
-					self:OnSurvivorEscaped(touchedPlayer)
-				end
-			end
-		end)
 	end
 
 	gateModel:SetAttribute("State", "Open")
@@ -101,6 +85,7 @@ function InteractionManager:OnSurvivorEscaped(player: Player)
 
 	-- Notify other systems (like RoundManager)
 	self.SurvivorEscaped:Fire(player)
+	EventManager.PlaySoundEvent:FireAllClients("80766655803396")
 end
 
 --[=[

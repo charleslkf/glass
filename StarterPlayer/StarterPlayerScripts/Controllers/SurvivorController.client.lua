@@ -106,18 +106,43 @@ function SurvivorController:Update()
 
 	-- Look for powered exit gates
 	for _, gate in ipairs(self.poweredGates) do
-		-- If a gate is in this list, we trust the server that it's powered.
-		local mainPart = gate and (gate:FindFirstChild("Main") or gate:FindFirstChildOfClass("BasePart"))
-		if mainPart then
-			local dist = (myRoot.Position - mainPart.Position).Magnitude
-			if dist < closestDist then
-				closestDist = dist
-				bestTarget = { Type = "ExitGate", Object = gate }
+		-- Find the closest part within the gate model to the player
+		local closestPart, closestPartDist = nil, INTERACTION_DISTANCE
+		for _, descendant in ipairs(gate:GetDescendants()) do
+			if descendant:IsA("BasePart") then
+				local dist = (myRoot.Position - descendant.Position).Magnitude
+				if dist < closestPartDist then
+					closestPartDist = dist
+					closestPart = descendant
+				end
 			end
+		end
+
+		if closestPart then
+			-- We found a part of the gate in range, so this is our best target
+			closestDist = closestPartDist
+			bestTarget = { Type = "ExitGate", Object = gate }
 		end
 	end
 
 	self.currentTarget = bestTarget
+
+	-- Look for open exit gates to escape through
+	local gateNames = {"GateA", "GateB"}
+	for _, gateName in ipairs(gateNames) do
+		local gate = game:GetService("Workspace"):FindFirstChild(gateName)
+		if gate and gate:GetAttribute("State") == "Open" then
+			local mainPart = gate:FindFirstChild("Main") or gate:FindFirstChildOfClass("BasePart")
+			if mainPart then
+				local dist = (myRoot.Position - mainPart.Position).Magnitude
+				if dist < 3 then -- Escape distance is very short
+					print("Close enough to escape! Firing event.")
+					EventManager.SurvivorEscapedRequestEvent:FireServer()
+					break -- Escape only once
+				end
+			end
+		end
+	end
 end
 
 function SurvivorController:OnInputBegan(input)

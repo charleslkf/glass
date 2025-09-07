@@ -96,6 +96,10 @@ EventManager.GatePoweredEvent = Instance.new("RemoteEvent")
 EventManager.GatePoweredEvent.Name = "GatePoweredEvent"
 EventManager.GatePoweredEvent.Parent = eventsFolder
 
+EventManager.SurvivorEscapedRequestEvent = Instance.new("RemoteEvent")
+EventManager.SurvivorEscapedRequestEvent.Name = "SurvivorEscapedRequestEvent"
+EventManager.SurvivorEscapedRequestEvent.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")

@@ -52,10 +52,11 @@ function RoundManager:InitiateEndgame()
 		local gateModel = Workspace:FindFirstChild(gateName)
 		if gateModel then
 			gateModel:SetAttribute("State", "Powered")
-			-- Assuming the gate model has a main part to change color
-			local mainPart = gateModel:FindFirstChild("Main") or gateModel:FindFirstChildOfClass("BasePart")
-			if mainPart then
-				mainPart.Color = Color3.fromRGB(0, 255, 127) -- Bright green
+			-- Recursively find all parts and change their color
+			for _, descendant in ipairs(gateModel:GetDescendants()) do
+				if descendant:IsA("BasePart") then
+					descendant.Color = Color3.fromRGB(0, 255, 127) -- Bright green
+				end
 			end
 			print(gateName .. " has been powered.")
 			table.insert(poweredGates, gateModel)
