@@ -50,7 +50,7 @@ function RoundManager:InitiateEndgame()
 	for _, gateName in ipairs(gateNames) do
 		local gateModel = Workspace:FindFirstChild(gateName)
 		if gateModel then
-			CollectionService:AddTag(gateModel, "PoweredGate")
+			gateModel:SetAttribute("State", "Powered")
 			-- Assuming the gate model has a main part to change color
 			local mainPart = gateModel:FindFirstChild("Main") or gateModel:FindFirstChildOfClass("BasePart")
 			if mainPart then

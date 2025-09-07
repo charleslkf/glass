@@ -38,8 +38,8 @@ end
 ]=]
 function InteractionManager:OnRequestOpenGate(player: Player, gateModel: Model)
 	if not player or not gateModel or not player.Character then return end
-	if not CollectionService:HasTag(gateModel, "PoweredGate") then
-		warn(player.Name .. " tried to open a gate that isn't powered.")
+	if gateModel:GetAttribute("State") ~= "Powered" then
+		warn(player.Name .. " tried to open a gate that isn't powered or is already open.")
 		return
 	end
 
@@ -78,8 +78,7 @@ function InteractionManager:OnRequestOpenGate(player: Player, gateModel: Model)
 		end)
 	end
 
-	CollectionService:RemoveTag(gateModel, "PoweredGate")
-	CollectionService:AddTag(gateModel, "OpenGate")
+	gateModel:SetAttribute("State", "Open")
 end
 
 --[=[

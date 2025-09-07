@@ -98,12 +98,16 @@ function SurvivorController:Update()
 	end
 
 	-- Look for powered exit gates
-	for _, gate in ipairs(game:GetService("CollectionService"):GetTagged("PoweredGate")) do
-		if gate:FindFirstChildOfClass("BasePart") then
-			local dist = (myRoot.Position - gate:GetPrimaryPartCFrame().Position).Magnitude
-			if dist < closestDist then
-				closestDist = dist
-				bestTarget = { Type = "ExitGate", Object = gate }
+	local gateNames = {"GateA", "GateB"}
+	for _, gateName in ipairs(gateNames) do
+		local gate = game:GetService("Workspace"):FindFirstChild(gateName)
+		if gate and gate:GetAttribute("State") == "Powered" then
+			if gate:FindFirstChildOfClass("BasePart") then
+				local dist = (myRoot.Position - gate:GetPrimaryPartCFrame().Position).Magnitude
+				if dist < closestDist then
+					closestDist = dist
+					bestTarget = { Type = "ExitGate", Object = gate }
+				end
 			end
 		end
 	end
