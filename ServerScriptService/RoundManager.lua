@@ -46,6 +46,7 @@ function RoundManager:InitiateEndgame()
 		roundTimerThread = nil
 	end
 
+	local poweredGates = {}
 	local gateNames = {"GateA", "GateB"}
 	for _, gateName in ipairs(gateNames) do
 		local gateModel = Workspace:FindFirstChild(gateName)
@@ -57,6 +58,7 @@ function RoundManager:InitiateEndgame()
 				mainPart.Color = Color3.fromRGB(0, 255, 127) -- Bright green
 			end
 			print(gateName .. " has been powered.")
+			table.insert(poweredGates, gateModel)
 		else
 			warn("Could not find " .. gateName .. " in the Workspace!")
 		end
@@ -65,7 +67,7 @@ function RoundManager:InitiateEndgame()
 	-- This will eventually trigger the Endgame Collapse timer
 	-- For now, it just signifies the next phase of the game
 	GameStateManager:SetState("Endgame")
-	EventManager.GatePoweredEvent:FireAllClients()
+	EventManager.GatePoweredEvent:FireAllClients(poweredGates)
 end
 
 

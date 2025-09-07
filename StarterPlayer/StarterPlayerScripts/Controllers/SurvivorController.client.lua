@@ -24,7 +24,7 @@ function SurvivorController.new()
 	local self = setmetatable({}, SurvivorController)
 	self.isSurvivor = false
 	self.currentTarget = nil
-	self.gatesArePowered = false
+	self.poweredGates = {}
 	return self
 end
 
@@ -32,9 +32,9 @@ function SurvivorController:Init()
 	local self = self -- Capture self for closures
 	print("SurvivorController Initialized")
 
-	EventManager.GatePoweredEvent.OnClientEvent:Connect(function()
-		print("Client received GatePoweredEvent.")
-		self.gatesArePowered = true
+	EventManager.GatePoweredEvent.OnClientEvent:Connect(function(gates)
+		print("Client received GatePoweredEvent with " .. #gates .. " gates.")
+		self.poweredGates = gates
 	end)
 
 	local function onRoleChanged(role)
@@ -105,17 +105,13 @@ function SurvivorController:Update()
 	end
 
 	-- Look for powered exit gates
-	if self.gatesArePowered then
-		local gateNames = {"GateA", "GateB"}
-		for _, gateName in ipairs(gateNames) do
-			local gate = game:GetService("Workspace"):FindFirstChild(gateName)
-			if gate and gate:GetAttribute("State") == "Powered" then
-				if gate:FindFirstChildOfClass("BasePart") then
-					local dist = (myRoot.Position - gate:GetPrimaryPartCFrame().Position).Magnitude
-					if dist < closestDist then
-						closestDist = dist
-						bestTarget = { Type = "ExitGate", Object = gate }
-					end
+	for _, gate in ipairs(self.poweredGates) do
+		if gate and gate:GetAttribute("State") == "Powered" then
+			if gate:FindFirstChildOfClass("BasePart") then
+				local dist = (myRoot.Position - gate:GetPrimaryPartCFrame().Position).Magnitude
+				if dist < closestDist then
+					closestDist = dist
+					bestTarget = { Type = "ExitGate", Object = gate }
 				end
 			end
 		end
