@@ -45,6 +45,12 @@ function SoundManager:Init()
 	killerSound.Parent = game.SoundService
 	sounds["KillerAttack"] = killerSound
 
+	local winningSound = Instance.new("Sound")
+	winningSound.SoundId = "rbxassetid://80766655803396"
+	winningSound.Name = "WinningSound"
+	winningSound.Parent = game.SoundService
+	sounds["WinningSound"] = winningSound
+
 	print("SoundManager initialized.")
 end
 

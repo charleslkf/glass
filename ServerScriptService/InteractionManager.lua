@@ -85,7 +85,7 @@ function InteractionManager:OnSurvivorEscaped(player: Player)
 
 	-- Notify other systems (like RoundManager)
 	self.SurvivorEscaped:Fire(player)
-	EventManager.PlaySoundEvent:FireAllClients("80766655803396")
+	EventManager.PlaySoundEvent:FireAllClients("WinningSound")
 end
 
 --[=[
