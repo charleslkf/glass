@@ -14,6 +14,9 @@ local CollectionService = game:GetService("CollectionService")
 
 local INTERACTION_DISTANCE = 10
 
+-- A BindableEvent that fires when any survivor escapes
+InteractionManager.SurvivorEscaped = Instance.new("BindableEvent")
+
 --[=[
 	Initializes the InteractionManager, connecting to interaction events.
 ]=]
@@ -29,10 +32,6 @@ function InteractionManager:Init()
 
 	print("InteractionManager Initialized")
 end
-
---[=[
--- A BindableEvent that fires when any survivor escapes
-InteractionManager.SurvivorEscaped = Instance.new("BindableEvent")
 
 --[=[
 	Handles a request from a player to open an exit gate.
