@@ -21,18 +21,23 @@ InteractionManager.SurvivorEscaped = Instance.new("BindableEvent")
 	Initializes the InteractionManager, connecting to interaction events.
 ]=]
 function InteractionManager:Init()
+	print("[DEBUG] InteractionManager:Init() called.")
 	-- Listen for unhook requests from the client
 	EventManager.UnhookRequestEvent.OnServerEvent:Connect(function(player, targetPlayer)
 		self:OnUnhookRequest(player, targetPlayer)
 	end)
+	print("[DEBUG] Connected UnhookRequestEvent.")
 
 	EventManager.RequestOpenGateEvent.OnServerEvent:Connect(function(player, gateModel)
 		self:OnRequestOpenGate(player, gateModel)
 	end)
+	print("[DEBUG] Connected RequestOpenGateEvent.")
 
 	EventManager.SurvivorEscapedRequestEvent.OnServerEvent:Connect(function(player)
+		print("[DEBUG] SurvivorEscapedRequestEvent received on server for player: " .. player.Name)
 		self:OnSurvivorEscaped(player)
 	end)
+	print("[DEBUG] Connected SurvivorEscapedRequestEvent.")
 
 	print("InteractionManager Initialized")
 end
@@ -69,23 +74,35 @@ end
 	Handles the logic for when a survivor successfully escapes.
 ]=]
 function InteractionManager:OnSurvivorEscaped(player: Player)
-	if not player then return end
+	print("[DEBUG] OnSurvivorEscaped called for: " .. tostring(player))
+	if not player then
+		print("[DEBUG] OnSurvivorEscaped: Player is nil. Aborting.")
+		return
+	end
 
 	-- Prevent double-escapes
 	local playerState = PlayerManager:GetPlayerState(player)
-	if playerState == "Escaped" then return end
+	print("[DEBUG] OnSurvivorEscaped: Current state is " .. tostring(playerState))
+	if playerState == "Escaped" then
+		print("[DEBUG] OnSurvivorEscaped: Player has already escaped. Aborting.")
+		return
+	end
 
 	print(player.Name .. " has escaped!")
 	PlayerManager:SetPlayerState(player, "Escaped") -- A new state to prevent further interaction
 
 	-- Remove the character from the game
 	if player.Character then
+		print("[DEBUG] OnSurvivorEscaped: Destroying character for " .. player.Name)
 		player.Character:Destroy()
 	end
 
 	-- Notify other systems (like RoundManager)
+	print("[DEBUG] OnSurvivorEscaped: Firing SurvivorEscaped event.")
 	self.SurvivorEscaped:Fire(player)
+	print("[DEBUG] OnSurvivorEscaped: Firing PlaySoundEvent.")
 	EventManager.PlaySoundEvent:FireAllClients("WinningSound")
+	print("[DEBUG] OnSurvivorEscaped: Finished.")
 end
 
 --[=[
