@@ -20,7 +20,7 @@ This document outlines the consolidated development plan for the project. It tra
 - [x] **Player Roles & Abilities:** Refactor the old `Stunner`/`Helper` system into the new class-based system (Survivalist, Sentinel, Support) with their unique perks.
 - [x] **Killer Gameplay:** Expand the Killer's abilities beyond just attacking. Implement the full sequence: downing, picking up, carrying, and hooking a survivor.
 - [x] **Refine Survivor Interactions (Unhooking):** Implement contextual interactions for survivors, starting with the ability to unhook teammates.
-- [ ] **Survivor Win Condition (Part 1 - Gates):** Update the game loop. Repairing the three machines should now power two Exit Gates, which survivors can then open to escape.
+- [x] **Survivor Win Condition (Part 1 - Gates):** Update the game loop. Repairing the three machines should now power two Exit Gates, which survivors can then open to escape.
 - [ ] **Shop & Purchase Logic:** Implement the logic for purchasing items from the shop UI. The `DataManager` needs to be updated to handle these transactions.
 
 ### New Features to be Implemented
