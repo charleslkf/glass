@@ -53,7 +53,7 @@ function SoundManager:Init()
 
 	-- Placeholder for endgame collapse sound. User should replace this ID.
 	local endgameSound = Instance.new("Sound")
-	endgameSound.SoundId = "rbxassetid://133689961" -- Example: A tense, ambient sound
+	endgameSound.SoundId = "rbxassetid://121178745797615"
 	endgameSound.Name = "EndgameCollapse"
 	endgameSound.Looped = true
 	endgameSound.Parent = game.SoundService
