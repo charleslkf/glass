@@ -47,8 +47,19 @@ function InteractionManager:OnRequestOpenGate(player: Player, gateModel: Model)
 		return
 	end
 
-	local dist = (player.Character.HumanoidRootPart.Position - gateModel:GetPrimaryPartCFrame().Position).Magnitude
-	if dist > INTERACTION_DISTANCE then
+	-- Find the closest part of the gate to the player for an accurate distance check
+	local closestPart, closestDist = nil, INTERACTION_DISTANCE + 1
+	for _, descendant in ipairs(gateModel:GetDescendants()) do
+		if descendant:IsA("BasePart") then
+			local dist = (player.Character.HumanoidRootPart.Position - descendant.Position).Magnitude
+			if dist < closestDist then
+				closestDist = dist
+				closestPart = descendant
+			end
+		end
+	end
+
+	if not closestPart or closestDist > INTERACTION_DISTANCE then
 		warn(player.Name .. " tried to open a gate from too far away.")
 		return
 	end
