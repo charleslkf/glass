@@ -5,6 +5,16 @@
 ]=]
 
 local ServerScriptService = game:GetService("ServerScriptService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Create the shared GameState object if it doesn't exist
+local gameState = ReplicatedStorage:FindFirstChild("GameState")
+if not gameState then
+	gameState = Instance.new("Configuration")
+	gameState.Name = "GameState"
+	gameState:SetAttribute("State", "Lobby") -- Initial state
+	gameState.Parent = ReplicatedStorage
+end
 
 -- Require all managers
 local DataManager = require(ServerScriptService.DataManager)
