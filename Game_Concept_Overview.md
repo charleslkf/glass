@@ -17,6 +17,7 @@ A typical round of "Forsaken" is structured like a three-act horror story, with 
 The two sides have clear, diametrically opposed goals.
 
 *   **Survivors' Goal: Escape.** To win, the Survivor team must repair all three machines to power the exit gates. Once powered, they must open a gate and at least one Survivor must escape through it. While a single escape counts as a "win", the team's true goal is to ensure as many of them make it out alive as possible.
+    *   **The Exit Gates:** Two Exit Gates are placed on the map. Once all machines are repaired, these gates are powered. Survivors must approach one of the gates and complete a timed interaction to open the gate's switch, finally opening the path to escape.
 
 *   **Killer's Goal: Sacrifice.** To win, the Killer must prevent the Survivors' escape by hunting, downing, and sacrificing them on hooks. A perfect game for the Killer results in all four Survivors being sacrificed. Eliminating a majority of the team is considered a decisive victory.
 

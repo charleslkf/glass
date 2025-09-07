@@ -14,6 +14,7 @@ local GameStateManager = require(ServerScriptService.GameStateManager)
 local PlayerManager = require(ServerScriptService.PlayerManager)
 local MachineManager = require(ServerScriptService.MachineManager)
 local EventManager = require(ServerScriptService.EventManager)
+local InteractionManager = require(ServerScriptService.InteractionManager)
 
 -- Constants
 local MIN_PLAYERS_TO_START = 2
@@ -32,6 +33,41 @@ local function table_size(t)
 	return count
 end
 
+local Workspace = game:GetService("Workspace")
+local CollectionService = game:GetService("CollectionService")
+
+--[=[
+	Powers up the exit gates, making them interactable.
+]=]
+function RoundManager:InitiateEndgame()
+	print("All machines repaired! Powering the Exit Gates.")
+	if roundTimerThread then
+		task.cancel(roundTimerThread)
+		roundTimerThread = nil
+	end
+
+	local gateNames = {"GateA", "GateB"}
+	for _, gateName in ipairs(gateNames) do
+		local gateModel = Workspace:FindFirstChild(gateName)
+		if gateModel then
+			CollectionService:AddTag(gateModel, "PoweredGate")
+			-- Assuming the gate model has a main part to change color
+			local mainPart = gateModel:FindFirstChild("Main") or gateModel:FindFirstChildOfClass("BasePart")
+			if mainPart then
+				mainPart.Color = Color3.fromRGB(0, 255, 127) -- Bright green
+			end
+			print(gateName .. " has been powered.")
+		else
+			warn("Could not find " .. gateName .. " in the Workspace!")
+		end
+	end
+
+	-- This will eventually trigger the Endgame Collapse timer
+	-- For now, it just signifies the next phase of the game
+	GameStateManager:SetState("Endgame")
+end
+
+
 --[=[
 	Handles the completion of a single machine.
 ]=]
@@ -46,13 +82,20 @@ function RoundManager:OnMachineCompleted(machineInstance: table)
 	end
 
 	if completedMachines >= machinesToComplete then
-		print("All machines completed! Survivors win the round.")
-		if roundTimerThread then
-			task.cancel(roundTimerThread)
-			roundTimerThread = nil
-		end
-		GameStateManager:SetState("Intermission")
+		self:InitiateEndgame()
 	end
+end
+
+--[=[
+	Handles a survivor escaping, which ends the round in a win for the survivors.
+]=]
+function RoundManager:OnSurvivorEscaped(player: Player)
+	print("A survivor has escaped! Survivors win the round.")
+	if roundTimerThread then
+		task.cancel(roundTimerThread)
+		roundTimerThread = nil
+	end
+	GameStateManager:SetState("Intermission")
 end
 
 --[=[
@@ -70,6 +113,10 @@ function RoundManager:Init()
 		self:OnMachineCompleted(machineInstance)
 	end)
 
+	InteractionManager.SurvivorEscaped.Event:Connect(function(player)
+		self:OnSurvivorEscaped(player)
+	end)
+
 	-- Manually trigger the logic for the initial state to kick-start the game
 	self:OnStateChanged(GameStateManager.State)
 end
@@ -83,6 +130,10 @@ function RoundManager:OnStateChanged(newState: string)
 		self:Lobby()
 	elseif newState == "InRound" then
 		self:StartRound()
+	elseif newState == "Endgame" then
+		-- The InitiateEndgame function handles the transition logic.
+		-- This state is for anything that needs to happen *during* the endgame.
+		-- For now, this is empty.
 	elseif newState == "Intermission" then
 		self:Intermission()
 	end
@@ -134,8 +185,8 @@ function RoundManager:StartRound()
 		end
 	end
 
-	-- The goal is to complete just one machine
-	machinesToComplete = 1
+	-- The goal is to complete all three machines
+	machinesToComplete = 3
 	print("Round goal: Complete " .. machinesToComplete .. " machine(s).")
 
 	-- Start a timer that can be cancelled

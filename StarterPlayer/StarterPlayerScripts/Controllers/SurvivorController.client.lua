@@ -79,6 +79,9 @@ function SurvivorController:Update()
 	self.currentTarget = nil
 	local closestDist = INTERACTION_DISTANCE
 
+	-- Look for the closest interactable object (can be a hooked player or a gate)
+	local bestTarget = nil
+
 	-- Look for hooked survivors
 	for _, player in ipairs(Players:GetPlayers()) do
 		if player ~= localPlayer then
@@ -88,11 +91,24 @@ function SurvivorController:Update()
 				local dist = (myRoot.Position - targetRoot.Position).Magnitude
 				if dist < closestDist then
 					closestDist = dist
-					self.currentTarget = { Type = "Unhook", Player = player }
+					bestTarget = { Type = "Unhook", Player = player }
 				end
 			end
 		end
 	end
+
+	-- Look for powered exit gates
+	for _, gate in ipairs(game:GetService("CollectionService"):GetTagged("PoweredGate")) do
+		if gate:FindFirstChildOfClass("BasePart") then
+			local dist = (myRoot.Position - gate:GetPrimaryPartCFrame().Position).Magnitude
+			if dist < closestDist then
+				closestDist = dist
+				bestTarget = { Type = "ExitGate", Object = gate }
+			end
+		end
+	end
+
+	self.currentTarget = bestTarget
 end
 
 function SurvivorController:OnInputBegan(input)
@@ -103,6 +119,9 @@ function SurvivorController:OnInputBegan(input)
 			if self.currentTarget.Type == "Unhook" then
 				print("Requesting to unhook survivor:", self.currentTarget.Player.Name)
 				EventManager.UnhookRequestEvent:FireServer(self.currentTarget.Player)
+			elseif self.currentTarget.Type == "ExitGate" then
+				print("Requesting to open gate:", self.currentTarget.Object.Name)
+				EventManager.RequestOpenGateEvent:FireServer(self.currentTarget.Object)
 			end
 		end
 	end

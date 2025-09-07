@@ -56,6 +56,8 @@ function PlayerManager:SetPlayerState(player: Player, state: string)
 		elseif state == "Healthy" or state == "Injured" then
 			humanoid.WalkSpeed = 16
 			humanoid.PlatformStand = false
+		elseif state == "Escaped" then
+			-- No physical state, character should be destroyed
 		end
 	end
 

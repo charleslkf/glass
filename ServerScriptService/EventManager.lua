@@ -87,6 +87,10 @@ EventManager.UnhookRequestEvent = Instance.new("RemoteEvent")
 EventManager.UnhookRequestEvent.Name = "UnhookRequestEvent"
 EventManager.UnhookRequestEvent.Parent = eventsFolder
 
+EventManager.RequestOpenGateEvent = Instance.new("RemoteEvent")
+EventManager.RequestOpenGateEvent.Name = "RequestOpenGateEvent"
+EventManager.RequestOpenGateEvent.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")
