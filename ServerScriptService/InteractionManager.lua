@@ -28,8 +28,8 @@ function InteractionManager:Init()
 	end)
 	print("[DEBUG] Connected UnhookRequestEvent.")
 
-	EventManager.RequestOpenGateEvent.OnServerEvent:Connect(function(player, gateModel)
-		self:OnRequestOpenGate(player, gateModel)
+	EventManager.RequestOpenGateEvent.OnServerEvent:Connect(function(player, gateName)
+		self:OnRequestOpenGate(player, gateName)
 	end)
 	print("[DEBUG] Connected RequestOpenGateEvent.")
 
@@ -45,8 +45,15 @@ end
 --[=[
 	Handles a request from a player to open an exit gate.
 ]=]
-function InteractionManager:OnRequestOpenGate(player: Player, gateModel: Model)
-	if not player or not gateModel or not player.Character then return end
+function InteractionManager:OnRequestOpenGate(player: Player, gateName: string)
+	if not player or not gateName or not player.Character then return end
+
+	local gateModel = game:GetService("Workspace"):FindFirstChild(gateName)
+	if not gateModel then
+		warn(player.Name .. " tried to open a gate that doesn't exist: " .. gateName)
+		return
+	end
+
 	if gateModel:GetAttribute("State") ~= "Powered" then
 		warn(player.Name .. " tried to open a gate that isn't powered or is already open.")
 		return

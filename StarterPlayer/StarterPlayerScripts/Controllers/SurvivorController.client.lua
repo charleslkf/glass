@@ -145,7 +145,7 @@ function SurvivorController:OnInputBegan(input)
 				EventManager.UnhookRequestEvent:FireServer(self.currentTarget.Player)
 			elseif self.currentTarget.Type == "ExitGate" then
 				print("Requesting to open gate:", self.currentTarget.Object.Name)
-				EventManager.RequestOpenGateEvent:FireServer(self.currentTarget.Object)
+				EventManager.RequestOpenGateEvent:FireServer(self.currentTarget.Object.Name)
 			end
 		end
 	end
