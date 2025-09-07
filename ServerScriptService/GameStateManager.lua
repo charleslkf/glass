@@ -3,6 +3,9 @@
 	@class GameStateManager
 	Manages the overall state of the game, such as "Lobby", "InRound", or "Intermission".
 ]=]
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GameState = ReplicatedStorage:WaitForChild("GameState")
+
 local GameStateManager = {}
 GameStateManager.__index = GameStateManager
 
@@ -19,6 +22,7 @@ GameStateManager.StateChanged = Instance.new("BindableEvent")
 function GameStateManager:SetState(state: string)
 	if self.State ~= state then
 		self.State = state
+		GameState:SetAttribute("State", state) -- Unify the state
 		self.StateChanged:Fire(state)
 		print("Game state changed to: " .. state)
 	end
