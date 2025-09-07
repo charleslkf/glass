@@ -82,6 +82,11 @@ EventManager.PlayerStateChangedEvent = Instance.new("RemoteEvent")
 EventManager.PlayerStateChangedEvent.Name = "PlayerStateChangedEvent"
 EventManager.PlayerStateChangedEvent.Parent = eventsFolder
 
+-- Survivor Interaction Events
+EventManager.UnhookRequestEvent = Instance.new("RemoteEvent")
+EventManager.UnhookRequestEvent.Name = "UnhookRequestEvent"
+EventManager.UnhookRequestEvent.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")

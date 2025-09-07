@@ -13,6 +13,7 @@ local RoundManager = require(ServerScriptService.RoundManager)
 local AbilityManager = require(ServerScriptService.AbilityManager)
 local EventManager = require(ServerScriptService.EventManager)
 local KillerManager = require(ServerScriptService.KillerManager)
+local InteractionManager = require(ServerScriptService.InteractionManager)
 
 -- Safely require the MachineManager to catch and log any initialization errors
 local success, MachineManager = pcall(require, ServerScriptService.MachineManager)
@@ -32,6 +33,7 @@ PlayerManager:Init()
 KillerManager:Initialize(PlayerManager)
 AbilityManager:Init()
 EventManager:Init()
+InteractionManager:Init()
 MachineManager:Init()
 RoundManager:Init() -- RoundManager should generally be last
 

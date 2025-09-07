@@ -1,0 +1,115 @@
+--[=[
+	@client
+	@class SurvivorController
+	Handles client-side input and logic for Survivor roles.
+]=]
+local SurvivorController = {}
+SurvivorController.__index = SurvivorController
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local localPlayer = Players.LocalPlayer
+local EventManager = ReplicatedStorage:WaitForChild("GameEvents")
+
+local playerRoles = ReplicatedStorage:WaitForChild("PlayerRoles")
+local playerStates = ReplicatedStorage:WaitForChild("PlayerStates")
+
+local INTERACTION_KEY = Enum.KeyCode.E
+local INTERACTION_DISTANCE = 8
+
+function SurvivorController.new()
+	local self = setmetatable({}, SurvivorController)
+	self.isSurvivor = false
+	self.currentTarget = nil
+	return self
+end
+
+function SurvivorController:Init()
+	print("SurvivorController Initialized")
+
+	local function onRoleChanged(role)
+		if role ~= "Killer" then
+			if not self.isSurvivor then
+				self.isSurvivor = true
+				print("You are a Survivor.")
+				RunService.Heartbeat:Connect(function() self:Update() end)
+				UserInputService.InputBegan:Connect(function(input, gameProcessed)
+					if not gameProcessed then
+						self:OnInputBegan(input)
+					end
+				end)
+			end
+		else
+			self.isSurvivor = false
+		end
+	end
+
+	-- Listen for role changes
+	playerRoles.AttributeChanged:Connect(function(attribute)
+		if attribute == tostring(localPlayer.UserId) then
+			onRoleChanged(playerRoles:GetAttribute(attribute))
+		end
+	end)
+
+	-- Check initial role
+	local initialRole = playerRoles:GetAttribute(tostring(localPlayer.UserId))
+	if initialRole then
+		onRoleChanged(initialRole)
+	end
+end
+
+function SurvivorController:Update()
+	if not self.isSurvivor or not localPlayer.Character or not localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		self.currentTarget = nil
+		return
+	end
+
+	local myRoot = localPlayer.Character.HumanoidRootPart
+	local myState = playerStates:GetAttribute(tostring(localPlayer.UserId))
+
+	-- Can't interact while in these states
+	if myState == "Hooked" or myState == "Carried" or myState == "Downed" then
+		self.currentTarget = nil
+		return
+	end
+
+	self.currentTarget = nil
+	local closestDist = INTERACTION_DISTANCE
+
+	-- Look for hooked survivors
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player ~= localPlayer then
+			local targetState = playerStates:GetAttribute(tostring(player.UserId))
+			if targetState == "Hooked" and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+				local targetRoot = player.Character.HumanoidRootPart
+				local dist = (myRoot.Position - targetRoot.Position).Magnitude
+				if dist < closestDist then
+					closestDist = dist
+					self.currentTarget = { Type = "Unhook", Player = player }
+				end
+			end
+		end
+	end
+end
+
+function SurvivorController:OnInputBegan(input)
+	if not self.isSurvivor then return end
+
+	if input.KeyCode == INTERACTION_KEY then
+		if self.currentTarget then
+			if self.currentTarget.Type == "Unhook" then
+				print("Requesting to unhook survivor:", self.currentTarget.Player.Name)
+				EventManager.UnhookRequestEvent:FireServer(self.currentTarget.Player)
+			end
+		end
+	end
+end
+
+-- Create and initialize the controller
+local controller = SurvivorController.new()
+controller:Init()
+
+return controller
