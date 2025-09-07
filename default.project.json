@@ -2,13 +2,19 @@
   "name": "DNF-Roblox",
   "tree": {
     "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Shared": {
+        "$path": "Shared"
+      }
+    },
     "ServerScriptService": {
       "$path": "ServerScriptService"
     },
     "StarterPlayer": {
-      "StarterPlayerScripts": {
-        "$path": "StarterPlayer/StarterPlayerScripts"
-      }
+      "$path": "StarterPlayer"
+    },
+    "Workspace": {
+      "$ignoreUnknownInstances": true
     }
   }
 }
