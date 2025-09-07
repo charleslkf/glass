@@ -107,9 +107,9 @@ function SurvivorController:Update()
 	-- Look for powered exit gates
 	for _, gate in ipairs(self.poweredGates) do
 		-- If a gate is in this list, we trust the server that it's powered.
-		-- No need to check attributes on the client, which avoids replication timing issues.
-		if gate and gate.PrimaryPart then
-			local dist = (myRoot.Position - gate.PrimaryPart.Position).Magnitude
+		local mainPart = gate and (gate:FindFirstChild("Main") or gate:FindFirstChildOfClass("BasePart"))
+		if mainPart then
+			local dist = (myRoot.Position - mainPart.Position).Magnitude
 			if dist < closestDist then
 				closestDist = dist
 				bestTarget = { Type = "ExitGate", Object = gate }
