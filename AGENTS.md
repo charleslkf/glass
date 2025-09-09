@@ -20,3 +20,6 @@ Project Roadmap (project_roadmap.md): For questions about the development plan, 
 6. Strategic Pivots
 Directive is King: The user's most recent directive or strategic pivot always supersedes all previous plans and documentation.
 Docs First: When a major pivot occurs, the first priority is to update all relevant documentation (game_manual.md, project_roadmap.md, AGENTS.md) to reflect the new strategy. Code implementation must wait until the documentation is aligned.
+
+7. Known System Limitations
+Branching: Due to a system restriction, the `submit` tool cannot create new branches. All commits will be added to the existing branch (`bugfix/exit-gate-event`). The `branch_name` parameter is ignored.
