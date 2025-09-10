@@ -45,15 +45,35 @@ function MapBuilder.BuildMap()
 		print("Created gate: " .. gateName)
 	end
 
-	for _, pos in ipairs(HOOK_POSITIONS) do
-		local hook = Instance.new("Part")
-		hook.Size = Vector3.new(2, 10, 2)
-		hook.Position = pos
-		hook.Anchored = true
-		hook.BrickColor = BrickColor.new("Really black")
-		hook.Name = "Hook"
-		hook.Parent = mapContainer
-		CollectionService:AddTag(hook, "Hook")
+	for i, pos in ipairs(HOOK_POSITIONS) do
+		local hookModel = Instance.new("Model")
+		hookModel.Name = "Hook_" .. i
+		hookModel.Parent = mapContainer
+
+		local pole = Instance.new("Part")
+		pole.Name = "Pole"
+		pole.Size = Vector3.new(1, 10, 1)
+		pole.Position = pos
+		pole.Anchored = true
+		pole.BrickColor = BrickColor.new("Really black")
+		pole.Parent = hookModel
+
+		local hookPart = Instance.new("Part")
+		hookPart.Name = "HookPart"
+		hookPart.Size = Vector3.new(1, 1, 3)
+		hookPart.CFrame = pole.CFrame * CFrame.new(0, 3, -1)
+		hookPart.Anchored = true
+		hookPart.BrickColor = BrickColor.new("Really black")
+		hookPart.Parent = hookModel
+
+		local hangPoint = Instance.new("Attachment")
+		hangPoint.Name = "HangPoint"
+		hangPoint.Position = Vector3.new(0, -1, 1) -- Position relative to hookPart
+		hangPoint.Parent = hookPart
+
+		hookModel.PrimaryPart = pole
+		CollectionService:AddTag(hookModel, "Hook")
+
 		print("Created hook at", pos)
 	end
 

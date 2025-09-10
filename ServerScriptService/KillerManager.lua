@@ -56,11 +56,13 @@ function KillerManager:HookSurvivor(killerPlayer)
     if not killerRoot then return end
 
     local nearestHook, nearestDist = nil, 10 -- Max hook distance
-    for _, hook in ipairs(game:GetService("CollectionService"):GetTagged("Hook")) do
-        local dist = (killerRoot.Position - hook.Position).Magnitude
-        if dist < nearestDist then
-            nearestHook = hook
-            nearestDist = dist
+    for _, hookModel in ipairs(game:GetService("CollectionService"):GetTagged("Hook")) do
+        if hookModel:IsA("Model") and hookModel.PrimaryPart then
+            local dist = (killerRoot.Position - hookModel.PrimaryPart.Position).Magnitude
+            if dist < nearestDist then
+                nearestHook = hookModel
+                nearestDist = dist
+            end
         end
     end
 
@@ -79,11 +81,17 @@ function KillerManager:HookSurvivor(killerPlayer)
     local survivorRoot = survivorPlayer.Character and survivorPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not survivorRoot then return end
 
-    survivorRoot.CFrame = nearestHook.CFrame * CFrame.new(0, -2.5, 0)
+    local hangPoint = nearestHook:FindFirstChild("HookPart"):FindFirstChild("HangPoint")
+    if not hangPoint then
+        warn("Hook model is missing HangPoint attachment:", nearestHook.Name)
+        return
+    end
+
+    survivorRoot.CFrame = hangPoint.WorldCFrame
     local hookWeld = Instance.new("WeldConstraint")
-    hookWeld.Part0 = nearestHook
+    hookWeld.Part0 = hangPoint.Parent -- Weld to the HookPart
     hookWeld.Part1 = survivorRoot
-    hookWeld.Parent = nearestHook
+    hookWeld.Parent = hangPoint.Parent
     hookWeld.Name = "HookWeld"
 
     -- Update states
