@@ -93,7 +93,7 @@ function GameHUDController.new()
 	self.vignette = Instance.new("ImageLabel")
 	self.vignette.Name = "Vignette"
 	self.vignette.Size = UDim2.new(1, 0, 1, 0)
-	self.vignette.Image = "rbxassetid://2 vignettes" -- Placeholder, user can find a vignette image
+	self.vignette.Image = "rbxassetid://116451346870907"
 	self.vignette.ScaleType = Enum.ScaleType.Slice
 	self.vignette.SliceCenter = Rect.new(100, 100, 100, 100) -- Slice the center to make borders
 	self.vignette.ImageColor3 = Color3.fromRGB(255, 0, 0)
