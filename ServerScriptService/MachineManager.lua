@@ -46,6 +46,9 @@ function MachineManager:Init()
 		if machineInstance:ValidateSolution(solution) then
 			machineInstance.IsCompleted = true
 			MachineManager.MachineCompleted:Fire(machineInstance)
+		else
+			-- Play failure sound for the specific player
+			EventManager.PlaySoundEvent:FireClient(player, "MachineFail")
 		end
 	end)
 
@@ -57,6 +60,9 @@ function MachineManager:Init()
 		if machineInstance:ValidateSolution(solution) then
 			machineInstance.IsCompleted = true
 			MachineManager.MachineCompleted:Fire(machineInstance)
+		else
+			-- Play failure sound for the specific player
+			EventManager.PlaySoundEvent:FireClient(player, "MachineFail")
 		end
 	end)
 

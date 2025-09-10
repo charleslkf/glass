@@ -59,6 +59,12 @@ function SoundManager:Init()
 	endgameSound.Parent = game.SoundService
 	sounds["EndgameCollapse"] = endgameSound
 
+	local machineFailSound = Instance.new("Sound")
+	machineFailSound.SoundId = "rbxassetid://15506420081"
+	machineFailSound.Name = "MachineFail"
+	machineFailSound.Parent = game.SoundService
+	sounds["MachineFail"] = machineFailSound
+
 	print("SoundManager initialized.")
 end
 
