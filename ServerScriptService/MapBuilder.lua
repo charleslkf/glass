@@ -1,5 +1,6 @@
 local MapBuilder = {}
 
+local ServerScriptService = game:GetService("ServerScriptService")
 local CollectionService = game:GetService("CollectionService")
 local Workspace = game:GetService("Workspace")
 
