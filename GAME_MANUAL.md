@@ -1,12 +1,12 @@
-# Forsaken: The Official Game Manual
+# D.N.F: The Official Game Manual
 
-Welcome to Forsaken. This manual provides a comprehensive overview of the game's rules, objectives, and mechanics to guide both players and future development.
+Welcome to D.N.F. This manual provides a comprehensive overview of the game's rules, objectives, and mechanics to guide both players and future development.
 
 ## 1. Game Overview
 
-"Forsaken" is an asymmetrical survival horror game for up to four players. One player takes on the role of the supernatural **Killer**, whose goal is to hunt and sacrifice the other players. The remaining players are **Survivors**, who must work together to power up the Exit Gates and escape.
+"D.N.F" is an asymmetrical survival horror game for up to four players. One player takes on the role of the supernatural **Killer**, whose goal is to hunt and sacrifice the other players. The remaining players are **Survivors**, who must work together to power up the Exit Gates and escape.
 
-A round of "Forsaken" is a tense and strategic experience that unfolds in three acts:
+A round of "D.N.F" is a tense and strategic experience that unfolds in three acts:
 
 *   **Act I: The Opening:** Survivors must find and repair three complex machines while avoiding the Killer.
 *   **Act II: The Mid-Game:** The Killer actively hunts, downs, and hooks Survivors, forcing the team to balance repairing with risky rescues.

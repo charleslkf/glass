@@ -1,10 +1,10 @@
-# Forsaken: Game Concept Overview
+# D.N.F: Game Concept Overview
 
-"Forsaken" is an asymmetrical survival horror game that pits a team of four resourceful Survivors against one supernatural Killer in a deadly game of cat and mouse. The game is designed to be a tense, strategic experience that rewards teamwork, smart decision-making, and skillful execution.
+"D.N.F" is an asymmetrical survival horror game that pits a team of four resourceful Survivors against one supernatural Killer in a deadly game of cat and mouse. The game is designed to be a tense, strategic experience that rewards teamwork, smart decision-making, and skillful execution.
 
 ## 1. The Core Gameplay Loop: A Three-Act Structure
 
-A typical round of "Forsaken" is structured like a three-act horror story, with a clear beginning, a tense middle, and a climactic end.
+A typical round of "D.N.F" is structured like a three-act horror story, with a clear beginning, a tense middle, and a climactic end.
 
 *   **Act I: The Opening Phase:** The round begins with a quiet, oppressive tension. The four Survivors spawn into a sprawling, atmospheric map and must immediately begin their primary objective: locating and repairing three unique, complex machines. Shortly after, the Killer arrives, and the hunt begins. This phase is about stealth, information gathering, and making as much objective progress as possible before the Killer can build momentum and apply pressure.
 
