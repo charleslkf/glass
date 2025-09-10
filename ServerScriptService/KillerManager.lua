@@ -71,7 +71,7 @@ function KillerManager:HookSurvivor(killerPlayer)
         return
     end
 
-    print("Hooking " .. survivorPlayer.Name .. " at " .. tostring(nearestHook.Position))
+    print("Hooking " .. survivorPlayer.Name .. " at " .. tostring(nearestHook.PrimaryPart.Position))
 
     -- Unweld from killer
     local carryWeld = killerRoot:FindFirstChild("CarryWeld")

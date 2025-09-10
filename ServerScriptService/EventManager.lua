@@ -91,6 +91,10 @@ EventManager.RequestOpenGateEvent = Instance.new("RemoteEvent")
 EventManager.RequestOpenGateEvent.Name = "RequestOpenGateEvent"
 EventManager.RequestOpenGateEvent.Parent = eventsFolder
 
+	EventManager.RequestSearchChestEvent = Instance.new("RemoteEvent")
+	EventManager.RequestSearchChestEvent.Name = "RequestSearchChestEvent"
+	EventManager.RequestSearchChestEvent.Parent = eventsFolder
+
 	EventManager.UseItemEvent = Instance.new("RemoteEvent")
 	EventManager.UseItemEvent.Name = "UseItemEvent"
 	EventManager.UseItemEvent.Parent = eventsFolder

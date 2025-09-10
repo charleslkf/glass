@@ -93,8 +93,8 @@ function MapBuilder.BuildMap()
 		prompt.Parent = chest
 
 		prompt.Triggered:Connect(function(player)
-			local InteractionManager = require(ServerScriptService.InteractionManager)
-			InteractionManager:OnRequestSearchChest(player, chest)
+			local EventManager = require(ServerScriptService.EventManager)
+			EventManager.RequestSearchChestEvent:FireServer(player, chest)
 		end)
 
 		print("Created chest at", pos)
