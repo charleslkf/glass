@@ -66,6 +66,17 @@ function MapBuilder.BuildMap()
 		chest.Name = "Chest"
 		chest.Parent = mapContainer
 		CollectionService:AddTag(chest, "Chest")
+
+		local prompt = Instance.new("ProximityPrompt")
+		prompt.ActionText = "Search Chest"
+		prompt.ObjectText = "Supply Chest"
+		prompt.Parent = chest
+
+		prompt.Triggered:Connect(function(player)
+			local InteractionManager = require(ServerScriptService.InteractionManager)
+			InteractionManager:OnRequestSearchChest(player, chest)
+		end)
+
 		print("Created chest at", pos)
 	end
 

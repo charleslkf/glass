@@ -39,11 +39,6 @@ function InteractionManager:Init()
 	end)
 	print("[DEBUG] Connected SurvivorEscapedRequestEvent.")
 
-	EventManager.RequestSearchChestEvent.OnServerEvent:Connect(function(player, chest)
-		self:OnRequestSearchChest(player, chest)
-	end)
-	print("[DEBUG] Connected RequestSearchChestEvent.")
-
 	print("InteractionManager Initialized")
 end
 
@@ -68,11 +63,18 @@ function InteractionManager:OnRequestSearchChest(player: Player, chest: BasePart
 	PlayerManager:GiveItem(player, "Med-Kit", 2)
 
 	-- Make the chest unusable for a while
+	local prompt = chest:FindFirstChildOfClass("ProximityPrompt")
+	if prompt then
+		prompt.Enabled = false
+	end
+
 	chest.BrickColor = BrickColor.new("Black")
-	chest.ProximityPrompt.Enabled = false
+
 	task.delay(30, function()
 		chest.BrickColor = BrickColor.new("Brown")
-		chest.ProximityPrompt.Enabled = true
+		if prompt then
+			prompt.Enabled = true
+		end
 	end)
 end
 
