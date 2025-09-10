@@ -39,7 +39,41 @@ function InteractionManager:Init()
 	end)
 	print("[DEBUG] Connected SurvivorEscapedRequestEvent.")
 
+	EventManager.RequestSearchChestEvent.OnServerEvent:Connect(function(player, chest)
+		self:OnRequestSearchChest(player, chest)
+	end)
+	print("[DEBUG] Connected RequestSearchChestEvent.")
+
 	print("InteractionManager Initialized")
+end
+
+--[=[
+	Handles a request from a player to search a chest.
+]=]
+function InteractionManager:OnRequestSearchChest(player: Player, chest: BasePart)
+	if not player or not chest or not player.Character then return end
+	if PlayerManager:HasItem(player) then
+		print(player.Name .. " tried to search a chest but already has an item.")
+		return
+	end
+
+	local dist = (player.Character.HumanoidRootPart.Position - chest.Position).Magnitude
+	if dist > INTERACTION_DISTANCE then
+		warn(player.Name .. " tried to search a chest from too far away.")
+		return
+	end
+
+	print(player.Name .. " is searching " .. chest.Name)
+	-- For now, give a Med-Kit instantly with 2 charges.
+	PlayerManager:GiveItem(player, "Med-Kit", 2)
+
+	-- Make the chest unusable for a while
+	chest.BrickColor = BrickColor.new("Black")
+	chest.ProximityPrompt.Enabled = false
+	task.delay(30, function()
+		chest.BrickColor = BrickColor.new("Brown")
+		chest.ProximityPrompt.Enabled = true
+	end)
 end
 
 --[=[

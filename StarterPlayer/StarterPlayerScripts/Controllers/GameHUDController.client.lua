@@ -20,6 +20,11 @@ local GameState = ReplicatedStorage:WaitForChild("GameState")
 local PlayerRoles = ReplicatedStorage:WaitForChild("PlayerRoles")
 local SoundManager = require(script.Parent.Parent:WaitForChild("SoundManager"))
 
+-- A map of item names to their icon asset IDs
+local ITEM_ICONS = {
+	["Med-Kit"] = "rbxassetid://12623754649",
+}
+
 -- Main entry point
 function GameHUDController.new()
 	local self = setmetatable({}, GameHUDController)
@@ -75,6 +80,16 @@ function GameHUDController.new()
 	self.timerLabel.TextXAlignment = Enum.TextXAlignment.Left
 	self.timerLabel.BackgroundTransparency = 1
 	self.timerLabel.Parent = self.objectiveFrame
+
+	-- Create Item Display
+	self.itemImage = Instance.new("ImageLabel")
+	self.itemImage.Name = "ItemImage"
+	self.itemImage.Size = UDim2.new(0.1, 0, 0.15, 0)
+	self.itemImage.AnchorPoint = Vector2.new(1, 1)
+	self.itemImage.Position = UDim2.new(0.98, 0, 0.98, 0)
+	self.itemImage.BackgroundTransparency = 1
+	self.itemImage.Visible = false
+	self.itemImage.Parent = self.screenGui
 
 	-- Create Endgame Collapse UI
 	self.endgameTimerLabel = Instance.new("TextLabel")
@@ -135,11 +150,14 @@ function GameHUDController:Init()
 		end
 	end)
 
-	-- Listen for role changes
+	-- Listen for role and item changes
 	PlayerRoles.AttributeChanged:Connect(function(attribute)
 		if attribute == tostring(localPlayer.UserId) then
 			local role = PlayerRoles:GetAttribute(attribute)
 			self:ShowAnnouncement("YOU ARE THE " .. string.upper(role), 5)
+		elseif attribute == tostring(localPlayer.UserId) .. "_Item" then
+			local itemName = PlayerRoles:GetAttribute(attribute)
+			self:UpdateItemDisplay(itemName)
 		end
 	end)
 
@@ -148,6 +166,16 @@ function GameHUDController:Init()
 
 	-- Show initial state
 	self:OnStateChanged(GameState:GetAttribute("State"))
+	self:UpdateItemDisplay(PlayerRoles:GetAttribute(tostring(localPlayer.UserId) .. "_Item"))
+end
+
+function GameHUDController:UpdateItemDisplay(itemName: string?)
+	if itemName and ITEM_ICONS[itemName] then
+		self.itemImage.Image = ITEM_ICONS[itemName]
+		self.itemImage.Visible = true
+	else
+		self.itemImage.Visible = false
+	end
 end
 
 -- Formats seconds into a M:SS string

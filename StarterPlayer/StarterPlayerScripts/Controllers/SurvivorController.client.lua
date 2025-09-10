@@ -10,6 +10,7 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local CollectionService = game:GetService("CollectionService")
 
 local localPlayer = Players.LocalPlayer
 local EventManager = ReplicatedStorage:WaitForChild("GameEvents")
@@ -115,6 +116,17 @@ function SurvivorController:Update()
 		end
 	end
 
+	-- Look for chests
+	for _, chest in ipairs(CollectionService:GetTagged("Chest")) do
+		if chest:IsA("BasePart") then
+			local dist = (myRoot.Position - chest.Position).Magnitude
+			if dist < closestDist then
+				closestDist = dist
+				bestTarget = { Type = "Chest", Object = chest }
+			end
+		end
+	end
+
 	self.currentTarget = bestTarget
 
 	-- Look for open exit gates to escape through
@@ -138,6 +150,12 @@ end
 function SurvivorController:OnInputBegan(input)
 	if not self.isSurvivor then return end
 
+	if input.UserInputType == Enum.UserInputType.MouseButton2 then
+		print("Right mouse button pressed. Firing UseItemEvent.")
+		EventManager.UseItemEvent:FireServer()
+		return
+	end
+
 	if input.KeyCode == INTERACTION_KEY then
 		if self.currentTarget then
 			if self.currentTarget.Type == "Unhook" then
@@ -146,6 +164,9 @@ function SurvivorController:OnInputBegan(input)
 			elseif self.currentTarget.Type == "ExitGate" then
 				print("Requesting to open gate:", self.currentTarget.Object.Name)
 				EventManager.RequestOpenGateEvent:FireServer(self.currentTarget.Object.Name)
+			elseif self.currentTarget.Type == "Chest" then
+				print("Requesting to search chest:", self.currentTarget.Object.Name)
+				EventManager.RequestSearchChestEvent:FireServer(self.currentTarget.Object)
 			end
 		end
 	end

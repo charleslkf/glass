@@ -20,6 +20,8 @@ local playerRoles = {}
 local playerHealths = {}
 -- A table to store the state of players
 local playerStates = {}
+-- A table to store player items and their charges
+local playerItems = {}
 
 -- Create a container in ReplicatedStorage for roles
 local playerRolesContainer = Instance.new("Configuration")
@@ -118,8 +120,73 @@ function PlayerManager:OnPlayerRemoving(player: Player)
 	playerRoles[player] = nil
 	playerHealths[player] = nil
 	playerStates[player] = nil
+	playerItems[player] = nil
 	playerRolesContainer:SetAttribute(tostring(player.UserId), nil)
 	playerStatesContainer:SetAttribute(tostring(player.UserId), nil)
+	playerRolesContainer:SetAttribute(tostring(player.UserId) .. "_Item", nil)
+end
+
+--[=[
+	Gives an item to a player.
+	@param player Player The player to give the item to.
+	@param itemName string The name of the item.
+	@param charges number The number of uses the item has.
+]=]
+function PlayerManager:GiveItem(player: Player, itemName: string, charges: number)
+	if not player then return end
+	playerItems[player] = {
+		Name = itemName,
+		Charges = charges,
+	}
+	playerRolesContainer:SetAttribute(tostring(player.UserId) .. "_Item", itemName)
+	print("Gave " .. itemName .. " to " .. player.Name)
+end
+
+--[=[
+	Checks if a player currently has an item.
+]=]
+function PlayerManager:HasItem(player: Player): boolean
+	return playerItems[player] ~= nil
+end
+
+--[=[
+	Consumes one charge of a player's item. If charges reach zero, the item is removed.
+]=]
+function PlayerManager:UseItemCharge(player: Player)
+	if not self:HasItem(player) then return end
+
+	local item = playerItems[player]
+	item.Charges -= 1
+	print(player.Name .. " used a charge of " .. item.Name .. ". " .. item.Charges .. " charges remaining.")
+
+	if item.Charges <= 0 then
+		playerItems[player] = nil
+		playerRolesContainer:SetAttribute(tostring(player.UserId) .. "_Item", nil)
+		print(player.Name .. "'s " .. item.Name .. " was depleted.")
+	end
+end
+
+--[=[
+	Handles a player's request to use their currently held item.
+]=]
+function PlayerManager:UseItem(player: Player)
+	if not self:HasItem(player) then
+		print(player.Name .. " tried to use an item, but has none.")
+		return
+	end
+
+	local item = playerItems[player]
+
+	if item.Name == "Med-Kit" then
+		if self:GetPlayerState(player) == "Injured" then
+			print(player.Name .. " is using a Med-Kit to heal.")
+			-- For now, the heal is instant. A channel time could be added later.
+			self:HealPlayer(player, 50) -- Heal for 50 to go from Injured to Healthy
+			self:UseItemCharge(player)
+		else
+			print(player.Name .. " tried to use a Med-Kit, but is not injured.")
+		end
+	end
 end
 
 --[=[
@@ -136,6 +203,10 @@ function PlayerManager:Init()
 
 	EventManager.PlayerAttackEvent.OnServerEvent:Connect(function(attackerPlayer, targetPlayer)
 		self:KillerAttack(attackerPlayer, targetPlayer)
+	end)
+
+	EventManager.UseItemEvent.OnServerEvent:Connect(function(player)
+		self:UseItem(player)
 	end)
 
 	for _, player in ipairs(Players:GetPlayers()) do

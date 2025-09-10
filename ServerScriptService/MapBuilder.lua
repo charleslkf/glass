@@ -10,6 +10,12 @@ local HOOK_POSITIONS = {
 	Vector3.new(20, 5, -20),
 }
 
+local CHEST_POSITIONS = {
+	Vector3.new(30, 2.5, 30),
+	Vector3.new(-30, 2.5, -30),
+	Vector3.new(30, 2.5, -30),
+}
+
 function MapBuilder.BuildMap()
 	print("Building map...")
 
@@ -49,6 +55,18 @@ function MapBuilder.BuildMap()
 		hook.Parent = mapContainer
 		CollectionService:AddTag(hook, "Hook")
 		print("Created hook at", pos)
+	end
+
+	for _, pos in ipairs(CHEST_POSITIONS) do
+		local chest = Instance.new("Part")
+		chest.Size = Vector3.new(4, 3, 2)
+		chest.Position = pos
+		chest.Anchored = true
+		chest.BrickColor = BrickColor.new("Brown")
+		chest.Name = "Chest"
+		chest.Parent = mapContainer
+		CollectionService:AddTag(chest, "Chest")
+		print("Created chest at", pos)
 	end
 
 	print("Map build complete.")
