@@ -11,7 +11,13 @@ local Players = game:GetService("Players")
 local EventManager = require(game:GetService("ServerScriptService").EventManager)
 
 -- Define the DataStore for player data
-local playerDataStore = DataStoreService:GetDataStore("PlayerData_v1")
+local success, playerDataStore = pcall(function()
+	return DataStoreService:GetDataStore("PlayerData_v1")
+end)
+
+if not success then
+	warn("Could not connect to DataStoreService. Data will not be saved. This is normal in Studio without API access enabled.")
+end
 
 -- A table to hold the loaded data for active players
 local sessionData = {}
@@ -21,6 +27,8 @@ local sessionData = {}
 	@param player Player The player whose data should be loaded.
 ]=]
 function DataManager:LoadData(player: Player)
+	if not success then return end -- DataStore is not available
+
 	local playerKey = "Player_" .. player.UserId
 
 	local success, data = pcall(function()
@@ -52,6 +60,8 @@ end
 	@param player Player The player whose data should be saved.
 ]=]
 function DataManager:SaveData(player: Player)
+	if not success then return end -- DataStore is not available
+
 	local playerKey = "Player_" .. player.UserId
 
 	if sessionData[player] then
