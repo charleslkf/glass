@@ -82,10 +82,12 @@ function KillerController:Update()
 	if myState == "Carrying" then
 		-- Look for hooks
 		for _, hook in ipairs(CollectionService:GetTagged("Hook")) do
-			local dist = (myRoot.Position - hook.Position).Magnitude
-			if dist < closestDist then
-				closestDist = dist
-				self.currentTarget = { Type = "Hook", Object = hook }
+			if hook:IsA("Model") and hook.PrimaryPart then
+				local dist = (myRoot.Position - hook.PrimaryPart.Position).Magnitude
+				if dist < closestDist then
+					closestDist = dist
+					self.currentTarget = { Type = "Hook", Object = hook }
+				end
 			end
 		end
 	else
