@@ -17,7 +17,7 @@ local CHEST_POSITIONS = {
 	Vector3.new(30, 2.5, -30),
 }
 
-function MapBuilder.BuildMap()
+function MapBuilder.BuildMap(InteractionManager)
 	print("Building map...")
 
 	local mapContainer = Instance.new("Folder")
@@ -94,8 +94,7 @@ function MapBuilder.BuildMap()
 		prompt.Parent = chest
 
 		prompt.Triggered:Connect(function(player)
-			local EventManager = require(ServerScriptService.EventManager)
-			EventManager.RequestSearchChestEvent:FireServer(player, chest)
+			InteractionManager:OnRequestSearchChest(player, chest)
 		end)
 
 		print("Created chest at", pos)

@@ -35,7 +35,7 @@ end
 
 -- Build the map before initializing managers that might depend on it
 local MapBuilder = require(ServerScriptService.MapBuilder)
-MapBuilder.BuildMap()
+MapBuilder.BuildMap(InteractionManager)
 
 -- Initialize all core managers. DataManager should come first.
 DataManager:Init()

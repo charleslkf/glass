@@ -39,11 +39,6 @@ function InteractionManager:Init()
 	end)
 	print("[DEBUG] Connected SurvivorEscapedRequestEvent.")
 
-	EventManager.RequestSearchChestEvent.OnServerEvent:Connect(function(player, chest)
-		self:OnRequestSearchChest(player, chest)
-	end)
-	print("[DEBUG] Connected RequestSearchChestEvent.")
-
 	print("InteractionManager Initialized")
 end
 
