@@ -65,6 +65,12 @@ function SoundManager:Init()
 	machineFailSound.Parent = game.SoundService
 	sounds["MachineFail"] = machineFailSound
 
+	local decoySound = Instance.new("Sound")
+	decoySound.SoundId = "rbxassetid://15506420081" -- Placeholder: same as MachineFail
+	decoySound.Name = "DecoySound"
+	decoySound.Parent = game.SoundService
+	sounds["DecoySound"] = decoySound
+
 	print("SoundManager initialized.")
 end
 

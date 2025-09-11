@@ -115,6 +115,26 @@ function RoundManager:OnSurvivorEscaped(player: Player)
 		GameStateManager:SetState("Intermission")
 	else
 		print(#activeSurvivors .. " survivor(s) remaining.")
+		self:CheckForHatchSpawn()
+	end
+end
+
+function RoundManager:CheckForHatchSpawn()
+	local activeSurvivors = PlayerManager:GetActiveSurvivors()
+	if #activeSurvivors == 1 then
+		print("Only one survivor remains! Spawning the hatch.")
+		local hatches = CollectionService:GetTagged("Hatch")
+		if #hatches > 0 then
+			local hatch = hatches[1]
+			if hatch:GetAttribute("State") == "Hidden" then
+				hatch:SetAttribute("State", "Visible")
+				hatch.Transparency = 0
+				hatch.CanCollide = true
+				-- TODO: Play a sound effect for the hatch spawning
+			end
+		else
+			warn("Last survivor remaining, but no hatch was found in the map.")
+		end
 	end
 end
 

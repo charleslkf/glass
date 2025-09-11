@@ -84,6 +84,28 @@ function VFXManager:Init()
 	helperAbilityVFX.Shape = Enum.ParticleEmitterShape.Cylinder
 	vfxTemplates["HelperAbility"] = helperAbilityVFX
 
+	-- VFX for Decoy
+	local decoyVFX = Instance.new("ParticleEmitter")
+	decoyVFX.Name = "DecoyVFX"
+	decoyVFX.Color = ColorSequence.new(Color3.fromRGB(255, 50, 50)) -- Red for failure/decoy
+	decoyVFX.LightEmission = 0.5
+	decoyVFX.Size = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.5),
+		NumberSequenceKeypoint.new(0.5, 3),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	decoyVFX.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(0.8, 0.5),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	decoyVFX.Lifetime = NumberRange.new(0.5, 1)
+	decoyVFX.Rate = 0
+	decoyVFX.Speed = NumberRange.new(5, 10)
+	decoyVFX.EmissionDirection = Enum.NormalId.Top
+	decoyVFX.Shape = Enum.ParticleEmitterShape.Sphere
+	vfxTemplates["DecoyVFX"] = decoyVFX
+
 	print("VFXManager initialized.")
 end
 

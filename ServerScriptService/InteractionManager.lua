@@ -14,6 +14,31 @@ local CollectionService = game:GetService("CollectionService")
 
 local INTERACTION_DISTANCE = 10
 
+-- Loot table for chests
+local chestLootTable = {
+	{Name = "Med-Kit", Charges = 2, Weight = 40},
+	{Name = "Decoy", Charges = 1, Weight = 30},
+	{Name = "Picklock", Charges = 1, Weight = 25},
+	{Name = "Key", Charges = 1, Weight = 5},
+}
+
+-- Helper function to get a random item from a weighted table
+local function getRandomItem(lootTable)
+	local totalWeight = 0
+	for _, item in ipairs(lootTable) do
+		totalWeight = totalWeight + item.Weight
+	end
+
+	local randomNum = math.random(1, totalWeight)
+	local currentWeight = 0
+	for _, item in ipairs(lootTable) do
+		currentWeight = currentWeight + item.Weight
+		if randomNum <= currentWeight then
+			return item
+		end
+	end
+end
+
 -- A BindableEvent that fires when any survivor escapes
 InteractionManager.SurvivorEscaped = Instance.new("BindableEvent")
 
@@ -39,7 +64,46 @@ function InteractionManager:Init()
 	end)
 	print("[DEBUG] Connected SurvivorEscapedRequestEvent.")
 
+	EventManager.RequestOpenHatchEvent.OnServerEvent:Connect(function(player, hatch)
+		self:OnRequestOpenHatch(player, hatch)
+	end)
+	print("[DEBUG] Connected RequestOpenHatchEvent.")
+
 	print("InteractionManager Initialized")
+end
+
+function InteractionManager:OnRequestOpenHatch(player, hatch)
+	if not player or not hatch or not player.Character then return end
+
+	-- 1. Validation
+	if not hatch:IsA("BasePart") or not hatch:HasTag("Hatch") then
+		warn(player.Name .. " tried to open something that isn't a hatch.")
+		return
+	end
+
+	if hatch:GetAttribute("State") ~= "Visible" then
+		warn(player.Name .. " tried to open a hatch that isn't visible or is already open.")
+		return
+	end
+
+	if PlayerManager:GetItemName(player) ~= "Key" then
+		warn(player.Name .. " tried to open the hatch without a Key.")
+		return
+	end
+
+	local dist = (player.Character.HumanoidRootPart.Position - hatch.Position).Magnitude
+	if dist > INTERACTION_DISTANCE then
+		warn(player.Name .. " tried to open the hatch from too far away.")
+		return
+	end
+
+	print(player.Name .. " is using a Key to open the hatch!")
+
+	-- 2. Consume Key and Escape
+	PlayerManager:UseItemCharge(player)
+	hatch:SetAttribute("State", "Open")
+	-- For now, escaping is instant.
+	self:OnSurvivorEscaped(player)
 end
 
 --[=[
@@ -59,8 +123,12 @@ function InteractionManager:OnRequestSearchChest(player: Player, chest: BasePart
 	end
 
 	print(player.Name .. " is searching " .. chest.Name)
-	-- For now, give a Med-Kit instantly with 2 charges.
-	PlayerManager:GiveItem(player, "Med-Kit", 2)
+
+	-- Get a random item from the loot table
+	local item = getRandomItem(chestLootTable)
+	if item then
+		PlayerManager:GiveItem(player, item.Name, item.Charges)
+	end
 
 	-- Make the chest unusable for a while
 	local prompt = chest:FindFirstChildOfClass("ProximityPrompt")
@@ -159,17 +227,32 @@ function InteractionManager:OnUnhookRequest(player: Player, targetPlayer: Player
 		return
 	end
 
-	local myState = PlayerManager:GetPlayerState(player)
-	if myState == "Hooked" or myState == "Carried" or myState == "Downed" then
-		warn(player.Name .. " tried to unhook while in an invalid state: " .. myState)
-		return
+	-- Handle self-unhook attempts
+	if player == targetPlayer then
+		if PlayerManager:GetItemName(player) == "Picklock" then
+			print(player.Name .. " is using a Picklock to unhook themselves.")
+			PlayerManager:UseItemCharge(player)
+			-- If they have a picklock, the logic proceeds as normal below.
+		else
+			-- In the future, this could be a chance-based system.
+			-- For now, you can only self-unhook with a picklock.
+			warn(player.Name .. " tried to unhook themselves without a Picklock.")
+			return
+		end
+	else -- It's another player unhooking them
+		local myState = PlayerManager:GetPlayerState(player)
+		if myState == "Hooked" or myState == "Carried" or myState == "Downed" then
+			warn(player.Name .. " tried to unhook while in an invalid state: " .. myState)
+			return
+		end
+
+		local dist = (player.Character.HumanoidRootPart.Position - targetPlayer.Character.HumanoidRootPart.Position).Magnitude
+		if dist > INTERACTION_DISTANCE then
+			warn(player.Name .. " tried to unhook from too far away.")
+			return
+		end
 	end
 
-	local dist = (player.Character.HumanoidRootPart.Position - targetPlayer.Character.HumanoidRootPart.Position).Magnitude
-	if dist > INTERACTION_DISTANCE then
-		warn(player.Name .. " tried to unhook from too far away.")
-		return
-	end
 
 	print(player.Name .. " is unhooking " .. targetPlayer.Name)
 

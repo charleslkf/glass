@@ -56,7 +56,16 @@ function PlayerManager:SetPlayerState(player: Player, state: string)
 			humanoid.WalkSpeed = 14
 			humanoid.PlatformStand = false
 		elseif state == "Healthy" or state == "Injured" then
-			humanoid.WalkSpeed = 16
+			local role = self:GetRole(player)
+			if role == "Killer" then
+				if self.isHeadstartActive then
+					humanoid.WalkSpeed = 16 -- Head-start period
+				else
+					humanoid.WalkSpeed = 16 * 1.2 -- Post-head-start
+				end
+			else
+				humanoid.WalkSpeed = 16 -- Default survivor speed
+			end
 			humanoid.PlatformStand = false
 		elseif state == "Escaped" then
 			-- No physical state, character should be destroyed
@@ -150,6 +159,18 @@ function PlayerManager:HasItem(player: Player): boolean
 end
 
 --[=[
+	Gets the name of a player's current item.
+	@param player Player The player to check.
+	@return string? The name of the item, or nil if they have none.
+]=]
+function PlayerManager:GetItemName(player: Player)
+	if self:HasItem(player) then
+		return playerItems[player].Name
+	end
+	return nil
+end
+
+--[=[
 	Consumes one charge of a player's item. If charges reach zero, the item is removed.
 ]=]
 function PlayerManager:UseItemCharge(player: Player)
@@ -186,6 +207,27 @@ function PlayerManager:UseItem(player: Player)
 		else
 			print(player.Name .. " tried to use a Med-Kit, but is not injured.")
 		end
+	elseif item.Name == "Decoy" then
+		print(player.Name .. " is using a Decoy.")
+		local character = player.Character
+		if character and character:FindFirstChild("HumanoidRootPart") then
+			local hrp = character.HumanoidRootPart
+			local killers = self:GetPlayersByRole("Killer")
+			if #killers > 0 then
+				local killer = killers[0]
+				-- Throw the decoy forward
+				local decoyPosition = hrp.CFrame * CFrame.new(0, 0, -20)
+
+				task.spawn(function()
+					task.wait(0.5) -- Simulate travel time
+					print("Decoy landed at " .. tostring(decoyPosition.p))
+					-- Use placeholder names for sound and VFX until assets are provided
+					EventManager.PlaySoundEvent:FireClient(killer, "DecoySound", decoyPosition.p)
+					EventManager.PlayVFXEvent:FireClient(killer, "DecoyVFX", decoyPosition.p)
+				end)
+			end
+		end
+		self:UseItemCharge(player)
 	end
 end
 
@@ -193,6 +235,8 @@ end
 	Initializes the PlayerManager, connecting to player events.
 ]=]
 function PlayerManager:Init()
+	self.isHeadstartActive = false
+
 	Players.PlayerAdded:Connect(function(player)
 		self:OnPlayerAdded(player)
 	end)
@@ -225,6 +269,7 @@ function PlayerManager:AssignRoles()
 
 	local AbilityManager = require(game:GetService("ServerScriptService").AbilityManager)
 
+	-- Reset roles
 	for player, _ in pairs(playerRoles) do playerRoles[player] = nil end
 	playerRolesContainer:ClearAllChildren()
 
@@ -234,6 +279,10 @@ function PlayerManager:AssignRoles()
 		print(player.Name .. " is the " .. role)
 	end
 
+	-- Set headstart flag
+	self.isHeadstartActive = true
+	local playerManager = self
+
 	-- Updated to use the new Survivor classes
 	local testRoles = {"Killer", "Sentinel", "Support", "Survivalist"}
 
@@ -241,6 +290,13 @@ function PlayerManager:AssignRoles()
 		local role = testRoles[i] or "Survivalist" -- Default to Survivalist
 		setRole(player, role)
 
+		-- Set initial speed for everyone
+		local character = player.Character
+		if character and character:FindFirstChildOfClass("Humanoid") then
+			character:FindFirstChildOfClass("Humanoid").WalkSpeed = 16
+		end
+
+		-- Assign perks
 		if role == "Killer" then
 			AbilityManager:EquipPerk(player, "DefaultKillerAbility")
 		elseif role == "Sentinel" then
@@ -251,6 +307,24 @@ function PlayerManager:AssignRoles()
 			AbilityManager:EquipPerk(player, "DefaultSurvivorAbility")
 		end
 	end
+
+	-- Start timer to end head-start and boost killer speed
+	task.spawn(function()
+		task.wait(10)
+		playerManager.isHeadstartActive = false
+		local killers = playerManager:GetPlayersByRole("Killer")
+		if #killers > 0 and killers[0] and killers[0].Parent then
+			local killer = killers[0]
+			local humanoid = killer.Character and killer.Character:FindFirstChildOfClass("Humanoid")
+			if humanoid then
+				local currentState = playerManager:GetPlayerState(killer)
+				if currentState == "Healthy" or currentState == "Injured" then
+					print("Applying delayed speed boost to Killer: " .. killer.Name)
+					humanoid.WalkSpeed = 16 * 1.2
+				end
+			end
+		end
+	end)
 end
 
 --[=[

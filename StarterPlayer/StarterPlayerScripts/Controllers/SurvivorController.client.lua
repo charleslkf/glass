@@ -77,8 +77,14 @@ function SurvivorController:Update()
 	local myRoot = localPlayer.Character.HumanoidRootPart
 	local myState = playerStates:GetAttribute(tostring(localPlayer.UserId))
 
-	-- Can't interact while in these states
-	if myState == "Hooked" or myState == "Carried" or myState == "Downed" then
+	-- If hooked, the only possible interaction is self-unhook
+	if myState == "Hooked" then
+		self.currentTarget = { Type = "SelfUnhook", Player = localPlayer }
+		return -- No other interactions are possible
+	end
+
+	-- Can't interact while in these other states
+	if myState == "Carried" or myState == "Downed" then
 		self.currentTarget = nil
 		return
 	end
@@ -111,6 +117,17 @@ function SurvivorController:Update()
 			if dist < closestDist then
 				closestDist = dist
 				bestTarget = { Type = "ExitGate", Object = gate }
+			end
+		end
+	end
+
+	-- Look for the hatch if it's visible
+	for _, hatch in ipairs(game:GetService("CollectionService"):GetTagged("Hatch")) do
+		if hatch:GetAttribute("State") == "Visible" then
+			local dist = (myRoot.Position - hatch.Position).Magnitude
+			if dist < closestDist then
+				closestDist = dist
+				bestTarget = { Type = "Hatch", Object = hatch }
 			end
 		end
 	end
@@ -152,6 +169,12 @@ function SurvivorController:OnInputBegan(input)
 			elseif self.currentTarget.Type == "ExitGate" then
 				print("Requesting to open gate:", self.currentTarget.Object.Name)
 				EventManager.RequestOpenGateEvent:FireServer(self.currentTarget.Object.Name)
+			elseif self.currentTarget.Type == "SelfUnhook" then
+				print("Requesting to unhook self.")
+				EventManager.UnhookRequestEvent:FireServer(localPlayer)
+			elseif self.currentTarget.Type == "Hatch" then
+				print("Requesting to open hatch.")
+				EventManager.RequestOpenHatchEvent:FireServer(self.currentTarget.Object)
 			end
 		end
 	end

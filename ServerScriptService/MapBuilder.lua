@@ -101,6 +101,28 @@ function MapBuilder.BuildMap(InteractionManager)
 	end
 
 	print("Map build complete.")
+
+	-- Create the hatch
+	local function createHatch(position)
+		local hatch = Instance.new("Part")
+		hatch.Name = "Hatch"
+		hatch.Size = Vector3.new(10, 1, 10)
+		hatch.Shape = Enum.PartShape.Cylinder
+		hatch.Position = position
+		hatch.Anchored = true
+		hatch.CanCollide = false
+		hatch.Transparency = 1
+		hatch.Color = Color3.fromRGB(50, 50, 50)
+		hatch.Parent = Workspace
+
+		-- Attribute to track state: "Hidden", "Visible", "Open"
+		hatch:SetAttribute("State", "Hidden")
+
+		CollectionService:AddTag(hatch, "Hatch")
+		print("Created hatch at " .. tostring(position))
+	end
+
+	createHatch(Vector3.new(0, 0.1, 0))
 end
 
 return MapBuilder
