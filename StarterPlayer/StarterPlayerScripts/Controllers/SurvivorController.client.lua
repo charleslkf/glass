@@ -25,6 +25,25 @@ function SurvivorController.new()
 	self.isSurvivor = false
 	self.currentTarget = nil
 	self.poweredGates = {}
+
+	-- UI for contextual prompts
+	self.screenGui = Instance.new("ScreenGui")
+	self.screenGui.Name = "SurvivorInteractionGui"
+	self.screenGui.ResetOnSpawn = false
+
+	self.interactionPrompt = Instance.new("TextLabel")
+	self.interactionPrompt.Name = "InteractionPrompt"
+	self.interactionPrompt.Size = UDim2.new(0.4, 0, 0.1, 0)
+	self.interactionPrompt.AnchorPoint = Vector2.new(0.5, 0.5)
+	self.interactionPrompt.Position = UDim2.new(0.5, 0, 0.6, 0)
+	self.interactionPrompt.Font = Enum.Font.SourceSansBold
+	self.interactionPrompt.TextSize = 24
+	self.interactionPrompt.TextColor3 = Color3.new(1, 1, 1)
+	self.interactionPrompt.TextStrokeTransparency = 0.5
+	self.interactionPrompt.BackgroundTransparency = 1
+	self.interactionPrompt.Visible = false
+	self.interactionPrompt.Parent = self.screenGui
+
 	return self
 end
 
@@ -66,20 +85,34 @@ function SurvivorController:Init()
 	if initialRole then
 		onRoleChanged(initialRole)
 	end
+
+	self.screenGui.Parent = localPlayer:WaitForChild("PlayerGui")
 end
 
 function SurvivorController:Update()
 	if not self.isSurvivor or not localPlayer.Character or not localPlayer.Character:FindFirstChild("HumanoidRootPart") then
 		self.currentTarget = nil
+		self.interactionPrompt.Visible = false
 		return
 	end
 
 	local myRoot = localPlayer.Character.HumanoidRootPart
 	local myState = playerStates:GetAttribute(tostring(localPlayer.UserId))
 
+	-- Default to no prompt
+	self.interactionPrompt.Visible = false
+
 	-- If hooked, the only possible interaction is self-unhook
 	if myState == "Hooked" then
 		self.currentTarget = { Type = "SelfUnhook", Player = localPlayer }
+		local itemName = playerRoles:GetAttribute(tostring(localPlayer.UserId) .. "_Item")
+		if itemName == "Picklock" then
+			self.interactionPrompt.Text = "Press [E] to use Picklock"
+			self.interactionPrompt.Visible = true
+		else
+			self.interactionPrompt.Text = "Struggle" -- Or some other text
+			self.interactionPrompt.Visible = true
+		end
 		return -- No other interactions are possible
 	end
 
