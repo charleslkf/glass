@@ -16,10 +16,11 @@ local INTERACTION_DISTANCE = 10
 
 -- Loot table for chests
 local chestLootTable = {
-	{Name = "Med-Kit", Charges = 2, Weight = 40},
-	{Name = "Decoy", Charges = 1, Weight = 30},
+	-- FOR TESTING: All items have 1 charge and equal weight.
+	{Name = "Med-Kit", Charges = 1, Weight = 25},
+	{Name = "Decoy", Charges = 1, Weight = 25},
 	{Name = "Picklock", Charges = 1, Weight = 25},
-	{Name = "Key", Charges = 1, Weight = 5},
+	{Name = "Key", Charges = 1, Weight = 25},
 }
 
 -- Helper function to get a random item from a weighted table
@@ -28,12 +29,16 @@ local function getRandomItem(lootTable)
 	for _, item in ipairs(lootTable) do
 		totalWeight = totalWeight + item.Weight
 	end
+	print("[DEBUG] Total loot weight:", totalWeight)
 
 	local randomNum = math.random(1, totalWeight)
+	print("[DEBUG] Random loot number:", randomNum)
+
 	local currentWeight = 0
 	for _, item in ipairs(lootTable) do
 		currentWeight = currentWeight + item.Weight
 		if randomNum <= currentWeight then
+			print("[DEBUG] Selected item:", item.Name)
 			return item
 		end
 	end

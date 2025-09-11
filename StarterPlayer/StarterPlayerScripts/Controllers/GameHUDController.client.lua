@@ -94,6 +94,20 @@ function GameHUDController.new()
 	self.itemImage.Visible = false
 	self.itemImage.Parent = self.screenGui
 
+	self.chargeLabel = Instance.new("TextLabel")
+	self.chargeLabel.Name = "ChargeLabel"
+	self.chargeLabel.Size = UDim2.new(0.3, 0, 0.3, 0)
+	self.chargeLabel.AnchorPoint = Vector2.new(0, 1)
+	self.chargeLabel.Position = UDim2.new(0.1, 0, 1, 0)
+	self.chargeLabel.Font = Enum.Font.SourceSansBold
+	self.chargeLabel.TextSize = 18
+	self.chargeLabel.TextColor3 = Color3.new(1, 1, 1)
+	self.chargeLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+	self.chargeLabel.TextStrokeTransparency = 0.5
+	self.chargeLabel.BackgroundTransparency = 1
+	self.chargeLabel.Visible = false
+	self.chargeLabel.Parent = self.itemImage
+
 	-- Create Endgame Collapse UI
 	self.endgameTimerLabel = Instance.new("TextLabel")
 	self.endgameTimerLabel.Name = "EndgameTimerLabel"
@@ -164,6 +178,11 @@ function GameHUDController:Init()
 			local itemName = PlayerRoles:GetAttribute(attribute)
 			self:UpdateItemDisplay(itemName)
 		end
+
+		if attribute == tostring(localPlayer.UserId) .. "_ItemCharges" then
+			local charges = PlayerRoles:GetAttribute(attribute)
+			self:UpdateChargeDisplay(charges)
+		end
 	end)
 
 	-- Parent the ScreenGui to the PlayerGui to make it visible
@@ -172,6 +191,16 @@ function GameHUDController:Init()
 	-- Show initial state
 	self:OnStateChanged(GameState:GetAttribute("State"))
 	self:UpdateItemDisplay(PlayerRoles:GetAttribute(tostring(localPlayer.UserId) .. "_Item"))
+	self:UpdateChargeDisplay(PlayerRoles:GetAttribute(tostring(localPlayer.UserId) .. "_ItemCharges"))
+end
+
+function GameHUDController:UpdateChargeDisplay(charges: number?)
+	if charges and charges > 0 then
+		self.chargeLabel.Text = "x" .. tostring(charges)
+		self.chargeLabel.Visible = true
+	else
+		self.chargeLabel.Visible = false
+	end
 end
 
 function GameHUDController:UpdateItemDisplay(itemName: string?)
@@ -180,6 +209,7 @@ function GameHUDController:UpdateItemDisplay(itemName: string?)
 		self.itemImage.Visible = true
 	else
 		self.itemImage.Visible = false
+		self:UpdateChargeDisplay(nil) -- Hide charges if item is hidden
 	end
 end
 

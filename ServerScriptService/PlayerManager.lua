@@ -133,6 +133,7 @@ function PlayerManager:OnPlayerRemoving(player: Player)
 	playerRolesContainer:SetAttribute(tostring(player.UserId), nil)
 	playerStatesContainer:SetAttribute(tostring(player.UserId), nil)
 	playerRolesContainer:SetAttribute(tostring(player.UserId) .. "_Item", nil)
+	playerRolesContainer:SetAttribute(tostring(player.UserId) .. "_ItemCharges", nil)
 end
 
 --[=[
@@ -148,6 +149,7 @@ function PlayerManager:GiveItem(player: Player, itemName: string, charges: numbe
 		Charges = charges,
 	}
 	playerRolesContainer:SetAttribute(tostring(player.UserId) .. "_Item", itemName)
+	playerRolesContainer:SetAttribute(tostring(player.UserId) .. "_ItemCharges", charges)
 	print("Gave " .. itemName .. " to " .. player.Name)
 end
 
@@ -178,11 +180,13 @@ function PlayerManager:UseItemCharge(player: Player)
 
 	local item = playerItems[player]
 	item.Charges -= 1
+	playerRolesContainer:SetAttribute(tostring(player.UserId) .. "_ItemCharges", item.Charges)
 	print(player.Name .. " used a charge of " .. item.Name .. ". " .. item.Charges .. " charges remaining.")
 
 	if item.Charges <= 0 then
 		playerItems[player] = nil
 		playerRolesContainer:SetAttribute(tostring(player.UserId) .. "_Item", nil)
+		playerRolesContainer:SetAttribute(tostring(player.UserId) .. "_ItemCharges", nil)
 		print(player.Name .. "'s " .. item.Name .. " was depleted.")
 	end
 end
