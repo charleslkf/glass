@@ -106,7 +106,6 @@ function SurvivorController:Update()
 	if myState == "Hooked" then
 		self.currentTarget = { Type = "SelfUnhook", Player = localPlayer }
 		local itemName = playerRoles:GetAttribute(tostring(localPlayer.UserId) .. "_Item")
-		print("[DEBUG] Hooked state check. ItemName is:", itemName, "Type:", type(itemName))
 		if itemName == "Picklock" then
 			self.interactionPrompt.Text = "Press [E] to use Picklock"
 			self.interactionPrompt.Visible = true
