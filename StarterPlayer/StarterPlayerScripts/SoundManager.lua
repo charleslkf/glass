@@ -66,10 +66,29 @@ function SoundManager:Init()
 	sounds["MachineFail"] = machineFailSound
 
 	local decoySound = Instance.new("Sound")
-	decoySound.SoundId = "rbxassetid://15506420081" -- Placeholder: same as MachineFail
+	decoySound.SoundId = "rbxassetid://91265893155753"
 	decoySound.Name = "DecoySound"
 	decoySound.Parent = game.SoundService
 	sounds["DecoySound"] = decoySound
+
+	-- Sounds for using items
+	local useMedkitSound = Instance.new("Sound")
+	useMedkitSound.SoundId = "rbxassetid://18613451236"
+	useMedkitSound.Name = "UseMedkit"
+	useMedkitSound.Parent = game.SoundService
+	sounds["UseMedkit"] = useMedkitSound
+
+	local usePicklockSound = Instance.new("Sound")
+	usePicklockSound.SoundId = "rbxassetid://9117185720"
+	usePicklockSound.Name = "UsePicklock"
+	usePicklockSound.Parent = game.SoundService
+	sounds["UsePicklock"] = usePicklockSound
+
+	local useKeySound = Instance.new("Sound")
+	useKeySound.SoundId = "rbxassetid://1836860398"
+	useKeySound.Name = "UseKey"
+	useKeySound.Parent = game.SoundService
+	sounds["UseKey"] = useKeySound
 
 	print("SoundManager initialized.")
 end

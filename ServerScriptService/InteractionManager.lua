@@ -98,6 +98,7 @@ function InteractionManager:OnRequestOpenHatch(player, hatch)
 	end
 
 	print(player.Name .. " is using a Key to open the hatch!")
+	EventManager.PlaySoundEvent:FireClient(player, "UseKey")
 
 	-- 2. Consume Key and Escape
 	PlayerManager:UseItemCharge(player)
@@ -231,6 +232,7 @@ function InteractionManager:OnUnhookRequest(player: Player, targetPlayer: Player
 	if player == targetPlayer then
 		if PlayerManager:GetItemName(player) == "Picklock" then
 			print(player.Name .. " is using a Picklock to unhook themselves.")
+			EventManager.PlaySoundEvent:FireClient(player, "UsePicklock")
 			PlayerManager:UseItemCharge(player)
 			-- If they have a picklock, the logic proceeds as normal below.
 		else

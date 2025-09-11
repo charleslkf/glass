@@ -201,6 +201,7 @@ function PlayerManager:UseItem(player: Player)
 	if item.Name == "Med-Kit" then
 		if self:GetPlayerState(player) == "Injured" then
 			print(player.Name .. " is using a Med-Kit to heal.")
+			EventManager.PlaySoundEvent:FireClient(player, "UseMedkit")
 			-- For now, the heal is instant. A channel time could be added later.
 			self:HealPlayer(player, 50) -- Heal for 50 to go from Injured to Healthy
 			self:UseItemCharge(player)
