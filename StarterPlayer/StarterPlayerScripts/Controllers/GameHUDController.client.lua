@@ -24,8 +24,16 @@ local SoundManager = require(script.Parent.Parent:WaitForChild("SoundManager"))
 local ITEM_ICONS = {
 	["Med-Kit"] = "rbxassetid://12623754649",
 	["Decoy"] = "rbxassetid://117166078",
-	["Picklock"] = "rbxassetid://116319273136552",
+	["Picklock"] = "rbxassetid://79111672527011", -- Using the ID shared with the Key, as it's likely an image ID
 	["Key"] = "rbxassetid://79111672527011",
+}
+
+-- A map of item names to their descriptions
+local ITEM_DESCRIPTIONS = {
+	["Med-Kit"] = "A collection of bandages and antiseptics. Heals you from the Injured state.",
+	["Decoy"] = "A throwable device that creates a fake noise notification for the Killer.",
+	["Picklock"] = "A makeshift tool that can be used to guarantee an escape from a hook.",
+	["Key"] = "A rare, ornate key. Can be used to open the hatch.",
 }
 
 -- Main entry point
@@ -107,6 +115,21 @@ function GameHUDController.new()
 	self.chargeLabel.BackgroundTransparency = 1
 	self.chargeLabel.Visible = false
 	self.chargeLabel.Parent = self.itemImage
+
+	self.itemDescription = Instance.new("TextLabel")
+	self.itemDescription.Name = "ItemDescription"
+	self.itemDescription.Size = UDim2.new(2, 0, 1, 0) -- Wider than the icon
+	self.itemDescription.AnchorPoint = Vector2.new(1, 1)
+	self.itemDescription.Position = UDim2.new(0, 0, 1, 0) -- Position it just above the icon
+	self.itemDescription.Font = Enum.Font.SourceSans
+	self.itemDescription.TextSize = 16
+	self.itemDescription.TextColor3 = Color3.new(1, 1, 1)
+	self.itemDescription.BackgroundColor3 = Color3.new(0, 0, 0)
+	self.itemDescription.BackgroundTransparency = 0.3
+	self.itemDescription.TextXAlignment = Enum.TextXAlignment.Left
+	self.itemDescription.TextWrapped = true
+	self.itemDescription.Visible = false
+	self.itemDescription.Parent = self.itemImage
 
 	-- Create Endgame Collapse UI
 	self.endgameTimerLabel = Instance.new("TextLabel")
@@ -207,8 +230,28 @@ function GameHUDController:UpdateItemDisplay(itemName: string?)
 	if itemName and ITEM_ICONS[itemName] then
 		self.itemImage.Image = ITEM_ICONS[itemName]
 		self.itemImage.Visible = true
+
+		-- Disconnect previous events to prevent memory leaks
+		if self.mouseEnterConnection then self.mouseEnterConnection:Disconnect() end
+		if self.mouseLeaveConnection then self.mouseLeaveConnection:Disconnect() end
+
+		self.mouseEnterConnection = self.itemImage.MouseEnter:Connect(function()
+			local description = ITEM_DESCRIPTIONS[itemName]
+			if description then
+				self.itemDescription.Text = description
+				self.itemDescription.Visible = true
+			end
+		end)
+
+		self.mouseLeaveConnection = self.itemImage.MouseLeave:Connect(function()
+			self.itemDescription.Visible = false
+		end)
+
 	else
 		self.itemImage.Visible = false
+		self.itemDescription.Visible = false
+		if self.mouseEnterConnection then self.mouseEnterConnection:Disconnect() end
+		if self.mouseLeaveConnection then self.mouseLeaveConnection:Disconnect() end
 		self:UpdateChargeDisplay(nil) -- Hide charges if item is hidden
 	end
 end

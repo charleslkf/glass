@@ -265,12 +265,15 @@ function InteractionManager:OnUnhookRequest(player: Player, targetPlayer: Player
 
 	-- 2. Find and destroy the weld
 	local foundWeld = false
-	for _, hook in ipairs(CollectionService:GetTagged("Hook")) do
-		local hookWeld = hook:FindFirstChild("HookWeld")
-		if hookWeld and hookWeld.Part1 == targetPlayer.Character.HumanoidRootPart then
-			hookWeld:Destroy()
-			foundWeld = true
-			break
+	for _, hookModel in ipairs(CollectionService:GetTagged("Hook")) do
+		local hookPart = hookModel:FindFirstChild("HookPart")
+		if hookPart then
+			local hookWeld = hookPart:FindFirstChild("HookWeld")
+			if hookWeld and hookWeld.Part1 == targetPlayer.Character.HumanoidRootPart then
+				hookWeld:Destroy()
+				foundWeld = true
+				break
+			end
 		end
 	end
 
