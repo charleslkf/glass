@@ -108,6 +108,11 @@ EventManager.RequestOpenHatchEvent = Instance.new("RemoteEvent")
 EventManager.RequestOpenHatchEvent.Name = "RequestOpenHatchEvent"
 EventManager.RequestOpenHatchEvent.Parent = eventsFolder
 
+-- Debugging Events
+EventManager.RequestResetEvent = Instance.new("RemoteEvent")
+EventManager.RequestResetEvent.Name = "RequestResetEvent"
+EventManager.RequestResetEvent.Parent = eventsFolder
+
 -- This function is just to ensure the module is loaded and the events are created.
 function EventManager:Init()
 	print("EventManager initialized and events created.")

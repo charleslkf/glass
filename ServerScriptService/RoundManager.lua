@@ -16,6 +16,7 @@ local MachineManager = require(ServerScriptService.MachineManager)
 local EventManager = require(ServerScriptService.EventManager)
 local InteractionManager = require(ServerScriptService.InteractionManager)
 local Config = require(ServerScriptService.Config)
+local MapBuilder = require(ServerScriptService.MapBuilder)
 local GameState = game:GetService("ReplicatedStorage"):WaitForChild("GameState")
 
 -- Constants
@@ -158,8 +159,45 @@ function RoundManager:Init()
 		self:OnSurvivorEscaped(player)
 	end)
 
+	EventManager.RequestResetEvent.OnServerEvent:Connect(function(player)
+		print("Received request to reset round from " .. player.Name)
+		self:ResetRound()
+	end)
+
 	-- Manually trigger the logic for the initial state to kick-start the game
 	self:OnStateChanged(GameStateManager.State)
+end
+
+function RoundManager:ResetRound()
+	print("--- ROUND RESET ---")
+	-- Cancel any running timers
+	if roundTimerThread then
+		task.cancel(roundTimerThread)
+		roundTimerThread = nil
+	end
+	if endgameTimerThread then
+		task.cancel(endgameTimerThread)
+		endgameTimerThread = nil
+	end
+
+	-- Clean up the map and game objects
+	MachineManager:ResetAllMachines()
+	MapBuilder.CleanupMap()
+
+	-- Reset players
+	PlayerManager:ResetAllPlayers()
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player.Character then
+			-- Teleport players back to a lobby spawn
+			player.Character:SetPrimaryPartCFrame(CFrame.new(0, 10, 0))
+		end
+	end
+
+	-- Re-build the map for the new lobby
+	MapBuilder.BuildMap(InteractionManager)
+
+	-- Return to lobby state
+	GameStateManager:SetState("Lobby")
 end
 
 --[=[

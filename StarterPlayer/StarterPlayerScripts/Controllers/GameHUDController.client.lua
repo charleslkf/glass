@@ -157,6 +157,16 @@ function GameHUDController.new()
 	self.vignette.Visible = false
 	self.vignette.Parent = self.screenGui
 
+	-- Create a debug reset button
+	self.resetButton = Instance.new("TextButton")
+	self.resetButton.Name = "ResetButton"
+	self.resetButton.Size = UDim2.new(0.1, 0, 0.05, 0)
+	self.resetButton.Position = UDim2.new(0, 5, 0, 5)
+	self.resetButton.Text = "Reset Round"
+	self.resetButton.Font = Enum.Font.SourceSansBold
+	self.resetButton.TextSize = 16
+	self.resetButton.Parent = self.screenGui
+
 	return self
 end
 
@@ -206,6 +216,11 @@ function GameHUDController:Init()
 			local charges = PlayerRoles:GetAttribute(attribute)
 			self:UpdateChargeDisplay(charges)
 		end
+	end)
+
+	self.resetButton.MouseButton1Click:Connect(function()
+		print("[DEBUG] Reset button clicked. Firing RequestResetEvent.")
+		EventManager.RequestResetEvent:FireServer()
 	end)
 
 	-- Parent the ScreenGui to the PlayerGui to make it visible

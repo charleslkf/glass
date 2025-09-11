@@ -125,4 +125,21 @@ function MapBuilder.BuildMap(InteractionManager)
 	createHatch(Vector3.new(0, 0.1, 0))
 end
 
+function MapBuilder.CleanupMap()
+	print("Cleaning up map...")
+	if Workspace:FindFirstChild("Map") then
+		Workspace.Map:Destroy()
+	end
+	if Workspace:FindFirstChild("GateA") then
+		Workspace.GateA:Destroy()
+	end
+	if Workspace:FindFirstChild("GateB") then
+		Workspace.GateB:Destroy()
+	end
+	if Workspace:FindFirstChild("Hatch") then
+		Workspace.Hatch:Destroy()
+	end
+	print("Map cleanup complete.")
+end
+
 return MapBuilder

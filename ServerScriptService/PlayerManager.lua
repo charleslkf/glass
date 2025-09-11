@@ -428,4 +428,17 @@ function PlayerManager:HealPlayer(player: Player, amount: number)
 	end
 end
 
+function PlayerManager:ResetAllPlayers()
+	print("Resetting all players to default state.")
+	for _, player in ipairs(Players:GetPlayers()) do
+		playerHealths[player] = DEFAULT_HEALTH
+		playerItems[player] = nil
+		playerRolesContainer:SetAttribute(tostring(player.UserId) .. "_Item", nil)
+		playerRolesContainer:SetAttribute(tostring(player.UserId) .. "_ItemCharges", nil)
+
+		-- Resetting state will also handle walkspeed etc.
+		self:SetPlayerState(player, "Healthy")
+	end
+end
+
 return PlayerManager
