@@ -15,6 +15,7 @@ local PlayerManager = require(ServerScriptService.PlayerManager)
 local MachineManager = require(ServerScriptService.MachineManager)
 local EventManager = require(ServerScriptService.EventManager)
 local InteractionManager = require(ServerScriptService.InteractionManager)
+local Config = require(ServerScriptService.Config)
 local GameState = game:GetService("ReplicatedStorage"):WaitForChild("GameState")
 
 -- Constants
@@ -192,8 +193,13 @@ end
 function RoundManager:Lobby()
 	print("Now in Lobby state. Waiting for players...")
 
-	while #Players:GetPlayers() < MIN_PLAYERS_TO_START do
-		print("Waiting for more players... Have " .. #Players:GetPlayers() .. "/" .. MIN_PLAYERS_TO_START)
+	local minPlayers = Config.SOLO_TEST_MODE and 1 or MIN_PLAYERS_TO_START
+	if Config.SOLO_TEST_MODE then
+		print("[INFO] SOLO_TEST_MODE is active. Minimum players to start is 1.")
+	end
+
+	while #Players:GetPlayers() < minPlayers do
+		print("Waiting for more players... Have " .. #Players:GetPlayers() .. "/" .. minPlayers)
 		wait(5)
 	end
 
@@ -202,7 +208,7 @@ function RoundManager:Lobby()
 	GameState:SetAttribute("CountdownEndTime", countdownEndTime)
 
 	while os.time() < countdownEndTime do
-		if #Players:GetPlayers() < MIN_PLAYERS_TO_START then
+		if #Players:GetPlayers() < minPlayers then
 			print("A player left. Halting countdown.")
 			GameState:SetAttribute("CountdownEndTime", nil) -- Clear the countdown
 			self:Lobby() -- Re-run the lobby logic
