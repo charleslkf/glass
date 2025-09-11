@@ -23,6 +23,9 @@ local SoundManager = require(script.Parent.Parent:WaitForChild("SoundManager"))
 -- A map of item names to their icon asset IDs
 local ITEM_ICONS = {
 	["Med-Kit"] = "rbxassetid://12623754649",
+	["Decoy"] = "rbxassetid://117166078",
+	["Picklock"] = "rbxassetid://116319273136552",
+	["Key"] = "rbxassetid://79111672527011",
 }
 
 -- Main entry point
@@ -155,7 +158,9 @@ function GameHUDController:Init()
 		if attribute == tostring(localPlayer.UserId) then
 			local role = PlayerRoles:GetAttribute(attribute)
 			self:ShowAnnouncement("YOU ARE THE " .. string.upper(role), 5)
-		elseif attribute == tostring(localPlayer.UserId) .. "_Item" then
+		end
+
+		if attribute == tostring(localPlayer.UserId) .. "_Item" then
 			local itemName = PlayerRoles:GetAttribute(attribute)
 			self:UpdateItemDisplay(itemName)
 		end
