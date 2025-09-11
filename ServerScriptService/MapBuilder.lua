@@ -107,7 +107,7 @@ function MapBuilder.BuildMap(InteractionManager)
 		local hatch = Instance.new("Part")
 		hatch.Name = "Hatch"
 		hatch.Size = Vector3.new(10, 1, 10)
-		hatch.Shape = Enum.PartShape.Cylinder
+		hatch.Shape = Enum.PartType.Cylinder
 		hatch.Position = position
 		hatch.Anchored = true
 		hatch.CanCollide = false
